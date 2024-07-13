@@ -13,7 +13,7 @@ mod clickup;
 use docsoc_ical::parse_ical;
 use models::*;
 use diesel::{dsl::insert_into, prelude::*};
-use clickup::{clickup_create_task, clickup_update_task};
+use clickup::{ClickUpApiInstance};
 
 /**
  * By ChatGPT
@@ -32,7 +32,7 @@ fn fetch_ical(url: &str) -> Result<String, Box<dyn Error>> {
     Ok(ical_content)
 }
 
-fn map_event(event: docsoc_ical::ParsedEvent) {
+fn map_event(event: docsoc_ical::ParsedEvent, clickup_api: &ClickUpApiInstance) {
     use self::schema::clickup_ical_mapping::dsl::*;
 
     let connection = &mut establish_connection();
@@ -47,20 +47,19 @@ fn map_event(event: docsoc_ical::ParsedEvent) {
         .expect("Error loading mapping!");
     
     if let Some(mapping) = existing_mapping {
-        clickup_update_task(&mapping, &event);
+        clickup_api.update_task(&mapping, &event);
     } else {
-        clickup_create_task(&event);
-    //     let event_id = clickup_create_task(&event);
+        let task_id = clickup_api.create_task(&event);
         
-    //     // Insrt
-    //     insert_into(clickup_ical_mapping)
-    //         .values((
-    //             clickup_id.eq(&event.uid),
-    //             calendar_id.eq(&event_id),
-    //         ))
-    //         .execute(connection)
-    //         .expect("Error saving new mapping!");
-    // }
+        // Insrt
+        insert_into(clickup_ical_mapping)
+            .values((
+                calendar_id.eq(&event.uid),
+                clickup_id.eq(&task_id),
+            ))
+            .execute(connection)
+            .expect("Error saving new mapping!");
+        debug!("Added event {:?} under ID {}", event, task_id);
     }
 
     // 1: DB lookup -> is it there
@@ -90,8 +89,14 @@ fn main() {
 
     info!("iCal fetched successfully!");
 
+    debug!("Loading clickup API...");
+    let clickup_api = ClickUpApiInstance::new(
+        env::var("CLICKUP_ACCESS_TOKEN").expect("CLICKUP_ACCESS_TOKEN env var must be set!"),
+        env::var("CLICKUP_TARGET_LIST_ID").expect("CLICKUP_TARGET_LIST_ID env var must be set!"),
+    );
+
     // 2: Parse ical from DOCSOC_START_DATE to DOCSOC_END_DATE
     for event in parse_ical(&ical_content) {
-        map_event(event);
+        map_event(event, &clickup_api);
     }
 }

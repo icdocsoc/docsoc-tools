@@ -2,10 +2,10 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
-use log::info;
+use log::{debug};
 
 pub fn establish_connection() -> PgConnection {
-	info!("Connecting to database...");
+	debug!("Connecting to database...");
 
 	dotenv().ok();
 

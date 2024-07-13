@@ -282,6 +282,7 @@ dependencies = [
  "ical",
  "log",
  "reqwest",
+ "serde",
 ]
 
 [[package]]
