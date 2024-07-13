@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@monodon/rust": "^1.4.0",
     "@nx/js": "19.4.3",
     "nx": "19.4.3"
   },

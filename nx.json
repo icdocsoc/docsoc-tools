@@ -1,5 +1,8 @@
 {
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "nxCloudAccessToken": "NzVmNWJjMTUtNjdhYS00Zjk5LTljOWYtYWJjNzFkYmVkNDYyfHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "NzVmNWJjMTUtNjdhYS00Zjk5LTljOWYtYWJjNzFkYmVkNDYyfHJlYWQtd3JpdGU=",
+  "plugins": [
+    "@monodon/rust"
+  ]
 }
