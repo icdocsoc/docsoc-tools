@@ -41,7 +41,7 @@ fn map_event(event: docsoc_ical::ParsedEvent, clickup_api: &ClickUpApiInstance) 
     info!("Mapping event: {:?}", event.summary);
     debug!("Checking if event is already mapped...");
     let existing_mapping = clickup_ical_mapping
-        .filter(clickup_id.eq(&event.uid))
+        .filter(calendar_id.eq(&event.uid))
         .first::<CalendarMapping>(connection)
         .optional()
         .expect("Error loading mapping!");

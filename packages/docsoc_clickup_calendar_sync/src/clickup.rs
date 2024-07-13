@@ -1,6 +1,6 @@
 
 use chrono::NaiveDateTime;
-use log::{debug, info};
+use log::{debug, error, info};
 use reqwest::{blocking::Client, header};
 
 use crate::{docsoc_ical::ParsedEvent, models::*};
@@ -60,9 +60,10 @@ impl ClickUpApiInstance {
 			})
 			.send()
 			.expect("Failed to send POST request to ClickUp");
+
 		// Read task_id
 		let res = post_req.json::<CreateTaskResponse>().expect("Failed to parse response!");
-		
+
 		info!("Created task for {:?} with ID {}", event.summary, res.id);
 
 		return res.id;
@@ -70,5 +71,24 @@ impl ClickUpApiInstance {
 
 	pub fn update_task(&self, mapping: &CalendarMapping, event: &ParsedEvent) {
 		info!("Updating task for: {:?}", event);
+		let put_req = self.client.put(format!("https://api.clickup.com/api/v2/task/{}", mapping.clickup_id))
+			.header(header::CONTENT_TYPE, "application/json")
+		.json(&CreateTaskPayload {
+				name: event.summary.clone(),
+				description: event.description.clone(),
+				tags: vec![],
+				due_date: event.end_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
+				due_date_time: event.end_time.is_some(),
+				start_date: event.start_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
+				start_date_time: event.start_time.is_some(),
+			})
+			.send()
+			.expect("Failed to send PUT request to ClickUp");
+		if put_req.status().is_success() {
+			info!("Updated task for {:?} with ID {}", event.summary, mapping.clickup_id);
+		} else {
+			error!("Failed to update task for {:?} with ID {}", event.summary, mapping.clickup_id);
+			error!("Response: {:?}", put_req.text());
+		}
 	}
 }
