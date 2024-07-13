@@ -1,6 +1,6 @@
 
-use chrono::NaiveDateTime;
-use log::{debug, error, info};
+use chrono::{NaiveDateTime, Timelike};
+use log::{debug, error, info, warn};
 use reqwest::{blocking::Client, header};
 
 use crate::{docsoc_ical::ParsedEvent, models::*};
@@ -45,19 +45,47 @@ impl ClickUpApiInstance {
 		Self { access_token: access_token, target_list_id, client: client }
 	}
 
+	fn mk_task_payload(&self, event: &ParsedEvent) -> CreateTaskPayload {
+
+		// NOTE: QUIRK: Google calendar encodes all day events as starting at 00:00:00 and ending at 00:00:00 the next day UTC
+		// Unfortunately, if you're in a non UTC timezone, such as BST, this means that the event will be off by an hour
+		// resulting in the event show as 1am to 1am the next day
+		// which then shows up as a 2 day event in ClickUp
+		// To fix this, we check if the event is all day and if it is, we tell clickup to ignore the times and roll the end date back by 1 day
+		// as ClickUp defaults to the end of a day if no time is provided
+
+		let mut is_all_day = false;
+		let mut actual_due_date = event.end_time.and_then(|time| Some(time.and_utc().timestamp_millis()));
+		// If end_time & start_time both happen to midnight, set is_all_day to true
+		if let Some(start_time) = event.start_time {
+			if let Some(end_time) = event.end_time {
+				if start_time.time().hour() == 0 && end_time.time().hour() == 0 {
+					is_all_day = true;
+				}
+			}
+		}
+
+		if is_all_day {
+			const ONE_DAY_MILLIS: i64 = 24 * 60 * 60 * 1000;
+			actual_due_date = event.end_time.and_then(|time| Some(time.and_utc().timestamp_millis() - ONE_DAY_MILLIS));
+		}
+
+		CreateTaskPayload {
+			name: event.summary.clone(),
+			description: event.description.clone(),
+			tags: vec![],
+			start_date: event.start_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
+			start_date_time: event.start_time.is_some() && !is_all_day,
+			due_date: actual_due_date,
+			due_date_time: event.end_time.is_some() && !is_all_day,
+		}
+	}
+
 	pub fn create_task(&self, event: &ParsedEvent) -> String {
 		debug!("Creating task for: {:?}", event);
 		let post_req = self.client.post(format!("https://api.clickup.com/api/v2/list/{}/task", self.target_list_id))
 			.header(header::CONTENT_TYPE, "application/json")
-		.json(&CreateTaskPayload {
-				name: event.summary.clone(),
-				description: event.description.clone(),
-				tags: vec![],
-				due_date: event.end_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
-				due_date_time: event.end_time.is_some(),
-				start_date: event.start_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
-				start_date_time: event.start_time.is_some(),
-			})
+			.json(&self.mk_task_payload(event))
 			.send()
 			.expect("Failed to send POST request to ClickUp");
 
@@ -70,18 +98,10 @@ impl ClickUpApiInstance {
 	}
 
 	pub fn update_task(&self, mapping: &CalendarMapping, event: &ParsedEvent) {
-		info!("Updating task for: {:?}", event);
+		debug!("Updating task for: {:?}", event);
 		let put_req = self.client.put(format!("https://api.clickup.com/api/v2/task/{}", mapping.clickup_id))
 			.header(header::CONTENT_TYPE, "application/json")
-		.json(&CreateTaskPayload {
-				name: event.summary.clone(),
-				description: event.description.clone(),
-				tags: vec![],
-				due_date: event.end_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
-				due_date_time: event.end_time.is_some(),
-				start_date: event.start_time.and_then(|time| Some(time.and_utc().timestamp_millis())),
-				start_date_time: event.start_time.is_some(),
-			})
+			.json(&self.mk_task_payload(event))
 			.send()
 			.expect("Failed to send PUT request to ClickUp");
 		if put_req.status().is_success() {
@@ -89,6 +109,19 @@ impl ClickUpApiInstance {
 		} else {
 			error!("Failed to update task for {:?} with ID {}", event.summary, mapping.clickup_id);
 			error!("Response: {:?}", put_req.text());
+		}
+	}
+
+	pub fn delete_task(&self, id: &String) {
+		debug!("Deleting task with ID {}", id);
+		let delete_req = self.client.delete(format!("https://api.clickup.com/api/v2/task/{}", id))
+			.send()
+			.expect("Failed to send DELETE request to ClickUp");
+		if delete_req.status().is_success() {
+			warn!("Deleted task with ID {}", id);
+		} else {
+			error!("Failed to delete task with ID {}", id);
+			error!("Response: {:?}", delete_req.text());
 		}
 	}
 }

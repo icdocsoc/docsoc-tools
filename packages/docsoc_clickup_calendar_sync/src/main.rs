@@ -1,8 +1,8 @@
-use std::env;
+use std::{collections::HashSet, env};
 
 use docsoc_clickup_calendar_sync::db::establish_connection;
 use dotenvy::dotenv;
-use log::{info, debug};
+use log::{debug, info, warn};
 use reqwest::blocking::get;
 use std::error::Error;
 
@@ -13,7 +13,7 @@ mod clickup;
 use docsoc_ical::parse_ical;
 use models::*;
 use diesel::{dsl::insert_into, prelude::*};
-use clickup::{ClickUpApiInstance};
+use clickup::ClickUpApiInstance;
 
 /**
  * By ChatGPT
@@ -66,6 +66,35 @@ fn map_event(event: docsoc_ical::ParsedEvent, clickup_api: &ClickUpApiInstance) 
 
 }
 
+fn ensure_mappings_are_up_to_date(clickup_api: &ClickUpApiInstance, set_of_calendar_event_ids: &HashSet<String>) {
+    use self::schema::clickup_ical_mapping::dsl::*;
+
+    info!("Ensuring mappings are up to date between calendar and clickup...");
+
+    let connection = &mut establish_connection();
+
+    let all_mappings = clickup_ical_mapping
+        .load::<CalendarMapping>(connection)
+        .expect("Error loading mappings!");
+    
+    let mut mappings_to_delete: HashSet<String> = HashSet::new();
+
+    for mapping in all_mappings {
+        if !set_of_calendar_event_ids.contains(&mapping.calendar_id) {
+            warn!("Deleting mapping for event ID {} task {}", mapping.calendar_id, mapping.clickup_id);
+            // The event is no longer in the calendar
+            mappings_to_delete.insert(mapping.calendar_id.clone());
+            clickup_api.delete_task(&mapping.clickup_id);
+        }
+    }
+
+    // Delete
+    debug!("Deleting mappings: {:?}", mappings_to_delete);
+    diesel::delete(clickup_ical_mapping.filter(calendar_id.eq_any(mappings_to_delete)))
+        .execute(connection)
+        .expect("Error deleting mappings!");
+}
+
 fn main() {
     // Log at INFO by default
     if env::var("RUST_LOG").is_err() {
@@ -96,7 +125,13 @@ fn main() {
     );
 
     // 2: Parse ical from DOCSOC_START_DATE to DOCSOC_END_DATE
-    for event in parse_ical(&ical_content) {
+    let ical_parsed = parse_ical(&ical_content);
+    let mut set_of_event_ids: HashSet<String> = std::collections::HashSet::new();
+    for event in ical_parsed {
+        set_of_event_ids.insert(event.uid.clone());
         map_event(event, &clickup_api);
     }
+
+    // 3: Delete events from ClickUp no longer in iCal
+    ensure_mappings_are_up_to_date(&clickup_api, &set_of_event_ids);
 }
