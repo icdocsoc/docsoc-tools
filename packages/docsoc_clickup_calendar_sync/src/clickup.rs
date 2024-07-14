@@ -1,7 +1,11 @@
 
 use chrono::{NaiveDateTime, Timelike};
+use governor::{clock::{QuantaClock, QuantaInstant}, middleware::NoOpMiddleware, state::{InMemoryState, NotKeyed}, Quota, RateLimiter};
 use log::{debug, error, info, warn};
 use reqwest::{blocking::Client, header};
+use std::{env, num::NonZeroU32};
+use nonzero_ext::*;
+use futures::executor::block_on;
 
 use crate::{docsoc_ical::ParsedEvent, models::*};
 
@@ -11,6 +15,7 @@ pub struct ClickUpApiInstance {
 	pub access_token: String,
 	pub target_list_id: String,
 	client: Client,
+	limiter: RateLimiter<NotKeyed, InMemoryState, QuantaClock, NoOpMiddleware<QuantaInstant>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -42,7 +47,18 @@ impl ClickUpApiInstance {
 			.build()
 			.expect("Failed to build reqwest client");
 
-		Self { access_token: access_token, target_list_id, client: client }
+		// read limit from env var CLICKUP_RATE_LIMIT_PER_MIN
+		let mut limit = env::var("CLICKUP_RATE_LIMIT_PER_MIN")
+			.unwrap_or_else(|_| "100".to_string())
+			.parse::<u32>()
+			.expect("Failed to parse CLICKUP_RATE_LIMIT_PER_MIN as u32");
+
+		// Take 20 off the limit to be safe
+		limit -= 20;
+
+		let limiter = RateLimiter::direct(Quota::per_minute(NonZeroU32::new(limit).unwrap()));
+
+		Self { access_token, target_list_id, client, limiter }
 	}
 
 	fn mk_task_payload(&self, event: &ParsedEvent) -> CreateTaskPayload {
@@ -83,6 +99,7 @@ impl ClickUpApiInstance {
 
 	pub fn create_task(&self, event: &ParsedEvent) -> String {
 		debug!("Creating task for: {:?}", event);
+		block_on(self.limiter.until_ready());
 		let post_req = self.client.post(format!("https://api.clickup.com/api/v2/list/{}/task", self.target_list_id))
 			.header(header::CONTENT_TYPE, "application/json")
 			.json(&self.mk_task_payload(event))
@@ -99,6 +116,7 @@ impl ClickUpApiInstance {
 
 	pub fn update_task(&self, mapping: &CalendarMapping, event: &ParsedEvent) {
 		debug!("Updating task for: {:?}", event);
+		block_on(self.limiter.until_ready());
 		let put_req = self.client.put(format!("https://api.clickup.com/api/v2/task/{}", mapping.clickup_id))
 			.header(header::CONTENT_TYPE, "application/json")
 			.json(&self.mk_task_payload(event))
