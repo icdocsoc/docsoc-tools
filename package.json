@@ -6,6 +6,8 @@
   "private": true,
   "devDependencies": {
     "@monodon/rust": "^1.4.0",
+    "@nx-tools/container-metadata": "^6.0.1",
+    "@nx-tools/nx-container": "^6.0.1",
     "@nx/js": "19.4.3",
     "nx": "19.4.3"
   },

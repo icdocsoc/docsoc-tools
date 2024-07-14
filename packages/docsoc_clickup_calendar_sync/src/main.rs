@@ -26,7 +26,7 @@ mod schema;
 mod clickup;
 mod db;
 use docsoc_ical::parse_ical;
-use db::establish_connection;
+use db::{establish_connection, run_migrations};
 use clickup::ClickUpApiInstance;
 
 // ==========
@@ -150,6 +150,9 @@ fn main() {
 
     info!("DoCSoc ClickUp calendar sync");
     info!("CWD: {}", env::current_dir().unwrap().display());
+
+    info!("Updating DB...");
+    run_migrations(&mut establish_connection()).expect("Failed to run migrations!");
 
     // 1: Load ical fil from Google Calendar, using the URL in the env var DOCSOC_PRIVATE_ICAL
     info!("Downloading iCal...");
