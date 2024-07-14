@@ -1,3 +1,5 @@
+/// This file contains the models for the database tables. The models are used by Diesel to generate the SQL queries.
+/// Make sure to create a new diesel migration after changing the models!!!!!
 use diesel::prelude::*;
 
 #[derive(Queryable, Selectable)]

@@ -1,9 +1,12 @@
+/// Common functions for database operations
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
-use log::{debug};
+use log::debug;
 
+
+/// Establish a connection to the database using the DATABASE_URL env var
 pub fn establish_connection() -> PgConnection {
 	debug!("Connecting to database...");
 
