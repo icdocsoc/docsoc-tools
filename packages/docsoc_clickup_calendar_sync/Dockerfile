@@ -1,5 +1,12 @@
 # From https://www.reddit.com/r/rust/comments/16bswvl/looking_for_the_perfect_dockerfile_for_rust/
 # uses cargo chef to cache dependencies
+
+# ===============
+# NOTE: Because this is a monorepo, Cargo.lock is in the root of the repo & so we need the build context to start there
+# Hence build from the root of the monorepo like so:
+# ``docker build -f ./packages/docsoc_clickup_calendar_sync/Dockerfile -t docsoc/docsoc_clickup_calendar_sync .`
+# ===============
+
 FROM lukemathwalker/cargo-chef:latest as chef
 WORKDIR /app
 
@@ -21,7 +28,7 @@ WORKDIR /app
 RUN apt-get update -y && apt-get upgrade -y
 # libpq5 required for postgresql interation
 # ca-certificates required for https
-RUN apt-get update -y && apt-get install -y libpq5 ca-certificates procps
+RUN apt-get update -y && apt-get install -y libpq5 ca-certificates
 # Install disel CLI
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/download/v2.2.1/diesel_cli-installer.sh | sh
 # # Install pm2
