@@ -16,16 +16,18 @@ COPY . .
 RUN cargo build --release
 RUN mv ./dist/target/release/docsoc_clickup_calendar_sync ./docsoc_clickup_calendar_sync
 
-FROM node:latest AS runtime
+FROM debian:stable-slim AS runtime
 WORKDIR /app
 RUN apt-get update -y && apt-get upgrade -y
 # libpq5 required for postgresql interation
 # ca-certificates required for https
-RUN apt-get update -y && apt-get install -y libpq5 ca-certificates
+RUN apt-get update -y && apt-get install -y libpq5 ca-certificates procps
 # Install disel CLI
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/download/v2.2.1/diesel_cli-installer.sh | sh
-# Install pm2
-RUN npm install pm2 -g
+# # Install pm2
+# RUN npm install pm2 -g
 
 COPY --from=builder /app/docsoc_clickup_calendar_sync /usr/local/bin/
+COPY ./packages/docsoc_clickup_calendar_sync/scripts /app/scripts
+# Run it every 10 secs
 CMD ["/usr/local/bin/docsoc_clickup_calendar_sync"]

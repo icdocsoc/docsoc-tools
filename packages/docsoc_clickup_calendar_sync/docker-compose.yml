@@ -3,7 +3,12 @@ services:
     image: docsoc/docsoc_clickup_calendar_sync
     build:
       context: ../.. # We need the monorepo root as deps are managed and built to the root
-      dockerfile: ./packages/docsoc_clickup_calendar_sync/Dockerfile
+      dockerfile: ./packages/docsoc_clickup_calendar_sync/Dockerfile  
+    init: true # don't run as PID 1 so we can kill the sleep process
+    # Run every 10s
+    command: ["./scripts/run_interval.sh", "/usr/local/bin/docsoc_clickup_calendar_sync", "10"]
+    depends_on:
+      - postgres
     environment:
       # The following environment variables should be set in the .env file
       # and docker compose will auto load them
@@ -20,3 +25,8 @@ services:
       POSTGRES_USER: docsoc
       POSTGRES_PASSWORD: docsoc
       POSTGRES_DB: docsoc
+    volumes:
+      - docsoc_clickup_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  docsoc_clickup_postgres_data:

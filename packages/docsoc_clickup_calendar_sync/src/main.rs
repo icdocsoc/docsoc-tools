@@ -185,4 +185,6 @@ fn main() {
 
     // 5: Delete events from ClickUp no longer in iCal
     ensure_mappings_are_up_to_date(&clickup_api, &set_of_event_ids);
+
+    info!("Sync complete!");
 }
