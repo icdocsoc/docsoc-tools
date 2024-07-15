@@ -5,8 +5,8 @@ services:
       context: ../.. # We need the monorepo root as deps are managed and built to the root
       dockerfile: ./packages/docsoc_clickup_calendar_sync/Dockerfile  
     init: true # don't run as PID 1 so we can kill the sleep process
-    # Run every 10s
-    command: ["./scripts/run_interval.sh", "/usr/local/bin/docsoc_clickup_calendar_sync", "10"]
+    # Run every 30 mins
+    command: ["./scripts/run_interval.sh", "/usr/local/bin/docsoc_clickup_calendar_sync", "30m"]
     depends_on:
       - postgres
     environment:
