@@ -23,4 +23,4 @@ export const renderMarkdownTemplate = (template: Template, params: Record<string
 /**
  * Render a markdown string to HTML, applying any custom transformations we want
  */
-export const renderMarkdownToHtml = (markdown: string): string => `<html><body>${md.render(markdown)}</body></html>`
+export const renderMarkdownToHtml = (markdown: string): string => md.render(markdown)
