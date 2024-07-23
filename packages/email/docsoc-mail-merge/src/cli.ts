@@ -7,6 +7,7 @@ import markdownit from 'markdown-it';
 
 import 'dotenv/config'; // load .env
 import { join } from "path";
+import { renderMarkdownTemplate, renderMarkdownToHtml } from "./markdown/template";
 
 const logger = createLogger('docsoc');
 
@@ -19,19 +20,10 @@ async function main() {
 	// read the params from the nunjucks template
 
 	const templateCompiled = nunjucks.compile(template);
-	const expanded = templateCompiled.render({ name: 'Kishan' });
-
-	console.log(expanded);
-
-	const md = markdownit({
-		html: true,
-		linkify: true,
-		typographer: false,
-		breaks: true,
+	const expanded = renderMarkdownTemplate(templateCompiled, {
+		name: "Kishan"
 	})
-
-	const html = `<html><body>${md.render(expanded)}</body></html>`
-	console.log(html);
+	const html = renderMarkdownToHtml(expanded);
 
   const mailer = new Mailer(
     process.env['DOCSOC_SMTP_SERVER'] ?? 'smtp-mail.outlook.com',
