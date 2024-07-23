@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "email-validator": "^2.0.4",
     "html-to-text": "^9.0.5",
+    "markdown-it": "^14.1.0",
     "nodemailer": "^6.9.14",
+    "nunjucks": "^3.2.4",
     "tslib": "^2.3.0"
   },
   "bin": "./dist/cli.js",
@@ -15,8 +18,11 @@
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/dotenv": "^8.2.0",
+    "@types/email-validator": "^1.0.6",
     "@types/html-to-text": "^9.0.4",
+    "@types/markdown-it": "^14.1.1",
     "@types/nodemailer": "^6.4.15",
+    "@types/nunjucks": "^3.2.6",
     "@types/winston": "^2.4.4",
     "ts-node": "^10.9.2"
   }

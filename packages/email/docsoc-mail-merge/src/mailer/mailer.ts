@@ -1,7 +1,19 @@
 import nodemailer from 'nodemailer';
 import { EmailString, FromEmail } from '../util/types';
 import { convert } from "html-to-text";
+import { validate } from "email-validator";
+import createLogger from "../util/logger";
 
+const logger = createLogger('mailer');
+
+/**
+ * Core abstraction for sending emails: make a instance of this class, and call `sendMail` to send an email.
+ * 
+ * @param host SMTP server host, e.g. 'smtp-mail.outlook.com'
+ * @param port SMTP server port, e.g. 587 (assumed to use TLS)
+ * @param username SMTP server username (usually your microsoft 365 email)
+ * @param password SMTP server password (usually your microsoft 365 password)
+ */
 export default class Mailer {
 	constructor(
 		private host: string,
@@ -35,16 +47,20 @@ export default class Mailer {
 			html: html, // html body
 		});
 
-		console.log(`Message sent: ${info.messageId}`);
+		logger.debug(`Sent email to ${to.join(', ')}, from ${from}, subject: ${subject}, message id: ${info.messageId}`);
 	}
 
+	/** Helper function to check an email is a valid email address (and also tells the TS compiler we have a valid EmailString)  */
 	static validateEmail(email?: string): email is EmailString {
 		if (!email) return false;
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
+		return validate(email);
 	}
-	
-	static makeFromEmail(name: string, email: EmailString): FromEmail {
+
+
+	/**
+	 * Create a FromEmail string from a name and email address (i.e. `"Name" <email@server.com>`)
+	 */
+	static makeFromLineFromEmail(name: string, email: EmailString): FromEmail {
 		return `"${name}" <${email}>`;
 	}
 }
