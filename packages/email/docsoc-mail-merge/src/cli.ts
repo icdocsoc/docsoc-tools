@@ -9,6 +9,7 @@ import 'dotenv/config'; // load .env
 import { join } from "path";
 import { renderMarkdownTemplate, renderMarkdownToHtml } from "./markdown/template";
 import { parse } from "csv-parse";
+import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
 
 const logger = createLogger('docsoc');
 
@@ -19,6 +20,7 @@ async function main() {
 	const template = await fs.readFile(join(__dirname, '../templates/TEMPLATE.md.njk'), 'utf-8');
 	const csv = await fs.readFile(join(__dirname, '../data/names.csv'), 'utf-8');
 	const templateCompiled = nunjucks.compile(template);
+	const mailer = getDefaultMailer();
 	// read the params from the nunjucks template
 
 	const csvData = parse(csv, {columns: true});
@@ -29,24 +31,8 @@ async function main() {
 		})
 		const html = renderMarkdownToHtml(expanded);
 
-		const mailer = new Mailer(
-			process.env['DOCSOC_SMTP_SERVER'] ?? 'smtp-mail.outlook.com',
-			587,
-			process.env['DOCSOC_SMTP_USERNAME'] ?? 'docsoc@ic.ac.uk',
-			process.env['DOCSOC_SMTP_PASSWORD'] ?? 'password'
-		);
 
-		await mailer.sendMail(
-			Mailer.makeFromLineFromEmail(
-				process.env['DOCSOC_SENDER_NAME'] ?? 'DoCSoc',
-				Mailer.validateEmail(process.env['DOCSOC_SENDER_EMAIL'])
-					? process.env['DOCSOC_SENDER_EMAIL'] ?? 'docsoc@ic.ac.uk'
-					: 'docsoc@ic.ac.uk'
-			),
-			[record["email"]],
-			'Test email',
-			html,
-		);
+		await defaultMailer([record["email"]], "DoCSoc Mail Merge Test", html, mailer);
 	}
 
 }
