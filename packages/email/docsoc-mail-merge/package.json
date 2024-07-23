@@ -1,0 +1,16 @@
+{
+  "name": "docsoc-mail-merge",
+  "version": "0.0.1",
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "bin": "./dist/cli.js",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "private": true,
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/winston": "^2.4.4"
+  }
+}

@@ -43,3 +43,6 @@ Thumbs.db
 
 # ENV
 .env
+
+# legacy code that has secrets
+legacy

@@ -1,0 +1,19 @@
+{
+  "name": "docsoc-mail-merge",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/email/docsoc-mail-merge/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/email/docsoc-mail-merge",
+        "main": "packages/email/docsoc-mail-merge/src/index.ts",
+        "tsConfig": "packages/email/docsoc-mail-merge/tsconfig.lib.json",
+        "assets": ["packages/email/docsoc-mail-merge/*.md"]
+      }
+    }
+  }
+}
