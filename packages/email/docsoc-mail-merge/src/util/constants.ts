@@ -1,0 +1,1 @@
+export const DOCSOC_DEFAULT_FROM_LINE = `"DoCSoc" <docsoc@ic.ac.uk>`

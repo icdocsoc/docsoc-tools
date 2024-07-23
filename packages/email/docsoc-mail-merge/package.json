@@ -2,6 +2,8 @@
   "name": "docsoc-mail-merge",
   "version": "0.0.1",
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.14",
     "tslib": "^2.3.0"
   },
   "bin": "./dist/cli.js",
@@ -11,6 +13,9 @@
   "private": true,
   "devDependencies": {
     "@types/chalk": "^2.2.0",
-    "@types/winston": "^2.4.4"
+    "@types/dotenv": "^8.2.0",
+    "@types/nodemailer": "^6.4.15",
+    "@types/winston": "^2.4.4",
+    "ts-node": "^10.9.2"
   }
 }
