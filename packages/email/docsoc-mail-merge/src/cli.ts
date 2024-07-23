@@ -20,10 +20,9 @@ async function main() {
         ? process.env['DOCSOC_SENDER_EMAIL'] ?? 'docsoc@ic.ac.uk'
         : 'docsoc@ic.ac.uk'
     ),
-    [],
+    ['kss22@ic.ac.uk'],
     'Test email',
-    '<p>Test email</p>',
-    'Test email'
+    '<html><body>Test Email</body></html>',
   );
 }
 

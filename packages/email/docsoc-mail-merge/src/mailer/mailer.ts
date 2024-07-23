@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { EmailString, FromEmail } from '../util/types';
+import { convert } from "html-to-text";
 
 export default class Mailer {
 	constructor(
@@ -24,7 +25,7 @@ export default class Mailer {
 		to: string[],
 		subject: string,
 		html: string,
-		text: string,
+		text: string = convert(html),
 	): Promise<void> {
 		const info = await this.transporter.sendMail({
 			from, // sender address
