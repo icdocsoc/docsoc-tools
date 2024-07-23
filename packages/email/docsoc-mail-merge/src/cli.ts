@@ -8,6 +8,7 @@ import markdownit from 'markdown-it';
 import 'dotenv/config'; // load .env
 import { join } from "path";
 import { renderMarkdownTemplate, renderMarkdownToHtml } from "./markdown/template";
+import { parse } from "csv-parse";
 
 const logger = createLogger('docsoc');
 
@@ -16,33 +17,38 @@ async function main() {
 	logger.info('Starting DoCSoc Mail Merge');
 	logger.info("Loading template...")
 	const template = await fs.readFile(join(__dirname, '../templates/TEMPLATE.md.njk'), 'utf-8');
-
+	const csv = await fs.readFile(join(__dirname, '../data/names.csv'), 'utf-8');
+	const templateCompiled = nunjucks.compile(template);
 	// read the params from the nunjucks template
 
-	const templateCompiled = nunjucks.compile(template);
-	const expanded = renderMarkdownTemplate(templateCompiled, {
-		name: "Kishan"
-	})
-	const html = renderMarkdownToHtml(expanded);
+	const csvData = parse(csv, {columns: true});
+	for await (const record of csvData) {
+		
+		const expanded = renderMarkdownTemplate(templateCompiled, {
+			name: record["name"]
+		})
+		const html = renderMarkdownToHtml(expanded);
 
-  const mailer = new Mailer(
-    process.env['DOCSOC_SMTP_SERVER'] ?? 'smtp-mail.outlook.com',
-    587,
-    process.env['DOCSOC_SMTP_USERNAME'] ?? 'docsoc@ic.ac.uk',
-    process.env['DOCSOC_SMTP_PASSWORD'] ?? 'password'
-  );
+		const mailer = new Mailer(
+			process.env['DOCSOC_SMTP_SERVER'] ?? 'smtp-mail.outlook.com',
+			587,
+			process.env['DOCSOC_SMTP_USERNAME'] ?? 'docsoc@ic.ac.uk',
+			process.env['DOCSOC_SMTP_PASSWORD'] ?? 'password'
+		);
 
-  await mailer.sendMail(
-    Mailer.makeFromLineFromEmail(
-      process.env['DOCSOC_SENDER_NAME'] ?? 'DoCSoc',
-      Mailer.validateEmail(process.env['DOCSOC_SENDER_EMAIL'])
-        ? process.env['DOCSOC_SENDER_EMAIL'] ?? 'docsoc@ic.ac.uk'
-        : 'docsoc@ic.ac.uk'
-    ),
-    ['kss22@ic.ac.uk'],
-    'Test email',
-    html,
-  );
+		await mailer.sendMail(
+			Mailer.makeFromLineFromEmail(
+				process.env['DOCSOC_SENDER_NAME'] ?? 'DoCSoc',
+				Mailer.validateEmail(process.env['DOCSOC_SENDER_EMAIL'])
+					? process.env['DOCSOC_SENDER_EMAIL'] ?? 'docsoc@ic.ac.uk'
+					: 'docsoc@ic.ac.uk'
+			),
+			[record["email"]],
+			'Test email',
+			html,
+		);
+	}
+
 }
 
 main();
