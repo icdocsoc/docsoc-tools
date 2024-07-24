@@ -20,7 +20,9 @@ async function main() {
 
 	const template = await fs.readFile(join(__dirname, '../templates/TEMPLATE.md.njk'), 'utf-8');
 	const csv = await fs.readFile(join(__dirname, '../data/names.csv'), 'utf-8');
-	const templateCompiled = nunjucks.compile(template);
+	const templateCompiled = nunjucks.compile(template, nunjucks.configure({
+		throwOnUndefined: true,
+	}));
 	const htmlWrapper = await fs.readFile(join(__dirname, '../templates/wrapper.html.njk'), 'utf-8');
 	const htmlWrapperCompiled = nunjucks.compile(htmlWrapper, nunjucks.configure({autoescape: false}));
 	const mailer = getDefaultMailer();
@@ -36,6 +38,8 @@ async function main() {
 
 		// wrap the html in the wrapper
 		const wrapped = htmlWrapperCompiled.render({content: html});
+
+		console.log(wrapped)
 
 		await defaultMailer([record["email"]], "DoCSoc Mail Merge Test", wrapped, mailer);
 	}
