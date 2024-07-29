@@ -7,14 +7,20 @@ import nunjucks from "nunjucks";
 import { join } from "path";
 
 import packageJSON from "../package.json";
+import { ENGINES_MAP } from "./engines";
+import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
 import { CliOptions } from "./util/types";
-import { stopIfCriticalFsError } from "./util/files";
 
 const logger = createLogger("docsoc");
 
 const opts: CliOptions = {
     csvFile: "./data/names.csv",
+    templateOptions: {
+        templatePath: "./templates/TEMPLATE.md.njk",
+        rootHtmlTemplate: "./templates/wrappr.html.njk",
+    },
+    templateEngine: "nunjucks",
 };
 
 async function main(opts: CliOptions) {
@@ -39,6 +45,16 @@ async function main(opts: CliOptions) {
     }
     const fields = Object.keys(records[0]);
     logger.info(`Fields: ${fields.join(", ")}`);
+
+    // 4: Map to template
+    logger.info("Loading template...");
+    const engine = ENGINES_MAP[opts.templateEngine];
+    if (!engine) {
+        logger.error(`Invalid template engine: ${opts.templateEngine}`);
+        throw new Error(`Invalid template engine: ${opts.templateEngine}`);
+    }
+
+    engine(opts.templateOptions, records, fields);
 }
 
 main(opts);
