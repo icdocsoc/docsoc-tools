@@ -1,49 +1,44 @@
-import Mailer from './mailer/mailer';
-import createLogger from './util/logger';
-
-import { promises as fs } from 'fs';
-import nunjucks from 'nunjucks';
-import markdownit from 'markdown-it';
-
-import 'dotenv/config'; // load .env
-import { join } from "path";
-import { renderMarkdownTemplate, renderMarkdownToHtml } from "./markdown/template";
 import { parse } from "csv-parse";
-import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
+import "dotenv/config";
+import { promises as fs } from "fs";
+import markdownit from "markdown-it";
+import nunjucks from "nunjucks";
+// load .env
+import { join } from "path";
 
-const logger = createLogger('docsoc');
+import packageJSON from "../package.json";
+import createLogger from "./util/logger";
+import { CliOptions } from "./util/types";
+import { stopIfCriticalFsError } from "./util/files";
 
+const logger = createLogger("docsoc");
 
-async function main() {
-	logger.info('Starting DoCSoc Mail Merge');
-	logger.info("Loading template...")
+const opts: CliOptions = {
+    csvFile: "./data/names.csv",
+};
 
-	const template = await fs.readFile(join(__dirname, '../templates/TEMPLATE.md.njk'), 'utf-8');
-	const csv = await fs.readFile(join(__dirname, '../data/names.csv'), 'utf-8');
-	const templateCompiled = nunjucks.compile(template, nunjucks.configure({
-		throwOnUndefined: true,
-	}));
-	const htmlWrapper = await fs.readFile(join(__dirname, '../templates/wrapper.html.njk'), 'utf-8');
-	const htmlWrapperCompiled = nunjucks.compile(htmlWrapper, nunjucks.configure({autoescape: false}));
-	const mailer = getDefaultMailer();
-	// read the params from the nunjucks template
+async function main(opts: CliOptions) {
+    logger.info("DoCSoc Mail Merge");
+    logger.info(`v${packageJSON.version}`);
 
-	const csvData = parse(csv, {columns: true});
-	for await (const record of csvData) {
-		
-		const expanded = renderMarkdownTemplate(templateCompiled, {
-			name: record["name"]
-		})
-		const html = renderMarkdownToHtml(expanded);
+    // 1: Load the CSV
+    logger.info("Loading CSV...");
+    const csvRaw = await stopIfCriticalFsError(fs.readFile(join(__dirname, "../data/names.csv"), "utf-8"));
+    logger.debug("Parsing & loading CSV...");
+    const csvParsed = parse(csvRaw, { columns: true });
+    const records = [];
+    for await (const record of csvParsed) {
+        records.push(record);
+    }
+    logger.info(`Loaded ${records.length} records`);
 
-		// wrap the html in the wrapper
-		const wrapped = htmlWrapperCompiled.render({content: html});
-
-		console.log(wrapped)
-
-		await defaultMailer([record["email"]], "DoCSoc Mail Merge Test", wrapped, mailer);
-	}
-
+    // 3: Grab fields
+    if (records.length === 0) {
+        logger.error("No records found in CSV");
+        throw new Error("No records found in CSV");
+    }
+    const fields = Object.keys(records[0]);
+    logger.info(`Fields: ${fields.join(", ")}`);
 }
 
-main();
+main(opts);

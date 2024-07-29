@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "nx",
+            "project": "",
+            "command": "run",
+            "positional": "docsoc-mail-merge:build",
+            "flags": [],
+            "problemMatcher": [],
+            "label": "nx: nx run docsoc-mail-merge:build"
+        }
+    ]
+}

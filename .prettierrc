@@ -1,3 +1,9 @@
 {
-  "singleQuote": true
+  "singleQuote": false,
+  "trailingComma": "all",
+  "useTabs": false,
+  "tabWidth": 4,
+  "printWidth": 120,
+  "importOrderSeparation": true,
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"]
 }

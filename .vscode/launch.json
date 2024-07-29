@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch mail merge cli",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/packages/email/docsoc-mail-merge/src/cli.ts",
+            "cwd": "${workspaceFolder}/packages/email/docsoc-mail-merge",
+            "outFiles": [
+                "${workspaceFolder}/packages/email/docsoc-mail-merge/dist/**/*.js",
+                "${workspaceFolder}/packages/email/docsoc-mail-merge/dist/**/*.js.map"
+            ],
+            "preLaunchTask": "nx: nx run docsoc-mail-merge:build",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "../../../../../packages/email/docsoc-mail-merge/**/*": "${workspaceFolder}/dist/packages/email/docsoc-mail-merge/**/*",
+            },
+            "console": "integratedTerminal"
+        }
+    ]
+}
