@@ -12,6 +12,7 @@ const logger = createLogger("docsoc.util.mapInteractive");
 
 const mapInteractive = async (templateFields: Set<string>, csvHeaders: string[]): Promise<Map<string, string>> => {
     const map = new Map<string, string>();
+    const mappedFields = new Set<string>();
 
     logger.debug("Mapping CSV fields to template interactively");
 
@@ -29,6 +30,13 @@ const mapInteractive = async (templateFields: Set<string>, csvHeaders: string[])
     );
     for (const [csvHeader, templateFieldChosen] of Object.entries(await prompter)) {
         map.set(csvHeader, templateFieldChosen);
+        mappedFields.add(templateFieldChosen);
+    }
+
+    // Warn if not all fields were mapped
+    const unmappedFields = new Set([...templateFields].filter((field) => !mappedFields.has(field)));
+    if (unmappedFields.size > 0) {
+        logger.warn(`The following fields were not mapped: ${Array.from(unmappedFields).join(", ")}`);
     }
 
     return map;

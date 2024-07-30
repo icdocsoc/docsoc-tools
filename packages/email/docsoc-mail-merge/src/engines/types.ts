@@ -5,3 +5,9 @@ export type TemplateEngine = (
     csvData: Record<string, string>[],
     csvHeaders: string[],
 ) => Promise<string>;
+
+export type TemplatePreview = {
+    name: string;
+    content: string;
+    metadata: Record<string, unknown>;
+}[];
