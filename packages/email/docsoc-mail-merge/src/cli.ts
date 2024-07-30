@@ -1,18 +1,18 @@
 import { parse } from "csv-parse";
 import "dotenv/config";
 import { promises as fs } from "fs";
-import markdownit from "markdown-it";
 import { mkdirp } from "mkdirp";
-import nunjucks from "nunjucks";
 // load .env
 import { join } from "path";
 
 import packageJSON from "../package.json";
 import { ENGINES_MAP } from "./engines";
 import { TemplatePreview } from "./engines/types";
+import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
+import getRunNameInteractively from "./interactivity/getRunNameInteractively";
+import mapInteractive from "./interactivity/mapInteractive";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
-import mapInteractive from "./util/mapInteractive";
 import { CliOptions } from "./util/types";
 
 const logger = createLogger("docsoc");
@@ -21,11 +21,13 @@ const opts: CliOptions = {
     csvFile: "./data/names.csv",
     templateOptions: {
         templatePath: "./templates/TEMPLATE.md.njk",
-        rootHtmlTemplate: "./templates/wrappr.html.njk",
+        rootHtmlTemplate: "./templates/wrapper.html.njk",
     },
     templateEngine: "nunjucks",
     output: "./output",
 };
+
+const ADDITIONAL_FIELDS = ["email"];
 
 async function main(opts: CliOptions) {
     logger.info("DoCSoc Mail Merge");
@@ -54,36 +56,39 @@ async function main(opts: CliOptions) {
 
     // 4: Map to template
     logger.info("Loading template...");
-    const EngineClass: any = ENGINES_MAP[opts.templateEngine];
+    const EngineClass = ENGINES_MAP[opts.templateEngine];
     if (!EngineClass) {
         logger.error(`Invalid template engine: ${opts.templateEngine}`);
         throw new Error(`Invalid template engine: ${opts.templateEngine}`);
     }
-    const engine = new EngineClass();
-    await engine.loadTemplate(opts.templateOptions["templatePath"]);
+    const engine = new EngineClass(opts.templateOptions);
+    await engine.loadTemplate();
 
     // 5: Extract template fields
     logger.info("Extracting template fields...");
-    const templateFields: Set<string> = engine.extractFields();
+    const templateFields = engine.extractFields();
     logger.info(`Fields found: ${Array.from(templateFields).join(", ")}`);
 
     // 6: Map CSV fields to template interactively
     logger.info("Mapping CSV fields to template interactively");
-    const fieldsMapCSVtoTemplate = await mapInteractive(templateFields, headers);
+    const fieldsMapCSVtoTemplate = await mapInteractive(
+        new Set([...Array.from(templateFields), ...ADDITIONAL_FIELDS]),
+        headers,
+    );
 
     // 7: Ask what to name files using
-    const fileNamer: (record: any) => string = await getFileNameSchemeInteractively(fields, records);
+    const fileNamer = await getFileNameSchemeInteractively(headers, records);
 
     // 7: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
-    const previews: [TemplatePreview, any][] = await Promise.all(
-        records.map((csvRecord) => {
+    const previews: [TemplatePreview, Record<string, any>][] = await Promise.all(
+        records.map(async (csvRecord) => {
             const preparedRecord = Object.fromEntries(
                 Object.entries(csvRecord).map(([key, value]) => {
                     return [fieldsMapCSVtoTemplate.get(key) ?? key, value];
                 }),
             );
-            return [engine.renderPreview(preparedRecord), csvRecord];
+            return [await engine.renderPreview(preparedRecord), csvRecord];
         }),
     );
     // 7: Write to file
@@ -97,7 +102,10 @@ async function main(opts: CliOptions) {
         previews.flatMap(async ([previews, record]) =>
             previews.map(async (preview) => {
                 const fileName = fileNamer(record);
-                await fs.writeFile(`./previews/${fileName}__${opts.templateEngine}__${preview}`, preview.content);
+                await fs.writeFile(
+                    join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
+                    preview.content,
+                );
             }),
         ),
     );

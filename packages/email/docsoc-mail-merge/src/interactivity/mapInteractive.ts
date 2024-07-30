@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 
-import createLogger from "./logger";
+import createLogger from "../util/logger";
 
 /**
  * Using inquirer, map the csv headers to template fields
@@ -13,10 +13,9 @@ const logger = createLogger("docsoc.util.mapInteractive");
 const mapInteractive = async (templateFields: Set<string>, csvHeaders: string[]): Promise<Map<string, string>> => {
     const map = new Map<string, string>();
     const mappedFields = new Set<string>();
-
     logger.debug("Mapping CSV fields to template interactively");
 
-    logger.info("When promotd, select the corresponding template field for each CSV header");
+    logger.info("When prompted, select the corresponding template field for each CSV header");
 
     const prompter = inquirer.prompt(
         // Provide the correct type for the prompt function
