@@ -1,6 +1,6 @@
 import { ENGINES_MAP } from "../engines";
 import { TemplateEngineOptions, TemplatePreview } from "../engines/types";
-import { CSVRecord } from "../util/types";
+import { CSVRecord, EmailString } from "../util/types";
 
 /**
  * Outputted to JSON files next to rendered template previews, containing metadata about the preview.
@@ -22,4 +22,9 @@ export interface SidecarData {
             content: never | undefined;
         };
     }>;
+    /** Metadata for emailing */
+    email: {
+        to: EmailString;
+        subject: string;
+    };
 }

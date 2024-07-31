@@ -67,10 +67,15 @@ export abstract class TemplateEngine {
      * The user edits the markdown preview and you then re-render the HTML preview.
      *
      * **IMPORTANT NOTE**: You _must_ rerender _all_ previews, even if only one was edited. This is a replace-all operations, not a patch.
-     * @param loadedPreview
-     * @param associatedRecord
      */
     abstract rerenderPreviews(loadedPreviews: TemplatePreviews, associatedRecord: CSVRecord): Promise<TemplatePreviews>;
+
+    /**
+     * Given the (re-)rendered previews, generate the HTML to send.
+     *
+     * Most likely this means returning one of the previews, but you may want to combine them or do other operations.
+     */
+    abstract getHTMLToSend(loadedPreviews: TemplatePreviews, associatedRecord: CSVRecord): Promise<string>;
 }
 
 /**

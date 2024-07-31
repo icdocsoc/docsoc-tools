@@ -4,6 +4,7 @@ import { join } from "path";
 import packageJSON from "../package.json";
 import { ENGINES_MAP } from "./engines";
 import { TemplatePreviews } from "./engines/types";
+import loadPreviewsFromSidecar from "./previews/loadPreviews";
 import { loadSidecars, writeSidecarFile } from "./previews/sidecarData";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
@@ -36,12 +37,7 @@ async function main(directory: string) {
 
         logger.debug("Remapping sidecar files metadata back to TemplatePreviews...");
         logger.debug(JSON.stringify(files));
-        const previews: TemplatePreviews = await Promise.all(
-            files.map(async (file) => ({
-                ...file.engineData,
-                content: await stopIfCriticalFsError(fs.readFile(join(directory, file.filename), "utf-8")),
-            })),
-        );
+        const previews: TemplatePreviews = await loadPreviewsFromSidecar(files, directory);
 
         // Rerender previews
         logger.info(`Rerendering ${name} using engine ${engineName}...`);

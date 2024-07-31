@@ -129,4 +129,15 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
             },
         ];
     }
+
+    override async getHTMLToSend(loadedPreviews: TemplatePreviews) {
+        const htmlPreview = loadedPreviews.find(
+            (preview) => (preview.metadata as NunjucksSidecarMetadata).type === "html",
+        );
+        if (!htmlPreview) {
+            throw new Error("No HTML preview found in sidecar data");
+        }
+
+        return htmlPreview.content;
+    }
 }

@@ -27,7 +27,7 @@ jest.mock("../../src/util/logger", () => {
 jest.mock("../../src/util/files");
 
 describe("Sidecar Data Functions", () => {
-    const mockRecord: CSVRecord = { id: "1", name: "Test Record" };
+    const mockRecord: CSVRecord = { id: "1", name: "Test Record", email: "meap@hotmail.com", subject: "Test Record" };
     const mockFileNamer = (record: CSVRecord) => `file_${record["id"]}`;
     const mockTemplateEngine = "nunjucks" as TEMPLATE_ENGINES;
     const mockTemplateOptions: CliOptions["templateOptions"] = {};
@@ -74,6 +74,10 @@ describe("Sidecar Data Functions", () => {
                     },
                 },
             ],
+            email: {
+                to: "meap@hotmail.com",
+                subject: "Test Record",
+            },
         };
 
         (stopIfCriticalFsError as jest.Mock).mockImplementation((promise) => promise);

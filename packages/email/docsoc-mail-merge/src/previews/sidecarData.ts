@@ -9,9 +9,10 @@ import { join } from "path";
 
 import { TEMPLATE_ENGINES } from "../engines";
 import { TemplatePreview, TemplatePreviews } from "../engines/types";
+import Mailer from "../mailer/mailer";
 import { stopIfCriticalFsError } from "../util/files";
 import createLogger from "../util/logger";
-import { CliOptions, CSVRecord } from "../util/types";
+import { CliOptions, CSVRecord, EmailString } from "../util/types";
 import { SidecarData } from "./types";
 
 const PARTS_SEPARATOR = "__";
@@ -75,6 +76,16 @@ export async function writeMetadata(
     fileNamer: (record: CSVRecord) => string,
     previewsRoot: string,
 ): Promise<void> {
+    if (!Mailer.validateEmail(record["email"] as string)) {
+        logger.warn(`Skipping metadata write for ${fileNamer(record)} - invalid email address`);
+        return Promise.resolve();
+    }
+
+    if (!record["subject"]) {
+        logger.warn(`Skipping metadata write for ${fileNamer(record)} - no subject provided`);
+        return Promise.resolve();
+    }
+
     const sidecar: SidecarData = {
         name: fileNamer(record),
         record: record,
@@ -87,6 +98,10 @@ export async function writeMetadata(
                 content: undefined,
             },
         })),
+        email: {
+            to: record["email"] as EmailString,
+            subject: record["subject"] as string,
+        },
     };
 
     const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);

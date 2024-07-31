@@ -28,7 +28,8 @@ const opts: CliOptions = {
     output: "./output",
 };
 
-const ADDITIONAL_FIELDS = ["email"];
+// TODO: Put somewhere nice
+const ADDITIONAL_FIELDS = ["email", "subject"];
 
 async function main(opts: CliOptions) {
     logger.info("DoCSoc Mail Merge");
