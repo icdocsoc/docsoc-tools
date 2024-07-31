@@ -3,6 +3,16 @@ import winston from "winston";
 
 const { combine, colorize, printf, timestamp } = winston.format;
 
+/**
+ * Create a logger with the given module name
+ * @param moduleName Name of the module to log
+ * @returns Logger instance
+ *
+ * @example
+ * const logger = createLogger("my-module");
+ * logger.info("Hello, world!");
+ * // Output: 2024-07-31T20:08:14.697Z my-module info Hello, world!
+ */
 export default function createLogger(moduleName: string) {
     const options: winston.LoggerOptions = {
         transports: [

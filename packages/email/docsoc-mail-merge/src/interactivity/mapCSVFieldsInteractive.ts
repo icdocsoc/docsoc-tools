@@ -1,5 +1,6 @@
 import inquirer from "inquirer";
 
+import { TemplateEngine } from "../engines/types";
 import createLogger from "../util/logger";
 
 /**
@@ -10,7 +11,16 @@ import createLogger from "../util/logger";
  */
 const logger = createLogger("docsoc.util.mapInteractive");
 
-const mapInteractive = async (templateFields: Set<string>, csvHeaders: string[]): Promise<Map<string, string>> => {
+/**
+ * Interactive mapping of CSV fields to template fields
+ * @param templateFields Set of fields the template wants, extracted using {@link TemplateEngine.extractFields}
+ * @param csvHeaders Headers from the CSV
+ * @returns Map of csv headers to template fields
+ */
+const mapCSVFieldsInteractive = async (
+    templateFields: Set<string>,
+    csvHeaders: string[],
+): Promise<Map<string, string>> => {
     const map = new Map<string, string>();
     const mappedFields = new Set<string>();
     logger.debug("Mapping CSV fields to template interactively");
@@ -41,4 +51,4 @@ const mapInteractive = async (templateFields: Set<string>, csvHeaders: string[])
     return map;
 };
 
-export default mapInteractive;
+export default mapCSVFieldsInteractive;

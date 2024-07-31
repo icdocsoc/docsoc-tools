@@ -10,10 +10,10 @@ import { ENGINES_MAP } from "./engines";
 import { TemplatePreview } from "./engines/types";
 import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
 import getRunNameInteractively from "./interactivity/getRunNameInteractively";
-import mapInteractive from "./interactivity/mapInteractive";
+import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
-import { CliOptions } from "./util/types";
+import { CliOptions, CSVRecord } from "./util/types";
 
 const logger = createLogger("docsoc");
 
@@ -40,7 +40,7 @@ async function main(opts: CliOptions) {
     const csvRaw = await stopIfCriticalFsError(fs.readFile(join(__dirname, "../data/names.csv"), "utf-8"));
     logger.debug("Parsing & loading CSV...");
     const csvParsed = parse(csvRaw, { columns: true });
-    const records = [];
+    const records: CSVRecord[] = [];
     for await (const record of csvParsed) {
         records.push(record);
     }
@@ -54,7 +54,7 @@ async function main(opts: CliOptions) {
     const headers = Object.keys(records[0]);
     logger.info(`Fields: ${headers.join(", ")}`);
 
-    // 4: Map to template
+    // 4: Load template via template engine
     logger.info("Loading template...");
     const EngineClass = ENGINES_MAP[opts.templateEngine];
     if (!EngineClass) {
@@ -71,7 +71,7 @@ async function main(opts: CliOptions) {
 
     // 6: Map CSV fields to template interactively
     logger.info("Mapping CSV fields to template interactively");
-    const fieldsMapCSVtoTemplate = await mapInteractive(
+    const fieldsMapCSVtoTemplate = await mapCSVFieldsInteractive(
         new Set([...Array.from(templateFields), ...ADDITIONAL_FIELDS]),
         headers,
     );
@@ -79,9 +79,9 @@ async function main(opts: CliOptions) {
     // 7: Ask what to name files using
     const fileNamer = await getFileNameSchemeInteractively(headers, records);
 
-    // 7: Render intermediate results
+    // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
-    const previews: [TemplatePreview, Record<string, any>][] = await Promise.all(
+    const previews: [TemplatePreview, CSVRecord][] = await Promise.all(
         records.map(async (csvRecord) => {
             const preparedRecord = Object.fromEntries(
                 Object.entries(csvRecord).map(([key, value]) => {
@@ -91,8 +91,9 @@ async function main(opts: CliOptions) {
             return [await engine.renderPreview(preparedRecord), csvRecord];
         }),
     );
-    // 7: Write to file
-    logger.info("Writing previews files...");
+
+    // 9: Write to file
+    logger.info("Writing preview files...");
     const previewsRoot = join(opts.output, "previews", runName);
     logger.warn(`Writing previews to ${previewsRoot}...`);
     logger.debug("Creating directories...");
@@ -102,6 +103,7 @@ async function main(opts: CliOptions) {
         previews.flatMap(async ([previews, record]) =>
             previews.map(async (preview) => {
                 const fileName = fileNamer(record);
+                logger.debug(`Writing ${fileName}__${opts.templateEngine}__${preview.name}`);
                 await fs.writeFile(
                     join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
                     preview.content,

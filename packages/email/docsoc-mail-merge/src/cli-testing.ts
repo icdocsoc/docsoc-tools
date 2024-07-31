@@ -1,15 +1,15 @@
-import Mailer from "./mailer/mailer";
-import createLogger from "./util/logger";
-
-import { promises as fs } from "fs";
-import nunjucks from "nunjucks";
-import markdownit from "markdown-it";
-
-import "dotenv/config"; // load .env
-import { join } from "path";
-import { renderMarkdownTemplate, renderMarkdownToHtml } from "./markdown/template";
 import { parse } from "csv-parse";
+import "dotenv/config";
+import { promises as fs } from "fs";
+import markdownit from "markdown-it";
+import nunjucks from "nunjucks";
+// load .env
+import { join } from "path";
+
 import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
+import Mailer from "./mailer/mailer";
+import { renderMarkdownToHtml } from "./markdown/toHtml";
+import createLogger from "./util/logger";
 
 const logger = createLogger("docsoc");
 
@@ -32,9 +32,7 @@ async function main() {
 
     const csvData = parse(csv, { columns: true });
     for await (const record of csvData) {
-        const expanded = renderMarkdownTemplate(templateCompiled, {
-            name: record["name"],
-        });
+        const expanded = "";
         const html = renderMarkdownToHtml(expanded);
 
         // wrap the html in the wrapper
