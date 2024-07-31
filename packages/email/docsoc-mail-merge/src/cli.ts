@@ -11,8 +11,8 @@ import { TemplatePreviews } from "./engines/types";
 import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
 import getRunNameInteractively from "./interactivity/getRunNameInteractively";
 import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
-import { getRecordPreviewPrefixForIndividual, getRecordPreviewPrefixForMetadata } from "./sideCardData";
-import { SidecardData } from "./sideCardData/types";
+import { getRecordPreviewPrefixForIndividual, getRecordPreviewPrefixForMetadata, writeMetadata } from "./sideCarData";
+import { SidecardData } from "./sideCarData/types";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
 import { CliOptions, CSVRecord } from "./util/types";
@@ -106,28 +106,18 @@ async function main(opts: CliOptions) {
             const operations = previews.map(async (preview) => {
                 const fileName = getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview);
                 logger.debug(`Writing ${fileName}__${opts.templateEngine}__${preview.name}`);
-                await fs.writeFile(
-                    join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
-                    preview.content,
+                await stopIfCriticalFsError(
+                    fs.writeFile(
+                        join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
+                        preview.content,
+                    ),
                 );
             });
 
-            const sidecar: SidecardData = {
-                record: record,
-                engine: opts.templateEngine,
-                engineOptions: opts.templateOptions,
-                files: previews.map((preview) => ({
-                    filename: getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview),
-                    engineData: {
-                        ...preview,
-                        content: undefined,
-                    },
-                })),
-            };
-
-            const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
-            logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
-            operations.push(fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4)));
+            // Add metadata write operation
+            operations.push(
+                writeMetadata(record, opts.templateEngine, opts.templateOptions, previews, fileNamer, previewsRoot),
+            );
 
             return operations;
         }),
