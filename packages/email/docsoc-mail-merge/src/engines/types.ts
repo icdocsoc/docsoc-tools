@@ -51,9 +51,9 @@ export abstract class TemplateEngine {
     /**
      * Render a preview of the template with the given record.
      * @param record - The record to render the template with, where the keys correspond to the fields extracted in {@link TemplateEngine.extractFields}
-     * @returns A promise that resolves to an array of {@link TemplatePreview} objects - check the type for more information
+     * @returns A promise that resolves to an array of {@link TemplatePreviews} objects - check the type for more information
      */
-    abstract renderPreview(record: CSVRecord): Promise<TemplatePreview>;
+    abstract renderPreview(record: CSVRecord): Promise<TemplatePreviews>;
 }
 
 /**
@@ -62,10 +62,22 @@ export abstract class TemplateEngine {
  * Additionally we write a JSON file containing the metadata info next to the files, for reading back in to generate re-renders.
  */
 export type TemplatePreview = {
-    /** Name of the preview, for you to recognise on re-render/load-back-in. As this will be the last part of the filename, you should include a file extension */
+    /**
+     * Name of the preview, for you to recognise on re-render/load-back-in.
+     *
+     * This should be related to its content, and _should not be unique_ - we will append a unique identifier to the filename based on the CSV record.
+     *
+     * As this will be the last part of the filename, you should include a file extension
+     * @example
+     * "markdown-preview.md" // good
+     * "preview.html" // good
+     * `preview-${record["name"]}.html` // bad! We will add record specific parts to the filename
+     */
     name: string;
     /** The content of the preview, to be written to a file */
     content: string;
     /** Metadata about the preview, to be written to a JSON file, that will be given back to you on re-render/load-back-in */
     metadata: Record<string, unknown>;
-}[];
+};
+
+export type TemplatePreviews = TemplatePreview[];

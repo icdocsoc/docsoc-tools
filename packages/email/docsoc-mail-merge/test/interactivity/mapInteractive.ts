@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 
-import mapInteractive from "../../src/interactivity/mapInteractive";
+import mapInteractive from "../../src/interactivity/mapCSVFieldsInteractive";
 import createLogger from "../../src/util/logger";
 
 jest.mock("inquirer");
@@ -11,7 +11,7 @@ jest.mock("../../src/util/logger", () => {
         warn: jest.fn(),
         error: jest.fn(),
     };
-    return () => logger
+    return () => logger;
 });
 
 describe("mapInteractive", () => {

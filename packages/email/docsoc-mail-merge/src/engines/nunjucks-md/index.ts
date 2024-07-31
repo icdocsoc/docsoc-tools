@@ -76,12 +76,16 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
             {
                 name: "Preview-Markdown.md",
                 content: expanded, // you can edit this and re-render
-                metadata: {},
+                metadata: {
+                    type: "markdown",
+                },
             },
             {
                 name: "Preview-HTML.html",
                 content: wrapped, // this is what will be sent - do not edit it, re-rendering will overwrite it
-                metadata: {},
+                metadata: {
+                    type: "html",
+                },
             },
         ];
     }

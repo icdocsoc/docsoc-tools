@@ -7,10 +7,12 @@ import { join } from "path";
 
 import packageJSON from "../package.json";
 import { ENGINES_MAP } from "./engines";
-import { TemplatePreview } from "./engines/types";
+import { TemplatePreviews } from "./engines/types";
 import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
 import getRunNameInteractively from "./interactivity/getRunNameInteractively";
 import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
+import { getRecordPreviewPrefixForIndividual, getRecordPreviewPrefixForMetadata } from "./sideCardData";
+import { SidecardData } from "./sideCardData/types";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
 import { CliOptions, CSVRecord } from "./util/types";
@@ -81,7 +83,7 @@ async function main(opts: CliOptions) {
 
     // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
-    const previews: [TemplatePreview, CSVRecord][] = await Promise.all(
+    const previews: [TemplatePreviews, CSVRecord][] = await Promise.all(
         records.map(async (csvRecord) => {
             const preparedRecord = Object.fromEntries(
                 Object.entries(csvRecord).map(([key, value]) => {
@@ -100,16 +102,35 @@ async function main(opts: CliOptions) {
     await mkdirp(previewsRoot);
     logger.debug("Writing files...");
     await Promise.all(
-        previews.flatMap(async ([previews, record]) =>
-            previews.map(async (preview) => {
-                const fileName = fileNamer(record);
+        previews.flatMap(async ([previews, record]) => {
+            const operations = previews.map(async (preview) => {
+                const fileName = getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview);
                 logger.debug(`Writing ${fileName}__${opts.templateEngine}__${preview.name}`);
                 await fs.writeFile(
                     join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
                     preview.content,
                 );
-            }),
-        ),
+            });
+
+            const sidecar: SidecardData = {
+                record: record,
+                engine: opts.templateEngine,
+                engineOptions: opts.templateOptions,
+                files: previews.map((preview) => ({
+                    filename: getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview),
+                    engineData: {
+                        ...preview,
+                        content: undefined,
+                    },
+                })),
+            };
+
+            const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
+            logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
+            operations.push(fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4)));
+
+            return operations;
+        }),
     );
 
     logger.info("Done! Review previews and then send.");
