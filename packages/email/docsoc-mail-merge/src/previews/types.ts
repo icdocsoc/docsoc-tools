@@ -5,7 +5,9 @@ import { CSVRecord } from "../util/types";
 /**
  * Outputted to JSON files next to rendered template previews, containing metadata about the preview.
  */
-export interface SidecardData {
+export interface SidecarData {
+    /** Name of the template rendered (used for logging) */
+    name: string;
     /** Record associated with the template rendered  */
     record: CSVRecord;
     /** Engine used */

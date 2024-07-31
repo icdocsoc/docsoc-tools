@@ -11,6 +11,11 @@ export interface NunjucksMarkdownTemplateOptions {
     [key: string]: string;
 }
 
+export interface NunjucksSidecarMetadata {
+    type: "markdown" | "html";
+    [key: string]: unknown;
+}
+
 /**
  * Asserts that the given options are valid Nunjucks template options & throws an error if they are not
  */

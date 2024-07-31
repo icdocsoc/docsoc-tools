@@ -11,8 +11,7 @@ import { TemplatePreviews } from "./engines/types";
 import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
 import getRunNameInteractively from "./interactivity/getRunNameInteractively";
 import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
-import { getRecordPreviewPrefixForIndividual, getRecordPreviewPrefixForMetadata, writeMetadata } from "./sideCarData";
-import { SidecardData } from "./sideCarData/types";
+import { getRecordPreviewPrefixForIndividual, writeMetadata } from "./previews/sidecarData";
 import { stopIfCriticalFsError } from "./util/files";
 import createLogger from "./util/logger";
 import { CliOptions, CSVRecord } from "./util/types";
@@ -83,6 +82,7 @@ async function main(opts: CliOptions) {
 
     // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
+    // NOTE: CSVRecord here is the record with the CSV headers mapped to the template fields, rather than with the raw template fields
     const previews: [TemplatePreviews, CSVRecord][] = await Promise.all(
         records.map(async (csvRecord) => {
             const preparedRecord = Object.fromEntries(
@@ -90,7 +90,7 @@ async function main(opts: CliOptions) {
                     return [fieldsMapCSVtoTemplate.get(key) ?? key, value];
                 }),
             );
-            return [await engine.renderPreview(preparedRecord), csvRecord];
+            return [await engine.renderPreview(preparedRecord), preparedRecord];
         }),
     );
 
@@ -106,12 +106,7 @@ async function main(opts: CliOptions) {
             const operations = previews.map(async (preview) => {
                 const fileName = getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview);
                 logger.debug(`Writing ${fileName}__${opts.templateEngine}__${preview.name}`);
-                await stopIfCriticalFsError(
-                    fs.writeFile(
-                        join(previewsRoot, `${fileName}__${opts.templateEngine}__${preview.name}`),
-                        preview.content,
-                    ),
-                );
+                await stopIfCriticalFsError(fs.writeFile(join(previewsRoot, fileName), preview.content));
             });
 
             // Add metadata write operation

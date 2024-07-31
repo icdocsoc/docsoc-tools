@@ -9,8 +9,8 @@ import {
     getRecordPreviewPrefixForIndividual,
     getRecordPreviewPrefixForMetadata,
     writeMetadata,
-} from "../../src/sideCarData/index";
-import { SidecardData } from "../../src/sideCarData/types";
+} from "../../src/previews/sidecarData";
+import { SidecarData } from "../../src/previews/types";
 import { stopIfCriticalFsError } from "../../src/util/files";
 import { CliOptions, CSVRecord } from "../../src/util/types";
 
@@ -59,7 +59,8 @@ describe("Sidecar Data Functions", () => {
     });
 
     test("writeMetadata should write metadata to a JSON file", async () => {
-        const mockSidecar: SidecardData = {
+        const mockSidecar: SidecarData = {
+            name: "file_1",
             record: mockRecord,
             engine: mockTemplateEngine,
             engineOptions: mockTemplateOptions,

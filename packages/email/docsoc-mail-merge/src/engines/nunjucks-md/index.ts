@@ -3,10 +3,10 @@ import nunjucks from "nunjucks";
 
 import { renderMarkdownToHtml } from "../../markdown/toHtml";
 import { CSVRecord } from "../../util/types";
-import { TemplateEngineOptions } from "../types";
+import { TemplateEngineOptions, TemplatePreviews } from "../types";
 import { TemplateEngine } from "../types";
 import getTemplateFields from "./getFields";
-import { assertIsNunjucksTemplateOptions, NunjucksMarkdownTemplateOptions } from "./types";
+import { assertIsNunjucksTemplateOptions, NunjucksMarkdownTemplateOptions, NunjucksSidecarMetadata } from "./types";
 
 /**
  * A Nunjucks Markdown template engine
@@ -35,11 +35,23 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         this.templateOptions = templateOptions;
     }
 
-    async loadTemplate() {
+    private async renderMarkdownToHtmlInsideWrapper(markdown: string) {
+        // Render the MD to HTML
+        const htmlWrapper = await fs.readFile(this.templateOptions.rootHtmlTemplate, "utf-8");
+        const htmlWrapperCompiled = nunjucks.compile(htmlWrapper, nunjucks.configure({ autoescape: false }));
+        const html = renderMarkdownToHtml(markdown);
+
+        // Wrap the rendered markdown html in the wrapper
+        const wrapped = htmlWrapperCompiled.render({ content: html });
+
+        return wrapped;
+    }
+
+    override async loadTemplate() {
         this.loadedTemplate = await fs.readFile(this.templateOptions.templatePath, "utf-8");
     }
 
-    extractFields() {
+    override extractFields() {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }
@@ -47,7 +59,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         return getTemplateFields(this.loadedTemplate);
     }
 
-    async renderPreview(record: CSVRecord) {
+    override async renderPreview(record: CSVRecord) {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }
@@ -58,18 +70,13 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
                 throwOnUndefined: true,
             }),
         );
-        const htmlWrapper = await fs.readFile(this.templateOptions.rootHtmlTemplate, "utf-8");
-        const htmlWrapperCompiled = nunjucks.compile(htmlWrapper, nunjucks.configure({ autoescape: false }));
 
         // Render the Markdown template with the record, so that we have something to preview
         const expanded = templateCompiled.render({
             name: record["name"],
         });
         // Render the MD to HTML
-        const html = renderMarkdownToHtml(expanded);
-
-        // Wrap the rendered markdown html in the wrapper
-        const wrapped = htmlWrapperCompiled.render({ content: html });
+        const wrappedHtml = await this.renderMarkdownToHtmlInsideWrapper(expanded);
 
         // Return both
         return [
@@ -82,10 +89,43 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
             },
             {
                 name: "Preview-HTML.html",
-                content: wrapped, // this is what will be sent - do not edit it, re-rendering will overwrite it
+                content: wrappedHtml, // this is what will be sent - do not edit it, re-rendering will overwrite it
                 metadata: {
                     type: "html",
                 },
+            },
+        ];
+    }
+
+    /**
+     * The rerenderer is simple - we just re-render the HTML preview!
+     */
+    override async rerenderPreviews(loadedPreviews: TemplatePreviews): Promise<TemplatePreviews> {
+        const markdownPreview = loadedPreviews.find(
+            (preview) => (preview.metadata as NunjucksSidecarMetadata).type === "markdown",
+        );
+        if (!markdownPreview) {
+            throw new Error("No markdown preview found in sidecar data");
+        }
+        const htmlPreview = loadedPreviews.find(
+            (preview) => (preview.metadata as NunjucksSidecarMetadata).type === "html",
+        );
+        if (!htmlPreview) {
+            throw new Error("No HTML preview found in sidecar data");
+        }
+
+        if (!this.loadedTemplate) {
+            throw new Error("Template not loaded");
+        }
+
+        // Re-render the markdown preview
+        const html = await this.renderMarkdownToHtmlInsideWrapper(markdownPreview.content);
+
+        return [
+            markdownPreview,
+            {
+                ...htmlPreview,
+                content: html,
             },
         ];
     }

@@ -17,7 +17,7 @@ export async function stopIfCriticalFsError<T>(promise: Promise<T>) {
     } catch (e) {
         if (e instanceof Error && isErrnoException(e)) {
             if (e?.code === "ENOENT") {
-                logger.error("File not found: ", e.message);
+                logger.error("File not found: ", e);
             } else if (e?.code === "EACCES") {
                 logger.error("Permission denied: ", e.message);
             } else {

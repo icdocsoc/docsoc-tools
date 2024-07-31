@@ -12,9 +12,10 @@ import { TemplatePreview, TemplatePreviews } from "../engines/types";
 import { stopIfCriticalFsError } from "../util/files";
 import createLogger from "../util/logger";
 import { CliOptions, CSVRecord } from "../util/types";
-import { SidecardData } from "./types";
+import { SidecarData } from "./types";
 
 const PARTS_SEPARATOR = "__";
+const METADATA_FILE_SUFFIX = "-metadata.json";
 const logger = createLogger("docsoc.sidecar");
 
 /**
@@ -54,11 +55,11 @@ export const getRecordPreviewPrefixForIndividual = (
  * // => "file_1-metadata.json"
  */
 export const getRecordPreviewPrefixForMetadata = (record: CSVRecord, fileNamer: (record: CSVRecord) => string) =>
-    `${getRecordPreviewPrefix(record, fileNamer)}-metadata.json`;
+    `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
 
 /**
  * Write the metadata for a record & its associated previews to a JSON file.
- * @param record The record to write metadata for
+ * @param record The record to write metadata for, mapped to the fields required by the template
  * @param templateEngine The engine used to render the previews
  * @param templateOptions The options given to the engine
  * @param previews The previews rendered for the record
@@ -74,7 +75,8 @@ export async function writeMetadata(
     fileNamer: (record: CSVRecord) => string,
     previewsRoot: string,
 ): Promise<void> {
-    const sidecar: SidecardData = {
+    const sidecar: SidecarData = {
+        name: fileNamer(record),
         record: record,
         engine: templateEngine,
         engineOptions: templateOptions,
@@ -89,6 +91,32 @@ export async function writeMetadata(
 
     const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
     logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
-    await stopIfCriticalFsError(fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4)));
+    await writeSidecarFile(previewsRoot, metadataFile, sidecar);
     return Promise.resolve();
+}
+
+/**
+ * Write the sidecar metadata file for a record
+ */
+export async function writeSidecarFile(previewsRoot: string, metadataFile: string, sidecar: SidecarData) {
+    await stopIfCriticalFsError(fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4)));
+}
+
+/**
+ * Load sidecar metadata files from a directory
+ * @param previewsRoot The root directory to load sidecar metadata from
+ * @returns An async iterator of sidecar metadata objects
+ */
+export async function* loadSidecars(
+    previewsRoot: string,
+): AsyncIterableIterator<SidecarData & { $originalfilename: string }> {
+    logger.info(`Loading sidecar metadata from ${previewsRoot}`);
+    const files = await fs.readdir(previewsRoot);
+    const metadataFiles = files.filter((file) => file.endsWith(METADATA_FILE_SUFFIX));
+
+    for (const metadataFile of metadataFiles) {
+        logger.debug(`Loading metadata from ${metadataFile}`);
+        const metadata = await fs.readFile(join(previewsRoot, metadataFile), "utf-8");
+        yield { ...(JSON.parse(metadata) as SidecarData), $originalfilename: metadataFile };
+    }
 }
