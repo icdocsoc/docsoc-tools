@@ -1,0 +1,29 @@
+{
+    "name": "libmailmerge",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "email/libmailmerge/src",
+    "projectType": "application",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": [
+                "{options.outputPath}"
+            ],
+            "options": {
+                "outputPath": "dist/email/libmailmerge",
+                "main": "email/libmailmerge/src/cli.ts",
+                "tsConfig": "email/libmailmerge/tsconfig.lib.json",
+                "assets": [],
+                "rootDir": "email/libmailmerge/src"
+            }
+        },
+        "run": {
+            "executor": "@nrwl/workspace:run-commands",
+            "outputs": [],
+            "options": {
+                "command": "ts-node src/cli.ts"
+            }
+        }
+    }
+}

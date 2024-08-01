@@ -1,6 +1,5 @@
 import inquirer from "inquirer";
 
-import { TemplateEngine } from "../engines/types";
 import createLogger from "../util/logger";
 
 /**

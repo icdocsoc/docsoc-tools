@@ -1,8 +1,7 @@
 [package]
-name = "docsoc_clickup_calendar_sync"
+name = "calendar-sync"
 version = "0.1.0"
 edition = "2021"
-
 
 
 [dependencies]

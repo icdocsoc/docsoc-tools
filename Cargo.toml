@@ -1,9 +1,7 @@
 
 [workspace]
 resolver = '2'
-members = [
-	'packages/docsoc_clickup_calendar_sync',
-]
+members = ['clickup/calendar-sync']
 
 [profile.release]
 lto = true

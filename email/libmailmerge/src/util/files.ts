@@ -2,6 +2,7 @@ import createLogger from "./logger";
 
 const logger = createLogger("docsoc.utils");
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isErrnoException(e: any): e is NodeJS.ErrnoException {
     return e.code !== undefined;
 }
