@@ -1,1 +1,1 @@
-export * from "./lib/mailmerge-cli";
+export { run } from "@oclif/core";
