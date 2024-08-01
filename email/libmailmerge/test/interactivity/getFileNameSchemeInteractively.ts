@@ -1,16 +1,13 @@
-import inquirer from "inquirer";
-import { mock } from "jest-mock-extended";
-
 import { getFileNameSchemeInteractively } from "../../src/interactivity/getFileNameSchemeInteractively";
 
 jest.mock("inquirer");
 
 describe("getFileNameSchemeInteractively", () => {
     const headers = ["name", "age", "email"];
-    const records = [
-        { name: "John Doe", age: 30, email: "john@example.com" },
-        { name: "Jane Doe", age: 25, email: "jane@example.com" },
-    ];
+    // const records = [
+    //     { name: "John Doe", age: 30, email: "john@example.com" },
+    //     { name: "Jane Doe", age: 25, email: "jane@example.com" },
+    // ];
 
     it("should throw an error if no records are available", async () => {
         await expect(getFileNameSchemeInteractively(headers, [])).rejects.toThrow(
