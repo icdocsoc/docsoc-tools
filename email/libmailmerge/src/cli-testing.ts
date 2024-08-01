@@ -1,3 +1,4 @@
+import { createLogger } from "@docsoc/util";
 import { parse } from "csv-parse";
 import "dotenv/config";
 import { promises as fs } from "fs";
@@ -7,7 +8,6 @@ import { join } from "path";
 
 import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
 import { renderMarkdownToHtml } from "./markdown/toHtml";
-import createLogger from "./util/logger";
 
 const logger = createLogger("docsoc");
 

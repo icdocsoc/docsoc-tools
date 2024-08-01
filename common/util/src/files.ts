@@ -3,7 +3,7 @@ import createLogger from "./logger";
 const logger = createLogger("docsoc.utils");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isErrnoException(e: any): e is NodeJS.ErrnoException {
+export function isErrnoException(e: any): e is NodeJS.ErrnoException {
     return e.code !== undefined;
 }
 
@@ -11,6 +11,7 @@ function isErrnoException(e: any): e is NodeJS.ErrnoException {
  * Handles error thrown by fs.promises functions & will stop the program
  * @param promise Promise returned by a fs.promises function
  * @example await handleCriticalFsError(fs.readFile("file.txt", "utf-8"));
+ * @returns never - stops the program
  */
 export async function stopIfCriticalFsError<T>(promise: Promise<T>) {
     try {

@@ -1,6 +1,5 @@
+import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
-
-import createLogger from "../util/logger";
 
 /**
  * Using inquirer, map the csv headers to template fields

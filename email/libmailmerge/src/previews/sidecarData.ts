@@ -4,14 +4,13 @@
  *
  * @packageDocumentation
  */
+import { createLogger } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
 import { TEMPLATE_ENGINES } from "../engines";
 import { TemplatePreview, TemplatePreviews } from "../engines/types";
 import Mailer from "../mailer/mailer";
-import { stopIfCriticalFsError } from "../util/files";
-import createLogger from "../util/logger";
 import { CliOptions, CSVRecord, EmailString } from "../util/types";
 import { SidecarData } from "./types";
 
@@ -114,7 +113,7 @@ export async function writeMetadata(
  * Write the sidecar metadata file for a record
  */
 export async function writeSidecarFile(previewsRoot: string, metadataFile: string, sidecar: SidecarData) {
-    await stopIfCriticalFsError(fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4)));
+    await fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4));
 }
 
 /**

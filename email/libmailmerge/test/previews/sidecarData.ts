@@ -1,4 +1,5 @@
 // index.test.ts
+import { stopIfCriticalFsError } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
@@ -11,20 +12,18 @@ import {
     writeMetadata,
 } from "../../src/previews/sidecarData";
 import { SidecarData } from "../../src/previews/types";
-import { stopIfCriticalFsError } from "../../src/util/files";
 import { CliOptions, CSVRecord } from "../../src/util/types";
 
 jest.mock("fs/promises");
-jest.mock("../../src/util/logger", () => {
+jest.mock("@docsoc/util", () => {
     const logger = {
         info: jest.fn(),
         debug: jest.fn(),
         warn: jest.fn(),
         error: jest.fn(),
     };
-    return () => logger;
+    return { createLogger: () => logger, stopIfCriticalFsError: jest.fn() };
 });
-jest.mock("../../src/util/files");
 
 describe("Sidecar Data Functions", () => {
     const mockRecord: CSVRecord = { id: "1", name: "Test Record", email: "meap@hotmail.com", subject: "Test Record" };

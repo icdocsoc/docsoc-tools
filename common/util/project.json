@@ -1,0 +1,37 @@
+{
+    "name": "util",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "common/util/src",
+    "projectType": "library",
+    "release": {
+        "version": {
+            "generatorOptions": {
+                "packageRoot": "dist/{projectRoot}",
+                "currentVersionResolver": "git-tag"
+            }
+        }
+    },
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": [
+                "{options.outputPath}"
+            ],
+            "options": {
+                "outputPath": "dist/common/util",
+                "main": "common/util/src/index.ts",
+                "tsConfig": "common/util/tsconfig.lib.json",
+                "assets": [
+                    "common/util/*.md"
+                ],
+                "rootDir": "common/util/src"
+            }
+        },
+        "nx-release-publish": {
+            "options": {
+                "packageRoot": "dist/{projectRoot}"
+            }
+        }
+    }
+}

@@ -1,3 +1,4 @@
+import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
@@ -8,7 +9,6 @@ import { ENGINES_MAP } from "./engines";
 import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
 import loadPreviewsFromSidecar from "./previews/loadPreviews";
 import { loadSidecars } from "./previews/sidecarData";
-import createLogger from "./util/logger";
 import { EmailString } from "./util/types";
 
 const logger = createLogger("docsoc");

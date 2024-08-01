@@ -1,3 +1,4 @@
+import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
 import { parse } from "csv-parse";
 import "dotenv/config";
 import { promises as fs } from "fs";
@@ -12,8 +13,6 @@ import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchem
 import getRunNameInteractively from "./interactivity/getRunNameInteractively";
 import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
 import { getRecordPreviewPrefixForIndividual, writeMetadata } from "./previews/sidecarData";
-import { stopIfCriticalFsError } from "./util/files";
-import createLogger from "./util/logger";
 import { CliOptions, CSVRecord } from "./util/types";
 
 const logger = createLogger("docsoc");

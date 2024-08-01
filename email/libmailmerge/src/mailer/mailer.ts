@@ -2,7 +2,7 @@ import { validate } from "email-validator";
 import { convert } from "html-to-text";
 import nodemailer from "nodemailer";
 
-import createLogger from "../util/logger";
+import { createLogger } from "@docsoc/util";
 import { EmailString, FromEmail } from "../util/types";
 
 const logger = createLogger("mailer");

@@ -1,17 +1,17 @@
+import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
 
 import mapInteractive from "../../src/interactivity/mapCSVFieldsInteractive";
-import createLogger from "../../src/util/logger";
 
 jest.mock("inquirer");
-jest.mock("../../src/util/logger", () => {
+jest.mock("@docsoc/util", () => {
     const logger = {
         info: jest.fn(),
         debug: jest.fn(),
         warn: jest.fn(),
         error: jest.fn(),
     };
-    return () => logger;
+    return { createLogger: () => logger };
 });
 
 describe("mapInteractive", () => {

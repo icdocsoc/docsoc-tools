@@ -6,8 +6,7 @@ import { ENGINES_MAP } from "./engines";
 import { TemplatePreviews } from "./engines/types";
 import loadPreviewsFromSidecar from "./previews/loadPreviews";
 import { loadSidecars, writeSidecarFile } from "./previews/sidecarData";
-import { stopIfCriticalFsError } from "./util/files";
-import createLogger from "./util/logger";
+import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
 
 const logger = createLogger("docsoc");
 
