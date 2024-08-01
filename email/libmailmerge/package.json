@@ -1,6 +1,6 @@
 {
-    "name": "docsoc-mail-merge",
-    "version": "0.0.1",
+    "name": "@docsoc/libmailmerge",
+    "version": "0.1.0",
     "dependencies": {
         "dotenv": "^16.4.5",
         "email-validator": "^2.0.4",
@@ -16,7 +16,8 @@
     },
     "scripts": {
         "start": "ts-node src/cli.ts",
-        "test": "jest"
+        "test": "jest",
+        "build": "tsc --build --verbose"
     },
     "bin": "./dist/cli.js",
     "type": "commonjs",

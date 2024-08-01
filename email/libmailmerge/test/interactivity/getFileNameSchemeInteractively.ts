@@ -1,18 +1,21 @@
-import { getFileNameSchemeInteractively } from '../../src/interactivity/getFileNameSchemeInteractively';
-import inquirer from 'inquirer';
-import { mock } from 'jest-mock-extended';
+import inquirer from "inquirer";
+import { mock } from "jest-mock-extended";
 
-jest.mock('inquirer');
+import { getFileNameSchemeInteractively } from "../../src/interactivity/getFileNameSchemeInteractively";
 
-describe('getFileNameSchemeInteractively', () => {
-    const headers = ['name', 'age', 'email'];
+jest.mock("inquirer");
+
+describe("getFileNameSchemeInteractively", () => {
+    const headers = ["name", "age", "email"];
     const records = [
-        { name: 'John Doe', age: 30, email: 'john@example.com' },
-        { name: 'Jane Doe', age: 25, email: 'jane@example.com' }
+        { name: "John Doe", age: 30, email: "john@example.com" },
+        { name: "Jane Doe", age: 25, email: "jane@example.com" },
     ];
 
-    it('should throw an error if no records are available', async () => {
-        await expect(getFileNameSchemeInteractively(headers, [])).rejects.toThrow("No records available to provide examples.");
+    it("should throw an error if no records are available", async () => {
+        await expect(getFileNameSchemeInteractively(headers, [])).rejects.toThrow(
+            "No records available to provide examples.",
+        );
     });
 
     // it('should return a function that constructs a filename based on selected fields', async () => {

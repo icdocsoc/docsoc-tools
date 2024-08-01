@@ -1,8 +1,9 @@
-import nodemailer from "nodemailer";
-import { EmailString, FromEmail } from "../util/types";
-import { convert } from "html-to-text";
 import { validate } from "email-validator";
+import { convert } from "html-to-text";
+import nodemailer from "nodemailer";
+
 import createLogger from "../util/logger";
+import { EmailString, FromEmail } from "../util/types";
 
 const logger = createLogger("mailer");
 
