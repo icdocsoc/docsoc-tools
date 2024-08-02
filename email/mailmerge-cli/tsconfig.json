@@ -18,6 +18,12 @@
         },
         {
             "path": "./tsconfig.spec.json"
+        },
+        {
+            "path": "../libmailmerge/tsconfig.json"
+        },
+        {
+            "path": "../../common/util/tsconfig.json"
         }
     ]
 }
