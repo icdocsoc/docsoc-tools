@@ -1,3 +1,12 @@
+import {
+    TemplatePreviews,
+    CSVRecord,
+    TemplateEngineOptions,
+    TemplateEngine,
+    NunjucksMarkdownEngine,
+    TEMPLATE_ENGINES,
+} from "@docsoc/libmailmerge";
+import { getRecordPreviewPrefixForIndividual, writeMetadata } from "@docsoc/libmailmerge";
 import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
 import { parse } from "csv-parse";
 import "dotenv/config";
@@ -6,24 +15,34 @@ import { mkdirp } from "mkdirp";
 // load .env
 import { join } from "path";
 
-import packageJSON from "../package.json";
-import { ENGINES_MAP } from "./engines";
-import { TemplatePreviews } from "./engines/types";
-import { getFileNameSchemeInteractively } from "./interactivity/getFileNameSchemeInteractively";
-import getRunNameInteractively from "./interactivity/getRunNameInteractively";
-import mapCSVFieldsInteractive from "./interactivity/mapCSVFieldsInteractive";
-import { getRecordPreviewPrefixForIndividual, writeMetadata } from "./previews/sidecarData";
-import { CliOptions, CSVRecord } from "./util/types";
+import packageJSON from "../../../package.json";
+import { getFileNameSchemeInteractively, getRunNameInteractively, mapCSVFieldsInteractive } from "../../interactivity";
 
 const logger = createLogger("docsoc");
 
+export interface CliOptions {
+    csvFile: string;
+    engineInfo: {
+        name: TEMPLATE_ENGINES;
+        options: TemplateEngineOptions;
+        engine: TemplateEngine;
+    };
+    output: string;
+}
+
 const opts: CliOptions = {
     csvFile: "./data/names.csv",
-    templateOptions: {
-        templatePath: "./templates/TEMPLATE.md.njk",
-        rootHtmlTemplate: "./templates/wrapper.html.njk",
+    engineInfo: {
+        options: {
+            templatePath: "./templates/TEMPLATE.md.njk",
+            rootHtmlTemplate: "./templates/wrapper.html.njk",
+        },
+        name: "nunjucks",
+        engine: new NunjucksMarkdownEngine({
+            templatePath: "./templates/TEMPLATE.md.njk",
+            rootHtmlTemplate: "./templates/wrapper.html.njk",
+        }),
     },
-    templateEngine: "nunjucks",
     output: "./output",
 };
 
@@ -57,12 +76,7 @@ async function main(opts: CliOptions) {
 
     // 4: Load template via template engine
     logger.info("Loading template...");
-    const EngineClass = ENGINES_MAP[opts.templateEngine];
-    if (!EngineClass) {
-        logger.error(`Invalid template engine: ${opts.templateEngine}`);
-        throw new Error(`Invalid template engine: ${opts.templateEngine}`);
-    }
-    const engine = new EngineClass(opts.templateOptions);
+    const engine = opts.engineInfo.engine;
     await engine.loadTemplate();
 
     // 5: Extract template fields
@@ -104,14 +118,14 @@ async function main(opts: CliOptions) {
     await Promise.all(
         previews.flatMap(async ([previews, record]) => {
             const operations = previews.map(async (preview) => {
-                const fileName = getRecordPreviewPrefixForIndividual(record, fileNamer, opts.templateEngine, preview);
-                logger.debug(`Writing ${fileName}__${opts.templateEngine}__${preview.name}`);
+                const fileName = getRecordPreviewPrefixForIndividual(record, fileNamer, opts.engineInfo.name, preview);
+                logger.debug(`Writing ${fileName}__${opts.engineInfo.name}__${preview.name}`);
                 await stopIfCriticalFsError(fs.writeFile(join(previewsRoot, fileName), preview.content));
             });
 
             // Add metadata write operation
             operations.push(
-                writeMetadata(record, opts.templateEngine, opts.templateOptions, previews, fileNamer, previewsRoot),
+                writeMetadata(record, opts.engineInfo.name, opts.engineInfo.options, previews, fileNamer, previewsRoot),
             );
 
             return operations;

@@ -4,10 +4,7 @@ import { join } from "path";
 import { TemplatePreviews } from "../engines/types";
 import { SidecarData } from "./types";
 
-export default async function loadPreviewsFromSidecar(
-    files: SidecarData["files"],
-    rootDir: string,
-): Promise<TemplatePreviews> {
+export async function loadPreviewsFromSidecar(files: SidecarData["files"], rootDir: string): Promise<TemplatePreviews> {
     return Promise.all(
         files.map(async (file) => ({
             ...file.engineData,

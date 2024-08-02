@@ -8,6 +8,9 @@ import { TemplateEngine } from "../types";
 import getTemplateFields from "./getFields";
 import { assertIsNunjucksTemplateOptions, NunjucksMarkdownTemplateOptions, NunjucksSidecarMetadata } from "./types";
 
+export { default as getNunjucksTemplateFields } from "./getFields";
+export * from "./types";
+
 /**
  * A Nunjucks Markdown template engine
  *

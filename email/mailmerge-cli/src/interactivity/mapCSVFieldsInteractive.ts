@@ -21,7 +21,7 @@ const logger = createLogger("docsoc.util.mapInteractive");
  * @param csvHeaders Headers from the CSV
  * @returns Map of csv headers to template fields
  */
-const mapCSVFieldsInteractive = async (
+export const mapCSVFieldsInteractive = async (
     templateFields: Set<string>,
     csvHeaders: string[],
 ): Promise<Map<string, string>> => {
@@ -56,5 +56,3 @@ const mapCSVFieldsInteractive = async (
 
     return map;
 };
-
-export default mapCSVFieldsInteractive;

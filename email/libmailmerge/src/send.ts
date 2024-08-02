@@ -7,7 +7,7 @@ import readlineSync from "readline-sync";
 import packageJSON from "../package.json";
 import { ENGINES_MAP } from "./engines";
 import { defaultMailer, getDefaultMailer } from "./mailer/defaultMailer";
-import loadPreviewsFromSidecar from "./previews/loadPreviews";
+import { loadPreviewsFromSidecar } from "./previews/loadPreviews";
 import { loadSidecars } from "./previews/sidecarData";
 import { EmailString } from "./util/types";
 

@@ -1,6 +1,5 @@
+import { CSVRecord } from "@docsoc/libmailmerge";
 import inquirer from "inquirer";
-
-import { CSVRecord } from "../util/types";
 
 /**
  * Interactively get a function that generates a filename from a record, by asking a user which fields to use and separating the chosen fields with a hyphen.

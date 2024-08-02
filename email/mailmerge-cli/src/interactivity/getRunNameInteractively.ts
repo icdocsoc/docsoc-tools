@@ -8,7 +8,7 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-
  * @example "red.elephant.angry"
  * @returns The name of the run
  */
-export default async function getRunNameInteractively() {
+export async function getRunNameInteractively() {
     // Generate a default name
     const defaultName = uniqueNamesGenerator({
         dictionaries: [adjectives, colors, animals],

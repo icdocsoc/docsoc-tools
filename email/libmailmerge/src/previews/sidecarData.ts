@@ -9,9 +9,9 @@ import fs from "fs/promises";
 import { join } from "path";
 
 import { TEMPLATE_ENGINES } from "../engines";
-import { TemplatePreview, TemplatePreviews } from "../engines/types";
+import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types";
 import Mailer from "../mailer/mailer";
-import { CliOptions, CSVRecord, EmailString } from "../util/types";
+import { CSVRecord, EmailString } from "../util/types";
 import { SidecarData } from "./types";
 
 const PARTS_SEPARATOR = "__";
@@ -70,7 +70,7 @@ export const getRecordPreviewPrefixForMetadata = (record: CSVRecord, fileNamer: 
 export async function writeMetadata(
     record: CSVRecord,
     templateEngine: TEMPLATE_ENGINES,
-    templateOptions: CliOptions["templateOptions"],
+    templateOptions: TemplateEngineOptions,
     previews: TemplatePreviews,
     fileNamer: (record: CSVRecord) => string,
     previewsRoot: string,

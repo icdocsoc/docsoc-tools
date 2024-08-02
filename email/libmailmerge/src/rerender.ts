@@ -1,12 +1,12 @@
+import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
 import packageJSON from "../package.json";
 import { ENGINES_MAP } from "./engines";
 import { TemplatePreviews } from "./engines/types";
-import loadPreviewsFromSidecar from "./previews/loadPreviews";
+import { loadPreviewsFromSidecar } from "./previews/loadPreviews";
 import { loadSidecars, writeSidecarFile } from "./previews/sidecarData";
-import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
 
 const logger = createLogger("docsoc");
 

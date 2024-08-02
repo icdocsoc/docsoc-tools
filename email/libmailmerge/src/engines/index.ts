@@ -11,3 +11,6 @@ export type TEMPLATE_ENGINES = "nunjucks";
 export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = {
     nunjucks: nunjucksEngine,
 };
+
+export * from "./types";
+export { default as NunjucksMarkdownEngine } from "./nunjucks-md";
