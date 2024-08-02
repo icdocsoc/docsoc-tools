@@ -13,4 +13,5 @@ export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = 
 };
 
 export * from "./types";
+export * from "./nunjucks-md";
 export { default as NunjucksMarkdownEngine } from "./nunjucks-md";

@@ -49,7 +49,7 @@ const opts: CliOptions = {
 // TODO: Put somewhere nice
 const ADDITIONAL_FIELDS = ["email", "subject"];
 
-async function main(opts: CliOptions) {
+export default async function generatePreviews(opts: CliOptions) {
     logger.info("DoCSoc Mail Merge");
     logger.info(`v${packageJSON.version}`);
 
@@ -134,5 +134,3 @@ async function main(opts: CliOptions) {
 
     logger.info("Done! Review previews and then send.");
 }
-
-main(opts);
