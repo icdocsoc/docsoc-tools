@@ -180,7 +180,7 @@ export async function writeSidecarFile(
  */
 export async function* loadSidecars(
     previewsRoot: string,
-): AsyncIterableIterator<SidecarData & { $originalfilename: string }> {
+): AsyncIterableIterator<SidecarData & { $originalFilepath: string }> {
     logger.info(`Loading sidecar metadata from ${previewsRoot}`);
     const files = await fs.readdir(previewsRoot);
     const metadataFiles = files.filter((file) => file.endsWith(METADATA_FILE_SUFFIX));
@@ -188,6 +188,9 @@ export async function* loadSidecars(
     for (const metadataFile of metadataFiles) {
         logger.debug(`Loading metadata from ${metadataFile}`);
         const metadata = await fs.readFile(join(previewsRoot, metadataFile), "utf-8");
-        yield { ...(JSON.parse(metadata) as SidecarData), $originalfilename: metadataFile };
+        yield {
+            ...(JSON.parse(metadata) as SidecarData),
+            $originalFilepath: join(previewsRoot, metadataFile),
+        };
     }
 }

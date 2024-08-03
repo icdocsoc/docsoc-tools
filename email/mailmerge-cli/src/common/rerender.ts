@@ -46,14 +46,16 @@ export async function rerenderPreviews(directory: string) {
             renderedPreviews.map(async (preview, idx) => {
                 const file = files[idx];
                 logger.debug(`Writing rerendered preview ${file.filename}...`);
-                await stopIfCriticalFsError(fs.writeFile(join(directory, file.filename), preview.content));
+                await stopIfCriticalFsError(
+                    fs.writeFile(join(directory, file.filename), preview.content),
+                );
                 logger.debug("Overwriting sidecar metadata with new metadata...");
                 sidecar.files[idx].engineData = { ...preview, content: undefined };
             }),
         );
 
-        logger.info(`Updating sidecar metadata for ${name} at ${sidecar.$originalfilename}...`);
-        await writeSidecarFile(directory, sidecar.$originalfilename, sidecar);
+        logger.info(`Updating sidecar metadata for ${name} at ${sidecar.$originalFilepath}...`);
+        await writeSidecarFile(directory, sidecar.$originalFilepath, sidecar);
 
         logger.info(`Finished rerendering ${name}`);
     }

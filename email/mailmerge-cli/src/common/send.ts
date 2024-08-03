@@ -10,9 +10,16 @@ import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
+import { promises as fs } from "fs";
+import { mkdirp } from "mkdirp";
+import { basename, join } from "path";
 import readlineSync from "readline-sync";
 
 const logger = createLogger("docsoc");
+
+const move = (file: string, directory: string) => {
+    return fs.rename(file, join(directory, basename(file)));
+};
 
 export async function sendEmails(directory: string) {
     logger.info(`Sending previews at ${directory}...`);
@@ -26,6 +33,8 @@ export async function sendEmails(directory: string) {
         subject: string;
         html: string;
         attachments: string[];
+        /** These files will be moved to the sent folder on the file system so they are not resent (include sidecar data) */
+        filesToMove: string[];
     }[] = [];
     for await (const sidecar of sidecars) {
         const { name, engine: engineName, engineOptions, files } = sidecar;
@@ -52,6 +61,9 @@ export async function sendEmails(directory: string) {
             subject: sidecar.email.subject,
             html,
             attachments: sidecar.attachments,
+            filesToMove: files
+                .map((file) => join(directory, file.filename))
+                .concat([sidecar.$originalFilepath]),
         });
     }
 
@@ -88,7 +100,9 @@ If you are happy to proceed, please type "Yes, send emails" below.`),
     const mailer = getDefaultMailer();
     const total = pendingEmails.length;
     let sent = 0;
-    for (const { to, subject, html, attachments } of pendingEmails) {
+    const sentDir = join(directory, "sent");
+    await mkdirp(sentDir);
+    for (const { to, subject, html, attachments, filesToMove } of pendingEmails) {
         logger.info(`(${++sent} / ${total}) Sending email to ${to} with subject ${subject}...`);
         await defaultMailer(
             [to],
@@ -98,6 +112,14 @@ If you are happy to proceed, please type "Yes, send emails" below.`),
             attachments.map((file) => ({
                 path: file,
             })),
+        );
+
+        // Then move
+        await Promise.all(
+            filesToMove.map(async (file) => {
+                await move(file, sentDir);
+                logger.info(`Moved ${file} to ${sentDir}`);
+            }),
         );
     }
 }
