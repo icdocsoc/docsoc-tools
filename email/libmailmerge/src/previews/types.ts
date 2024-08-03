@@ -27,4 +27,6 @@ export interface SidecarData {
         to: EmailString;
         subject: string;
     };
+    /** Array of paths to attachments to include in the final email, relative to the mailmerge workspace root (top level folder) */
+    attachments: string[];
 }

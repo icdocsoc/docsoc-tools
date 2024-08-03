@@ -1,3 +1,5 @@
+import Mail from "nodemailer/lib/mailer";
+
 import { EmailString } from "../util/types";
 import Mailer from "./mailer";
 
@@ -7,7 +9,9 @@ import Mailer from "./mailer";
 export const getDefaultMailer = () =>
     new Mailer(
         process.env["DOCSOC_SMTP_SERVER"] ?? "smtp-mail.outlook.com",
-        587,
+        process.env["DOCSOC_SMTP_PORT"] && isFinite(parseInt(process.env["DOCSOC_SMTP_PORT"]))
+            ? parseInt(process.env["DOCSOC_SMTP_PORT"])
+            : 587,
         process.env["DOCSOC_SMTP_USERNAME"] ?? "docsoc@ic.ac.uk",
         process.env["DOCSOC_SMTP_PASSWORD"] ?? "password",
     );
@@ -17,7 +21,13 @@ export const getDefaultMailer = () =>
  *
  * Pass it an instance of a Mailer from {@link getDefaultMailer} to use the default mailer.
  */
-export const defaultMailer = (to: EmailString[], subject: string, html: string, mailer: Mailer): Promise<void> =>
+export const defaultMailer = (
+    to: EmailString[],
+    subject: string,
+    html: string,
+    mailer: Mailer,
+    attachments: Mail.Options["attachments"] = [],
+): Promise<void> =>
     mailer.sendMail(
         Mailer.makeFromLineFromEmail(
             process.env["DOCSOC_SENDER_NAME"] ?? "DoCSoc",
@@ -28,4 +38,5 @@ export const defaultMailer = (to: EmailString[], subject: string, html: string, 
         to,
         subject,
         html,
+        attachments,
     );

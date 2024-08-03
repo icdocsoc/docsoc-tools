@@ -25,8 +25,10 @@ const logger = createLogger("docsoc.sidecar");
  * @param fileNamer A function that generates a filename for a record
  * @returns
  */
-export const getRecordPreviewPrefix = (record: CSVRecord, fileNamer: (record: CSVRecord) => string) =>
-    `${fileNamer(record)}`;
+export const getRecordPreviewPrefix = (
+    record: CSVRecord,
+    fileNamer: (record: CSVRecord) => string,
+) => `${fileNamer(record)}`;
 
 /**
  * Generate predicable prefixes for preview names (including record specific part
@@ -42,7 +44,8 @@ export const getRecordPreviewPrefixForIndividual = (
     fileNamer: (record: CSVRecord) => string,
     templateEngine: string,
     preview: TemplatePreview,
-) => [getRecordPreviewPrefix(record, fileNamer), templateEngine, preview.name].join(PARTS_SEPARATOR);
+) =>
+    [getRecordPreviewPrefix(record, fileNamer), templateEngine, preview.name].join(PARTS_SEPARATOR);
 
 /**
  * Generate the filename for the metadata file for a record
@@ -54,44 +57,98 @@ export const getRecordPreviewPrefixForIndividual = (
  * getRecordPreviewPrefixForMetadata(record, fileNamer)
  * // => "file_1-metadata.json"
  */
-export const getRecordPreviewPrefixForMetadata = (record: CSVRecord, fileNamer: (record: CSVRecord) => string) =>
-    `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
+export const getRecordPreviewPrefixForMetadata = (
+    record: CSVRecord,
+    fileNamer: (record: CSVRecord) => string,
+) => `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
+
+type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
+/**
+ * Check a record is valid for use in mailmerge - specifically, that it has a valid email address and a subject.
+ * @param record __Mapped__ CSV Record to validate
+ */
+export const validateRecord = (record: CSVRecord): ValidRecordReturn => {
+    if (!Mailer.validateEmail(record["email"] as string)) {
+        return {
+            valid: false,
+            reason: "Invalid email address",
+        };
+    }
+
+    if (!record["subject"]) {
+        return {
+            valid: false,
+            reason: "No subject provided",
+        };
+    }
+
+    return {
+        valid: true,
+    };
+};
 
 /**
  * Write the metadata for a record & its associated previews to a JSON file.
  * @param record The record to write metadata for, mapped to the fields required by the template
- * @param templateEngine The engine used to render the previews
- * @param templateOptions The options given to the engine
- * @param previews The previews rendered for the record
+ * @param sidecarData Sidecar data to write. Use {@link getSidecarMetadata} to get.
  * @param fileNamer A function that generates a filename for a record
  * @param previewsRoot The root directory to write the metadata to
  * @returns
  */
 export async function writeMetadata(
     record: CSVRecord,
-    templateEngine: TEMPLATE_ENGINES,
-    templateOptions: TemplateEngineOptions,
-    previews: TemplatePreviews,
+    sidecarData: SidecarData,
     fileNamer: (record: CSVRecord) => string,
     previewsRoot: string,
 ): Promise<void> {
-    if (!Mailer.validateEmail(record["email"] as string)) {
-        logger.warn(`Skipping metadata write for ${fileNamer(record)} - invalid email address`);
+    const recordState = validateRecord(record);
+    if (!recordState.valid) {
+        logger.warn(
+            `Skipping metadata for ${fileNamer(record)} due to invalid record: ${
+                recordState.reason
+            }`,
+        );
         return Promise.resolve();
     }
+    const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
+    logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
+    await writeSidecarFile(previewsRoot, metadataFile, sidecarData);
+    return Promise.resolve();
+}
 
-    if (!record["subject"]) {
-        logger.warn(`Skipping metadata write for ${fileNamer(record)} - no subject provided`);
-        return Promise.resolve();
-    }
-
-    const sidecar: SidecarData = {
+/**
+ * Generate sidecar metadata for a record & the previews generated from it.
+ * It is recommended you then store this info alongside the preview, e.g. in a JSON file
+ *
+ * The idea of sidecar metadata is to allow us to rerender previews again and again.
+ * @param fileNamer Function that given a record, provides the prefix to preppend the name of any generated preview files (including sidecar metadata)
+ * @param record The record to write metadata for, mapped to the fields required by the template. This is assumed to be a valid record (see {@link validateRecord})
+ * @param templateEngine Template engine used
+ * @param templateOptions Options for that template engine (included in the sidecar)
+ * @param attachments Array of paths to attachments to include in the final email, relative to the mailmerge workspace root (top level folder)
+ * @param previews Previews rendered for the record - we will remove the content field from it and include the rest of the preview object to the sidecar metadata
+ * @returns Sidecar metadata
+ */
+export function getSidecarMetadata(
+    fileNamer: (record: CSVRecord) => string,
+    record: CSVRecord,
+    templateEngine: TEMPLATE_ENGINES,
+    templateOptions: TemplateEngineOptions,
+    attachments: string[],
+    previews: TemplatePreviews,
+): SidecarData {
+    return {
         name: fileNamer(record),
         record: record,
         engine: templateEngine,
         engineOptions: templateOptions,
         files: previews.map((preview) => ({
-            filename: getRecordPreviewPrefixForIndividual(record, fileNamer, templateEngine, preview),
+            filename: getRecordPreviewPrefixForIndividual(
+                record,
+                fileNamer,
+                templateEngine,
+                preview,
+            ),
             engineData: {
                 ...preview,
                 content: undefined,
@@ -101,18 +158,18 @@ export async function writeMetadata(
             to: record["email"] as EmailString,
             subject: record["subject"] as string,
         },
+        attachments,
     };
-
-    const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
-    logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
-    await writeSidecarFile(previewsRoot, metadataFile, sidecar);
-    return Promise.resolve();
 }
 
 /**
  * Write the sidecar metadata file for a record
  */
-export async function writeSidecarFile(previewsRoot: string, metadataFile: string, sidecar: SidecarData) {
+export async function writeSidecarFile(
+    previewsRoot: string,
+    metadataFile: string,
+    sidecar: SidecarData,
+) {
     await fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4));
 }
 

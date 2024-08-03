@@ -21,7 +21,7 @@
         "esModuleInterop": true,
         "paths": {
             "@docsoc/libmailmerge": [
-                "email/docsoc-mail-merge/src/index.ts"
+                "email/libmailmerge/src/index.ts"
             ],
             "@docsoc/mailmerge-cli": [
                 "email/mailmerge-cli/src/index.ts"

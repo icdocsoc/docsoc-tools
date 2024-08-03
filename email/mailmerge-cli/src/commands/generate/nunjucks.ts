@@ -2,8 +2,8 @@ import { NunjucksMarkdownEngine, NunjucksMarkdownTemplateOptions } from "@docsoc
 import { Args, Command, Flags } from "@oclif/core";
 import { join } from "path";
 
+import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate";
 import { DEFAULT_DIRS } from "../../util/constant";
-import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../base/generate";
 
 export default class GenerateNunjucks extends Command {
     static override args = {
@@ -36,6 +36,13 @@ export default class GenerateNunjucks extends Command {
             description: "Path to the HTML template to use to generate the final email",
             default: join(DEFAULT_DIRS.TEMPLATES, "wrapper.html.njk"),
         }),
+        attachment: Flags.string({
+            multiple: true,
+            char: "a",
+            description:
+                "Attachments to add to the email, relative to mailmerge workspace root. Can specify multiple.",
+            default: [],
+        }),
     };
 
     public async run(): Promise<void> {
@@ -52,6 +59,7 @@ export default class GenerateNunjucks extends Command {
                 engine: new NunjucksMarkdownEngine(engineOptions),
             },
             output: flags.output,
+            attachments: flags.attachment,
         };
         await generatePreviews(options);
     }

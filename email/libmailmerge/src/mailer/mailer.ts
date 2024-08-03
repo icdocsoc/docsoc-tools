@@ -1,8 +1,9 @@
+import { createLogger } from "@docsoc/util";
 import { validate } from "email-validator";
 import { convert } from "html-to-text";
 import nodemailer from "nodemailer";
+import Mail from "nodemailer/lib/mailer";
 
-import { createLogger } from "@docsoc/util";
 import { EmailString, FromEmail } from "../util/types";
 
 const logger = createLogger("mailer");
@@ -16,7 +17,12 @@ const logger = createLogger("mailer");
  * @param password SMTP server password (usually your microsoft 365 password)
  */
 export default class Mailer {
-    constructor(private host: string, private port: number, private username: string, private password: string) {}
+    constructor(
+        private host: string,
+        private port: number,
+        private username: string,
+        private password: string,
+    ) {}
 
     private transporter = nodemailer.createTransport({
         host: this.host,
@@ -33,6 +39,7 @@ export default class Mailer {
         to: string[],
         subject: string,
         html: string,
+        attachments: Mail.Options["attachments"] = [],
         text: string = convert(html),
     ): Promise<void> {
         const info = await this.transporter.sendMail({
@@ -41,10 +48,13 @@ export default class Mailer {
             subject, // Subject line
             text: text, // plain text body
             html: html, // html body
+            attachments,
         });
 
         logger.debug(
-            `Sent email to ${to.join(", ")}, from ${from}, subject: ${subject}, message id: ${info.messageId}`,
+            `Sent email to ${to.join(", ")}, from ${from}, subject: ${subject}, message id: ${
+                info.messageId
+            }`,
         );
     }
 

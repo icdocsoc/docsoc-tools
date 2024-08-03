@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { TemplateEngine } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
 
@@ -29,6 +31,8 @@ export const mapCSVFieldsInteractive = async (
     const mappedFields = new Set<string>();
     logger.debug("Mapping CSV fields to template interactively");
 
+    const NONE_OPTION = "None";
+
     logger.info("When prompted, select the corresponding template field for each CSV header");
 
     const prompter = inquirer.prompt(
@@ -38,12 +42,18 @@ export const mapCSVFieldsInteractive = async (
             type: "list",
             name: header,
             message: `Map CSV field \`${header}\` to template field:`,
-            choices: Array.from(templateFields),
+            choices: Array.from(templateFields).concat([NONE_OPTION]),
             // Set default to index in templateField that matches the csvHeader
-            default: Array.from(templateFields).indexOf(header) > 0 ? header : undefined,
+            default: templateFields.has(header)
+                ? header
+                : header.startsWith("attachment")
+                ? "None"
+                : undefined,
         })),
     );
-    for (const [csvHeader, templateFieldChosen] of Object.entries(await prompter)) {
+    for (const [csvHeader, templateFieldChosen] of Object.entries(await prompter).filter(
+        ([, field]) => field !== NONE_OPTION,
+    )) {
         map.set(csvHeader, templateFieldChosen);
         mappedFields.add(templateFieldChosen);
     }
@@ -51,7 +61,9 @@ export const mapCSVFieldsInteractive = async (
     // Warn if not all fields were mapped
     const unmappedFields = new Set([...templateFields].filter((field) => !mappedFields.has(field)));
     if (unmappedFields.size > 0) {
-        logger.warn(`The following fields were not mapped: ${Array.from(unmappedFields).join(", ")}`);
+        logger.warn(
+            `The following fields were not mapped: ${Array.from(unmappedFields).join(", ")}`,
+        );
     }
 
     return map;

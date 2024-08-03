@@ -1,0 +1,38 @@
+{
+    "name": "Kishan-kss22@ic.ac.uk",
+    "record": {
+        "name": "Kishan",
+        "email": "kss22@ic.ac.uk",
+        "subject": " DoCSoc x Kishan"
+    },
+    "engine": "nunjucks",
+    "engineOptions": {
+        "templatePath": "templates/template.md.njk",
+        "rootHtmlTemplate": "templates/wrapper.html.njk"
+    },
+    "files": [
+        {
+            "filename": "Kishan-kss22@ic.ac.uk__nunjucks__Preview-Markdown.md",
+            "engineData": {
+                "name": "Preview-Markdown.md",
+                "metadata": {
+                    "type": "markdown"
+                }
+            }
+        },
+        {
+            "filename": "Kishan-kss22@ic.ac.uk__nunjucks__Preview-HTML.html",
+            "engineData": {
+                "name": "Preview-HTML.html",
+                "metadata": {
+                    "type": "html"
+                }
+            }
+        }
+    ],
+    "email": {
+        "to": "kss22@ic.ac.uk",
+        "subject": " DoCSoc x Kishan"
+    },
+    "$originalfilename": "Kishan-kss22@ic.ac.uk-metadata.json"
+}
