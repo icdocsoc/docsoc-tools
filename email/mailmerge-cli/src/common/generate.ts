@@ -190,5 +190,5 @@ export default async function generatePreviews(opts: CliOptions) {
         }),
     );
 
-    logger.info("Done! Review previews and then send.");
+    logger.info(`Done! Review previews at ${previewsRoot} and then send.`);
 }

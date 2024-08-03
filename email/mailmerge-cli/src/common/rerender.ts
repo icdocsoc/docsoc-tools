@@ -55,7 +55,7 @@ export async function rerenderPreviews(directory: string) {
         );
 
         logger.info(`Updating sidecar metadata for ${name} at ${sidecar.$originalFilepath}...`);
-        await writeSidecarFile(directory, sidecar.$originalFilepath, sidecar);
+        await writeSidecarFile(sidecar.$originalFilepath, sidecar);
 
         logger.info(`Finished rerendering ${name}`);
     }

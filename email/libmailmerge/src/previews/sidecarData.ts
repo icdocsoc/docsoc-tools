@@ -112,7 +112,7 @@ export async function writeMetadata(
     }
     const metadataFile = getRecordPreviewPrefixForMetadata(record, fileNamer);
     logger.debug(`Writing metadata for ${fileNamer(record)} to ${metadataFile}`);
-    await writeSidecarFile(previewsRoot, metadataFile, sidecarData);
+    await writeSidecarFile(join(previewsRoot, metadataFile), sidecarData);
     return Promise.resolve();
 }
 
@@ -165,12 +165,8 @@ export function getSidecarMetadata(
 /**
  * Write the sidecar metadata file for a record
  */
-export async function writeSidecarFile(
-    previewsRoot: string,
-    metadataFile: string,
-    sidecar: SidecarData,
-) {
-    await fs.writeFile(join(previewsRoot, metadataFile), JSON.stringify(sidecar, null, 4));
+export async function writeSidecarFile(metadataFilePath: string, sidecar: SidecarData) {
+    await fs.writeFile(metadataFilePath, JSON.stringify(sidecar, null, 4));
 }
 
 /**
