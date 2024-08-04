@@ -33,6 +33,12 @@ I recommend placing attachments in an `attachments` folder.
 2. If you want the same attachment to all emails, use the `-a` flag of generate, e.g. `docsoc-mailmerge generate nunjucks ./data/names.csv -o ./output -a ./attachments/image.jpg -a ./attachments/image2.jpg`.
     1. Note that if you pass the CLI option, any info about attachments in the CSV is ignored.
 
+### BCC, CC & Multi to
+
+-   For multi-to: Separate the list of emails with a space in the CSV column
+-   For CC: Add a column called `cc` with space separated emails in, and make sure to pass `--cc` to the `generate` command
+-   For BCC: Add a column called `bcc` with space separated emails in, and make sure to pass `--bcc` to the `generate` command
+
 This library was generated with [Nx](https://nx.dev).
 
 ## Building
