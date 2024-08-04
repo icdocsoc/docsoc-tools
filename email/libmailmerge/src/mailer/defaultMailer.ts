@@ -9,11 +9,23 @@ import Mailer from "./mailer";
 export const getDefaultMailer = () =>
     new Mailer(
         process.env["DOCSOC_SMTP_SERVER"] ?? "smtp-mail.outlook.com",
+        process.env["DOCSOC_IMAP_SERVER"] ?? "outlook.office365.com",
         process.env["DOCSOC_SMTP_PORT"] && isFinite(parseInt(process.env["DOCSOC_SMTP_PORT"]))
             ? parseInt(process.env["DOCSOC_SMTP_PORT"])
             : 587,
-        process.env["DOCSOC_SMTP_USERNAME"] ?? "docsoc@ic.ac.uk",
-        process.env["DOCSOC_SMTP_PASSWORD"] ?? "password",
+        process.env["DOCSOC_IMAP_PORT"] && isFinite(parseInt(process.env["DOCSOC_IMAP_PORT"]))
+            ? parseInt(process.env["DOCSOC_IMAP_PORT"])
+            : 993,
+        process.env["DOCSOC_OUTLOOK_USERNAME"] ?? "docsoc@ic.ac.uk",
+        process.env["DOCSOC_OUTLOOK_PASSWORD"] ?? "password",
+    );
+
+export const getDefaultDoCSocFromLine = () =>
+    Mailer.makeFromLineFromEmail(
+        process.env["DOCSOC_SENDER_NAME"] ?? "DoCSoc",
+        Mailer.validateEmail(process.env["DOCSOC_SENDER_EMAIL"])
+            ? process.env["DOCSOC_SENDER_EMAIL"] ?? "docsoc@ic.ac.uk"
+            : "docsoc@ic.ac.uk",
     );
 
 /**
@@ -29,16 +41,4 @@ export const defaultMailer = (
     attachments: Mail.Options["attachments"] = [],
     additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
 ): Promise<void> =>
-    mailer.sendMail(
-        Mailer.makeFromLineFromEmail(
-            process.env["DOCSOC_SENDER_NAME"] ?? "DoCSoc",
-            Mailer.validateEmail(process.env["DOCSOC_SENDER_EMAIL"])
-                ? process.env["DOCSOC_SENDER_EMAIL"] ?? "docsoc@ic.ac.uk"
-                : "docsoc@ic.ac.uk",
-        ),
-        to,
-        subject,
-        html,
-        attachments,
-        additionalInfo,
-    );
+    mailer.sendMail(getDefaultDoCSocFromLine(), to, subject, html, attachments, additionalInfo);

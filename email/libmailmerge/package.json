@@ -2,13 +2,16 @@
     "name": "@docsoc/libmailmerge",
     "version": "0.1.0",
     "dependencies": {
+        "@docsoc/util": "^0.1.0",
         "email-validator": "^2.0.4",
+        "eml-format": "^0.6.1",
         "html-to-text": "^9.0.5",
+        "imapflow": "^1.0.164",
         "markdown-it": "^14.1.0",
+        "mime-types": "^2.1.35",
         "nodemailer": "^6.9.14",
         "nunjucks": "^3.2.4",
-        "tslib": "^2.3.0",
-        "@docsoc/util": "^0.1.0"
+        "tslib": "^2.3.0"
     },
     "scripts": {
         "start": "ts-node src/cli.ts",
@@ -27,7 +30,9 @@
         "@types/dotenv": "^8.2.0",
         "@types/email-validator": "^1.0.6",
         "@types/html-to-text": "^9.0.4",
+        "@types/imapflow": "^1.0.19",
         "@types/markdown-it": "^14.1.1",
+        "@types/mime-types": "^2.1.4",
         "@types/nodemailer": "^6.4.15",
         "@types/nunjucks": "^3.2.6",
         "@types/readline-sync": "^1.4.8",
