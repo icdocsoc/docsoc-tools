@@ -2,10 +2,21 @@
     "name": "@docsoc/mailmerge-cli",
     "version": "0.0.1",
     "dependencies": {
+        "@docsoc/libmailmerge": "^0.1.0",
         "@docsoc/util": "^0.1.0",
         "@oclif/core": "^4.0.17",
-        "oclif": "^4.14.12",
-        "tslib": "^2.3.0"
+        "chalk": "^4.1.2",
+        "csv-parse": "^5.5.6",
+        "dotenv": "^16.4.5",
+        "inquirer": "^10.1.6",
+        "mkdirp": "^3.0.1",
+        "readline-sync": "^1.4.10",
+        "tslib": "^2.3.0",
+        "unique-names-generator": "^4.7.1"
+    },
+    "devDependencies": {
+        "@types/node": "^18.19.42",
+        "ts-node": "^10.9.2"
     },
     "scripts": {
         "build": "tsc --build --verbose"
@@ -24,9 +35,5 @@
         "hooks": {
             "prerun": "./dist/hooks/prerun/print-version"
         }
-    },
-    "devDependencies": {
-        "@types/node": "^18.19.42",
-        "ts-node": "^10.9.2"
     }
 }

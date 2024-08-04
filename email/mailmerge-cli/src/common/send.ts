@@ -1,4 +1,4 @@
-import { ENGINES_MAP, TemplateEngineConstructor } from "@docsoc/libmailmerge";
+import { ENGINES_MAP } from "@docsoc/libmailmerge";
 import {
     defaultMailer,
     getDefaultMailer,

@@ -66,7 +66,7 @@ export default async function generatePreviews(opts: CliOptions) {
     // 1: Load the CSV
     logger.info("Loading CSV...");
     const csvRaw = await stopIfCriticalFsError(
-        fs.readFile(join(process.cwd(), opts.csvFile), "utf-8"),
+        fs.readFile(join(workspaceRoot, opts.csvFile), "utf-8"),
     );
     logger.debug("Parsing & loading CSV...");
     const csvParsed = parse(csvRaw, { columns: true });

@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 
-import getRunNameInteractively from "../../src/interactivity/getRunNameInteractively";
+import { getRunNameInteractively } from "../../src/interactivity/getRunNameInteractively";
 
 jest.mock("inquirer");
 

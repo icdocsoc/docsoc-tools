@@ -1,6 +1,5 @@
 import {
     ENGINES_MAP,
-    TemplateEngineConstructor,
     TemplatePreviews,
     loadPreviewsFromSidecar,
     loadSidecars,

@@ -9,10 +9,11 @@ import {
     getRecordPreviewPrefix,
     getRecordPreviewPrefixForIndividual,
     getRecordPreviewPrefixForMetadata,
+    getSidecarMetadata,
     writeMetadata,
 } from "../../src/previews/sidecarData";
 import { SidecarData } from "../../src/previews/types";
-import { CliOptions, CSVRecord } from "../../src/util/types";
+import { CSVRecord } from "../../src/util/types";
 
 jest.mock("fs/promises");
 jest.mock("@docsoc/util", () => {
@@ -26,11 +27,18 @@ jest.mock("@docsoc/util", () => {
 });
 
 describe("Sidecar Data Functions", () => {
-    const mockRecord: CSVRecord = { id: "1", name: "Test Record", email: "meap@hotmail.com", subject: "Test Record" };
+    const mockRecord: CSVRecord = {
+        id: "1",
+        name: "Test Record",
+        email: "meap@hotmail.com",
+        subject: "Test Record",
+    };
     const mockFileNamer = (record: CSVRecord) => `file_${record["id"]}`;
     const mockTemplateEngine = "nunjucks" as TEMPLATE_ENGINES;
-    const mockTemplateOptions: CliOptions["templateOptions"] = {};
-    const mockPreviews: TemplatePreviews = [{ name: "preview1", content: "content1", metadata: { key: "value" } }];
+    const mockTemplateOptions = {};
+    const mockPreviews: TemplatePreviews = [
+        { name: "preview1", content: "content1", metadata: { key: "value" } },
+    ];
     const mockPreviewsRoot = "/mock/previews/root";
 
     beforeEach(() => {
@@ -77,15 +85,14 @@ describe("Sidecar Data Functions", () => {
                 to: "meap@hotmail.com",
                 subject: "Test Record",
             },
+            attachments: [],
         };
 
         (stopIfCriticalFsError as jest.Mock).mockImplementation((promise) => promise);
 
         await writeMetadata(
             mockRecord,
-            mockTemplateEngine,
-            mockTemplateOptions,
-            mockPreviews,
+            getSidecarMetadata(mockFileNamer, mockRecord, mockTemplateEngine, mockTemplateOptions, [], mockPreviews),
             mockFileNamer,
             mockPreviewsRoot,
         );

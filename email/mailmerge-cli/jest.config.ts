@@ -8,4 +8,5 @@ export default {
     },
     moduleFileExtensions: ["ts", "js", "html"],
     coverageDirectory: "../../coverage/email/mailmerge-cli",
+    testMatch: ["<rootDir>/test/**/*.ts"],
 };
