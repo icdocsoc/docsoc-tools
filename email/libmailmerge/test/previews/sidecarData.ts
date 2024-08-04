@@ -82,7 +82,9 @@ describe("Sidecar Data Functions", () => {
                 },
             ],
             email: {
-                to: "meap@hotmail.com",
+                to: ["meap@hotmail.com"],
+                cc: [],
+                bcc: [],
                 subject: "Test Record",
             },
             attachments: [],
