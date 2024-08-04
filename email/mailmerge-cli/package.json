@@ -19,7 +19,8 @@
         "ts-node": "^10.9.2"
     },
     "scripts": {
-        "build": "tsc --build --verbose"
+        "build": "tsc --build --verbose",
+        "build-local": "tsc --build --verbose"
     },
     "type": "commonjs",
     "main": "./dist/index.js",

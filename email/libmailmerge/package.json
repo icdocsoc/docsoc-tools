@@ -17,7 +17,8 @@
     "scripts": {
         "start": "ts-node src/cli.ts",
         "test": "jest",
-        "build": "tsc --build --verbose"
+        "build": "tsc --build --verbose",
+        "build-local": "tsc --build --verbose"
     },
     "bin": "./dist/cli.js",
     "type": "commonjs",
