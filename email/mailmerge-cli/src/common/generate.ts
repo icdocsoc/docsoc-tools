@@ -44,22 +44,6 @@ export interface CliOptions {
     };
 }
 
-// const opts: CliOptions = {
-//     csvFile: "./data/names.csv",
-//     engineInfo: {
-//         options: {
-//             templatePath: "./templates/TEMPLATE.md.njk",
-//             rootHtmlTemplate: "./templates/wrapper.html.njk",
-//         },
-//         name: "nunjucks",
-//         engine: new NunjucksMarkdownEngine({
-//             templatePath: "./templates/TEMPLATE.md.njk",
-//             rootHtmlTemplate: "./templates/wrapper.html.njk",
-//         }),
-//     },
-//     output: "./output",
-// };
-
 // TODO: Put somewhere nice
 const ADDITIONAL_FIELDS = [CSV_DEFAULT_FIELD_NAMES.to, CSV_DEFAULT_FIELD_NAMES.subject];
 
@@ -138,10 +122,16 @@ export default async function generatePreviews(opts: CliOptions) {
     const previews: [TemplatePreviews, MappedCSVRecord][] = await Promise.all(
         records
             .map((csvRecord) =>
+                // Only include fields that are mapped
                 Object.fromEntries(
-                    Object.entries(csvRecord).map(([key, value]) => {
-                        return [fieldsMapCSVtoTemplate.get(key) ?? key, value];
-                    }),
+                    Object.entries(csvRecord)
+                        .filter(
+                            ([key]) =>
+                                fieldsMapCSVtoTemplate.has(key) || key.startsWith("attachment"),
+                        )
+                        .map(([key, value]) => {
+                            return [fieldsMapCSVtoTemplate.get(key) ?? key, value];
+                        }),
                 ),
             )
             .filter((preparedRecord) => {

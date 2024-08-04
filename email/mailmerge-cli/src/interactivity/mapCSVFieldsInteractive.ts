@@ -44,11 +44,7 @@ export const mapCSVFieldsInteractive = async (
             message: `Map CSV field \`${header}\` to template field:`,
             choices: Array.from(templateFields).concat([NONE_OPTION]),
             // Set default to index in templateField that matches the csvHeader
-            default: templateFields.has(header)
-                ? header
-                : header.startsWith("attachment")
-                ? "None"
-                : undefined,
+            default: templateFields.has(header) ? header : "None",
         })),
     );
     for (const [csvHeader, templateFieldChosen] of Object.entries(await prompter).filter(

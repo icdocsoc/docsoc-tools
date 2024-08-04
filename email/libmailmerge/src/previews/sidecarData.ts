@@ -68,10 +68,14 @@ type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
  * @param record __Mapped__ CSV Record to validate
  */
 export const validateRecord = (record: MappedCSVRecord): ValidRecordReturn => {
-    if (!Mailer.validateEmail(record["email"] as string)) {
+    const validateAll = parseEmailList(record["email"] as string).reduce(
+        (acc, email) => acc && Mailer.validateEmail(email),
+        true,
+    );
+    if (!validateAll) {
         return {
             valid: false,
-            reason: "Invalid email address",
+            reason: `Invalid email address in list ${record["email"]}`,
         };
     }
 
