@@ -2,7 +2,9 @@ import { InteractiveBrowserCredential } from "@azure/identity";
 import { createLogger } from "@docsoc/util";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
+import fs from "fs/promises";
 import { convert } from "html-to-text";
+import { basename } from "path";
 
 import { EmailString } from "../util/types.js";
 
@@ -58,6 +60,34 @@ export class EmailUploader {
         }
     }
 
+    private async uploadFile(path: string, messageID: string) {
+        logger.info(`Uploading file ${path}...`);
+        if (!this.client) {
+            throw new Error("Client not authenticated");
+        }
+        const fileData = await fs.readFile(path);
+        const fileStats = await fs.stat(path);
+        const filename = basename(path);
+
+        // If above 3MB
+        if (fileStats.size > 3 * 1024 * 1024) {
+            throw new Error("File size exceeds 3MB limit");
+        } else {
+            try {
+                const response = await this.client
+                    .api(`/me/messages/${messageID}/attachments`)
+                    .post({
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        name: filename,
+                        contentBytes: fileData.toString("base64"),
+                    });
+                logger.debug("File uploaded with ID: ", response.id);
+            } catch (error) {
+                console.error("Error uploading file: ", error);
+            }
+        }
+    }
+
     public async uploadEmail(
         to: string[],
         subject: string,
@@ -95,6 +125,13 @@ export class EmailUploader {
 
             const response = await this.client.api("/me/messages").post(draftMessage);
             logger.debug("Draft email created with ID: ", response.id);
+
+            if (attachmentPaths.length > 0) {
+                logger.info("Uploading attachments...");
+                await Promise.all(
+                    attachmentPaths.map((path) => this.uploadFile(path, response.id)),
+                );
+            }
         } catch (error) {
             console.error("Error uploading draft email: ", error);
         }
