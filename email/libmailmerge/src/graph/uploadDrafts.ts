@@ -1,4 +1,4 @@
-import { DeviceCodeCredential } from "@azure/identity";
+import { DeviceCodeCredential, InteractiveBrowserCredential } from "@azure/identity";
 import { createLogger } from "@docsoc/util";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
@@ -27,12 +27,10 @@ export class EmailUploader {
             throw new Error("Client ID not provided");
         }
 
-        const credential = new DeviceCodeCredential({
+        const credential = new InteractiveBrowserCredential({
             tenantId: tenantId,
             clientId: clientId,
-            userPromptCallback: (info) => {
-                console.log(info.message);
-            },
+            redirectUri: "http://localhost",
         });
 
         // @microsoft/microsoft-graph-client/authProviders/azureTokenCredentials
