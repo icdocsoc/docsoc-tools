@@ -17,7 +17,6 @@
     },
     "scripts": {
         "start": "ts-node src/cli.ts",
-        "test": "jest",
         "build": "tsc --build --verbose",
         "build-local": "tsc --build --verbose"
     },
@@ -27,6 +26,7 @@
     "typings": "./dist/index.d.ts",
     "private": true,
     "devDependencies": {
+        "@babel/preset-env": "^7.25.3",
         "@types/chalk": "^2.2.0",
         "@types/cli-progress": "^3.11.6",
         "@types/csv-parse": "^1.2.2",
@@ -41,6 +41,7 @@
         "@types/nunjucks": "^3.2.6",
         "@types/readline-sync": "^1.4.8",
         "@types/winston": "^2.4.4",
+        "babel-jest": "^29.7.0",
         "csv-parse": "^5.5.6",
         "jest-mock-extended": "^3.0.7",
         "ts-node": "^10.9.2"

@@ -57,11 +57,11 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         return wrapped;
     }
 
-    override async loadTemplate() {
+    public override async loadTemplate() {
         this.loadedTemplate = await fs.readFile(this.templateOptions.templatePath, "utf-8");
     }
 
-    override extractFields() {
+    public override extractFields() {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }
@@ -69,7 +69,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         return getTemplateFields(this.loadedTemplate);
     }
 
-    override async renderPreview(record: MappedCSVRecord) {
+    public override async renderPreview(record: MappedCSVRecord) {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }
@@ -110,7 +110,9 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
     /**
      * The rerenderer is simple - we just re-render the HTML preview!
      */
-    override async rerenderPreviews(loadedPreviews: TemplatePreviews): Promise<TemplatePreviews> {
+    public override async rerenderPreviews(
+        loadedPreviews: TemplatePreviews,
+    ): Promise<TemplatePreviews> {
         const markdownPreview = loadedPreviews.find(
             (preview) => (preview.metadata as NunjucksSidecarMetadata).type === "markdown",
         );
@@ -122,10 +124,6 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         );
         if (!htmlPreview) {
             throw new Error("No HTML preview found in sidecar data");
-        }
-
-        if (!this.loadedTemplate) {
-            throw new Error("Template not loaded");
         }
 
         // Re-render the markdown preview
@@ -140,7 +138,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         ];
     }
 
-    override async getHTMLToSend(loadedPreviews: TemplatePreviews) {
+    public override async getHTMLToSend(loadedPreviews: TemplatePreviews) {
         const htmlPreview = loadedPreviews.find(
             (preview) => (preview.metadata as NunjucksSidecarMetadata).type === "html",
         );

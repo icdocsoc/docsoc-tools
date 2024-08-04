@@ -1,21 +1,21 @@
 {
-	"sqltools.connections": [
-		{
-			"previewLimit": 50,
-			"server": "localhost",
-			"port": 5432,
-			"driver": "PostgreSQL",
-			"name": "docsoc-tools",
-			"database": "docsoc-tools",
-			"username": "postgres",
-			"password": "postgres"
-		}
-	],
-	"files.watcherExclude": {
-		"**/target": true
-	},
-	"editor.tabSize": 4,
-	"editor.insertSpaces": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "docsoc-tools",
+            "database": "docsoc-tools",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ],
+    "files.watcherExclude": {
+        "**/target": true
+    },
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
     "editor.detectIndentation": false,
     "editor.formatOnSave": true
 }
