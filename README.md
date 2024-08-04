@@ -1,4 +1,4 @@
-# DocsocTools
+# DoCSocTools
 This Nx-based monorepo contains a series of tools made by Kishan Sambhi (kss22) for DoCSoc at Imperial College London for the committee of academic year 2024-2025.
 They are designed to help the committee manage their responsibilities and make their lives easier, by providing tools to automate and simplify common tasks.
 
