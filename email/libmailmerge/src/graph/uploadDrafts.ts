@@ -16,6 +16,9 @@ export interface ImapConfig {
     username: string;
 }
 
+/** Docs say limit to 4MB uplod chuncks for large files */
+const UPLOAD_ATTACHMENT_CHUNK_SIZE = 4 * 1024 * 1024;
+
 export class EmailUploader {
     private client?: Client;
 
@@ -71,7 +74,60 @@ export class EmailUploader {
 
         // If above 3MB
         if (fileStats.size > 3 * 1024 * 1024) {
-            throw new Error("File size exceeds 3MB limit");
+            // 1: Create upload session
+            const uploadSession = await this.client
+                .api(`/me/messages/${messageID}/attachments/createUploadSession`)
+                .post({
+                    AttachmentItem: {
+                        attachmentType: "file",
+                        name: filename,
+                        size: fileStats.size,
+                    },
+                });
+            const { uploadUrl, nextExpectedRanges } = uploadSession;
+
+            if (!uploadUrl) {
+                throw new Error("No upload URL returned from createUploadSession.");
+            }
+
+            // 2: Upload file in chunks
+            let start = 0;
+            let end = UPLOAD_ATTACHMENT_CHUNK_SIZE - 1;
+            const fileSize = fileStats.size;
+
+            while (start < fileSize) {
+                const chunk = fileData.slice(start, end + 1);
+                const contentRange = `bytes ${start}-${end}/${fileSize}`;
+
+                const response = await fetch(uploadUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/octet-stream",
+                        "Content-Range": contentRange,
+                        "Content-Length": chunk.length.toString(),
+                    },
+                    body: chunk,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to upload chunk: ${response.statusText}`);
+                }
+
+                const responseBody = await response.json();
+
+                // Update start and end based on next expected ranges
+                const nextExpectedRanges = responseBody.nextExpectedRanges;
+                if (nextExpectedRanges && nextExpectedRanges.length > 0) {
+                    const nextRange = nextExpectedRanges[0].split("-");
+                    start = parseInt(nextRange[0], 10);
+                    end = Math.min(start + UPLOAD_ATTACHMENT_CHUNK_SIZE - 1, fileSize - 1);
+                } else {
+                    start += UPLOAD_ATTACHMENT_CHUNK_SIZE;
+                    end = Math.min(start + UPLOAD_ATTACHMENT_CHUNK_SIZE - 1, fileSize - 1);
+                }
+            }
+
+            logger.info(`File ${path} uploaded successfully in chunks.`);
         } else {
             try {
                 const response = await this.client
@@ -81,7 +137,7 @@ export class EmailUploader {
                         name: filename,
                         contentBytes: fileData.toString("base64"),
                     });
-                logger.debug("File uploaded with ID: ", response.id);
+                logger.debug(`File ${path} uploaded with response: ${JSON.stringify(response)}.`);
             } catch (error) {
                 console.error("Error uploading file: ", error);
             }
