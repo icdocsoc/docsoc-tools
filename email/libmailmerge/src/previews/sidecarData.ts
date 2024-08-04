@@ -8,11 +8,11 @@ import { createLogger } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
-import { TEMPLATE_ENGINES } from "../engines";
-import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types";
-import Mailer from "../mailer/mailer";
-import { MappedCSVRecord, EmailString } from "../util/types";
-import { SidecarData } from "./types";
+import { TEMPLATE_ENGINES } from "../engines/index.js";
+import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types.js";
+import Mailer from "../mailer/mailer.js";
+import { MappedCSVRecord, EmailString } from "../util/types.js";
+import { SidecarData } from "./types.js";
 
 const PARTS_SEPARATOR = "__";
 const METADATA_FILE_SUFFIX = "-metadata.json";

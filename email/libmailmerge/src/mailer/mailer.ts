@@ -4,7 +4,7 @@ import { convert } from "html-to-text";
 import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 
-import { EmailString, FromEmail } from "../util/types";
+import { EmailString, FromEmail } from "../util/types.js";
 
 const logger = createLogger("mailer");
 
@@ -18,15 +18,17 @@ const logger = createLogger("mailer");
  */
 export default class Mailer {
     constructor(
-        private host: string,
-        private port: number,
+        private smtpHost: string,
+        private imapHost: string,
+        private smtpPort: number,
+        private imapPort: number,
         private username: string,
         private password: string,
     ) {}
 
     private transporter = nodemailer.createTransport({
-        host: this.host,
-        port: this.port,
+        host: this.smtpHost,
+        port: this.smtpPort,
         secure: false, // Use `true` for port 465, `false` for all other ports
         auth: {
             user: this.username,

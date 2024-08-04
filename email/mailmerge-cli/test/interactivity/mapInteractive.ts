@@ -1,7 +1,7 @@
 import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
 
-import { mapCSVFieldsInteractive } from "../../src/interactivity/mapCSVFieldsInteractive";
+import { mapCSVFieldsInteractive } from "../../src/interactivity/mapCSVFieldsInteractive.js";
 
 jest.mock("inquirer");
 jest.mock("@docsoc/util", () => {

@@ -1,10 +1,13 @@
 import { Args, Command } from "@oclif/core";
 
-import { sendEmails } from "../common/send";
+import { sendEmails } from "../common/send.js";
 
 export default class Send extends Command {
     static override args = {
-        directory: Args.string({ description: "Directory of email previews to render & send", required: true }),
+        directory: Args.string({
+            description: "Directory of email previews to render & send",
+            required: true,
+        }),
     };
 
     static override description = "Send generated emails from a given directory";

@@ -8,10 +8,12 @@
         "types": [
             "node"
         ],
-        "baseUrl": "."
+        "baseUrl": ".",
+        "allowJs": true,
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "src/external/eml-format.js"
     ],
     "exclude": [
         "src/**/*.spec.ts",

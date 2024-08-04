@@ -1,28 +1,16 @@
-import { ENGINES_MAP } from "@docsoc/libmailmerge";
-import {
-    defaultMailer,
-    getDefaultMailer,
-    loadPreviewsFromSidecar,
-    loadSidecars,
-    EmailString,
-} from "@docsoc/libmailmerge";
+import { EmailUploader, ENGINES_MAP } from "@docsoc/libmailmerge";
+import { loadPreviewsFromSidecar, loadSidecars, EmailString } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
-import { promises as fs } from "fs";
-import { mkdirp } from "mkdirp";
-import { basename, join } from "path";
+import { join } from "path";
 import readlineSync from "readline-sync";
 
 const logger = createLogger("docsoc");
 
-const move = (file: string, directory: string) => {
-    return fs.rename(file, join(directory, basename(file)));
-};
-
-export async function sendEmails(directory: string) {
-    logger.info(`Sending previews at ${directory}...`);
+export async function uploadDrafts(directory: string) {
+    logger.info(`Uploading previews at ${directory} to drafts...`);
 
     // 1: Load sidecars
     const sidecars = loadSidecars(directory);
@@ -74,59 +62,49 @@ export async function sendEmails(directory: string) {
     // Print the warning
     console.log(
         chalk.yellow(`⚠️   --- WARNING --- ⚠️
-You are about to send ${pendingEmails.length} emails.
-This action is IRREVERSIBLE.
+    You are about to upload ${pendingEmails.length} emails.
+    This action is IRREVERSIBLE.
 
-If the system crashes, restarting with the same directory will NOT send already-sent emails again.
-Already sent emails will be moved to the "sent" folder in the directory.
+    If the system crashes, you will need to manually upload the emails.
+    Re-running this after a partial upload will end up uploading duplicate emails.
+    Unlike with send, emails will not be moved to a different folder after upload.
 
-Check that:
-1. The template was correct
-1. You are satisfied with ALL previews, including the HTML previews
-3. You have tested the system beforehand
-4. All indications this is a test have been removed
+    Check that:
+    1. The template was correct
+    1. You are satisfied with ALL previews, including the HTML previews
+    3. You have tested the system beforehand
+    4. All indications this is a test have been removed
 
-You are about to send ${pendingEmails.length} emails. The esitmated time for this is ${
+    You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
             (20 * pendingEmails.length) / 60 / 60
         } hours.
 
-If you are happy to proceed, please type "Yes, send emails" below.`),
+    If you are happy to proceed, please type "Yes, upload emails" below.`),
     );
 
     const input = readlineSync.question("");
-    if (input !== "Yes, send emails") {
+    if (input !== "Yes, upload emails") {
         process.exit(0);
     }
 
     // Send the emails
-    logger.info("Sending emails...");
-    const mailer = getDefaultMailer();
+    logger.info("Uploading emails...");
     const total = pendingEmails.length;
     let sent = 0;
-    const sentDir = join(directory, "sent");
-    await mkdirp(sentDir);
+    const uploader = new EmailUploader();
+    await uploader.authenticate(
+        "docsoc@ic.ac.uk",
+        process.env["MS_ENTRA_TENANT_ID"],
+        process.env["MS_ENTRA_CLIENT_ID"],
+    );
     for (const { to, subject, html, attachments, filesToMove, cc, bcc } of pendingEmails) {
-        logger.info(`(${++sent} / ${total}) Sending email to ${to} with subject ${subject}...`);
-        await defaultMailer(
-            to,
-            subject,
-            html,
-            mailer,
-            attachments.map((file) => ({
-                path: file,
-            })),
-            {
-                cc,
-                bcc,
-            },
+        logger.info(
+            `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
 
-        // Then move
-        await Promise.all(
-            filesToMove.map(async (file) => {
-                await move(file, sentDir);
-                logger.info(`Moved ${file} to ${sentDir}`);
-            }),
-        );
+        await uploader.uploadEmail(to, subject, html, attachments, {
+            cc,
+            bcc,
+        });
     }
 }

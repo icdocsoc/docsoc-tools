@@ -2,8 +2,8 @@
  * Contains the different templating engines mail merge supports
  * @module engines
  */
-import nunjucksEngine from "./nunjucks-md";
-import { TemplateEngineConstructor } from "./types";
+import nunjucksEngine from "./nunjucks-md/index.js";
+import { TemplateEngineConstructor } from "./types.js";
 
 export type TEMPLATE_ENGINES = "nunjucks";
 
@@ -12,6 +12,6 @@ export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = 
     nunjucks: nunjucksEngine,
 };
 
-export * from "./types";
-export * from "./nunjucks-md";
-export { default as NunjucksMarkdownEngine } from "./nunjucks-md";
+export * from "./types.js";
+export * from "./nunjucks-md/index.js";
+export { default as NunjucksMarkdownEngine } from "./nunjucks-md/index.js";

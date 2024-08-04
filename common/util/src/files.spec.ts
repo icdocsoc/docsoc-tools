@@ -1,5 +1,5 @@
-import { stopIfCriticalFsError } from "./files";
-import createLogger from "./logger";
+import { stopIfCriticalFsError } from "./files.js";
+import createLogger from "./logger.js";
 
 jest.mock("./logger", () => {
     const logger = {

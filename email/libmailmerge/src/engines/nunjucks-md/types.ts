@@ -1,4 +1,4 @@
-import { TemplateEngineOptions } from "../types";
+import { TemplateEngineOptions } from "../types.js";
 
 /**
  * Nunjucks template options

@@ -1,6 +1,6 @@
-import { ENGINES_MAP } from "../engines";
-import { TemplateEngineOptions, TemplatePreview } from "../engines/types";
-import { MappedCSVRecord, EmailString } from "../util/types";
+import { ENGINES_MAP } from "../engines/index.js";
+import { TemplateEngineOptions, TemplatePreview } from "../engines/types.js";
+import { MappedCSVRecord, EmailString } from "../util/types.js";
 
 /**
  * Outputted to JSON files next to rendered template previews, containing metadata about the preview.

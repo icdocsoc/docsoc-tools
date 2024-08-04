@@ -10,7 +10,7 @@
         "build": "tsc --build --verbose",
         "build-local": "tsc --build --verbose"
     },
-    "type": "commonjs",
+    "type": "module",
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts"
 }

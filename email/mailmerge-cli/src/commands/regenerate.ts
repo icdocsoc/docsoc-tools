@@ -1,10 +1,13 @@
 import { Args, Command } from "@oclif/core";
 
-import { rerenderPreviews } from "../common/rerender";
+import { rerenderPreviews } from "../common/rerender.js";
 
 export default class Regenerate extends Command {
     static override args = {
-        directory: Args.string({ description: "Directory of previews to regenerate", required: true }),
+        directory: Args.string({
+            description: "Directory of previews to regenerate",
+            required: true,
+        }),
     };
 
     static override description =

@@ -2,8 +2,8 @@ import { NunjucksMarkdownEngine, NunjucksMarkdownTemplateOptions } from "@docsoc
 import { Args, Command, Flags } from "@oclif/core";
 import { join } from "path";
 
-import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate";
-import { DEFAULT_DIRS } from "../../util/constant";
+import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate.js";
+import { DEFAULT_DIRS } from "../../util/constant.js";
 
 export default class GenerateNunjucks extends Command {
     static override args = {
@@ -52,6 +52,10 @@ export default class GenerateNunjucks extends Command {
             description:
                 "Enable BCC mapping from CSV - column values must be a space separate list",
         }),
+        name: Flags.string({
+            char: "n",
+            description: "Name of the run, created as a subdirectory in the output directory",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -73,6 +77,7 @@ export default class GenerateNunjucks extends Command {
                 enableBCC: flags.bcc,
                 enableCC: flags.cc,
             },
+            name: flags.name,
         };
         await generatePreviews(options);
     }

@@ -1,4 +1,4 @@
-import { getFileNameSchemeInteractively } from "../../src/interactivity/getFileNameSchemeInteractively";
+import { getFileNameSchemeInteractively } from "../../src/interactivity/getFileNameSchemeInteractively.js";
 
 jest.mock("inquirer");
 

@@ -3,17 +3,17 @@ import { stopIfCriticalFsError } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
-import { TEMPLATE_ENGINES } from "../../src/engines";
-import { TemplatePreviews } from "../../src/engines/types";
+import { TEMPLATE_ENGINES } from "../../src/engines/index.js";
+import { TemplatePreviews } from "../../src/engines/types.js";
 import {
     getRecordPreviewPrefix,
     getRecordPreviewPrefixForIndividual,
     getRecordPreviewPrefixForMetadata,
     getSidecarMetadata,
     writeMetadata,
-} from "../../src/previews/sidecarData";
-import { SidecarData } from "../../src/previews/types";
-import { MappedCSVRecord } from "../../src/util/types";
+} from "../../src/previews/sidecarData.js";
+import { SidecarData } from "../../src/previews/types.js";
+import { MappedCSVRecord } from "../../src/util/types.js";
 
 jest.mock("fs/promises");
 jest.mock("@docsoc/util", () => {
