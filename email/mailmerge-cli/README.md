@@ -8,7 +8,7 @@
 4. In a blank directory somewhere (known as the "mailmerge workspace"), create these folders & files:
     1. `./data/names.csv` - CSV file with at the minimum `email` & `subject` columns
     2. `./templates/template.md.njk` - nunjucks markdown template for your emails (see `/email/workspace/templates/tempkate.md.njk` for an example, where `/` is the repo root)
-    3. `./templates/wrapped.html.njk`, a HTML wrapper for the email (use the contents of `/email/workspace/wrapper.html.njk`)
+    3. `./templates/wrapper.html.njk`, a HTML wrapper for the email (use the contents of `/email/workspace/templates/wrapper.html.njk`)
 5. Run `docsoc-mailmerge generate nunjucks --help` and read the help text
 6. Run `docsoc-mailmerge generate nunjucks ./data/names.csv -o ./output --htmlTemplate=./templates/wrapper.html.njk`. You'll be asked for a runname: generated emails will be placed at `./output/<runname>`
     1. Each record in the CSV will result in 3 files in `./output/<runname>`: an editable markdown file to allow you to modify the email, a HTML rendering of the markdown that you should not edit, and a `.json` metadata file
