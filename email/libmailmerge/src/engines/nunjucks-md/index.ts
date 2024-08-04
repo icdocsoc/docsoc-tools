@@ -2,11 +2,15 @@ import { promises as fs } from "fs";
 import nunjucks from "nunjucks";
 
 import { renderMarkdownToHtml } from "../../markdown/toHtml";
-import { CSVRecord } from "../../util/types";
+import { MappedCSVRecord } from "../../util/types";
 import { TemplateEngineOptions, TemplatePreviews } from "../types";
 import { TemplateEngine } from "../types";
 import getTemplateFields from "./getFields";
-import { assertIsNunjucksTemplateOptions, NunjucksMarkdownTemplateOptions, NunjucksSidecarMetadata } from "./types";
+import {
+    assertIsNunjucksTemplateOptions,
+    NunjucksMarkdownTemplateOptions,
+    NunjucksSidecarMetadata,
+} from "./types";
 
 export { default as getNunjucksTemplateFields } from "./getFields";
 export * from "./types";
@@ -41,7 +45,10 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
     private async renderMarkdownToHtmlInsideWrapper(markdown: string) {
         // Render the MD to HTML
         const htmlWrapper = await fs.readFile(this.templateOptions.rootHtmlTemplate, "utf-8");
-        const htmlWrapperCompiled = nunjucks.compile(htmlWrapper, nunjucks.configure({ autoescape: false }));
+        const htmlWrapperCompiled = nunjucks.compile(
+            htmlWrapper,
+            nunjucks.configure({ autoescape: false }),
+        );
         const html = renderMarkdownToHtml(markdown);
 
         // Wrap the rendered markdown html in the wrapper
@@ -62,7 +69,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         return getTemplateFields(this.loadedTemplate);
     }
 
-    override async renderPreview(record: CSVRecord) {
+    override async renderPreview(record: MappedCSVRecord) {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }

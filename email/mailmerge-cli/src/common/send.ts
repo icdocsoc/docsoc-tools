@@ -29,12 +29,14 @@ export async function sendEmails(directory: string) {
 
     // For each sidecar, send the previews
     const pendingEmails: {
-        to: EmailString;
+        to: EmailString[];
         subject: string;
         html: string;
         attachments: string[];
         /** These files will be moved to the sent folder on the file system so they are not resent (include sidecar data) */
         filesToMove: string[];
+        cc: EmailString[];
+        bcc: EmailString[];
     }[] = [];
     for await (const sidecar of sidecars) {
         const { name, engine: engineName, engineOptions, files } = sidecar;
@@ -64,6 +66,8 @@ export async function sendEmails(directory: string) {
             filesToMove: files
                 .map((file) => join(directory, file.filename))
                 .concat([sidecar.$originalFilepath]),
+            cc: sidecar.email.cc,
+            bcc: sidecar.email.bcc,
         });
     }
 
@@ -102,16 +106,20 @@ If you are happy to proceed, please type "Yes, send emails" below.`),
     let sent = 0;
     const sentDir = join(directory, "sent");
     await mkdirp(sentDir);
-    for (const { to, subject, html, attachments, filesToMove } of pendingEmails) {
+    for (const { to, subject, html, attachments, filesToMove, cc, bcc } of pendingEmails) {
         logger.info(`(${++sent} / ${total}) Sending email to ${to} with subject ${subject}...`);
         await defaultMailer(
-            [to],
+            to,
             subject,
             html,
             mailer,
             attachments.map((file) => ({
                 path: file,
             })),
+            {
+                cc,
+                bcc,
+            },
         );
 
         // Then move

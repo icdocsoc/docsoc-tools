@@ -1,11 +1,13 @@
 import {
     TemplatePreviews,
-    CSVRecord,
+    MappedCSVRecord,
     TemplateEngineOptions,
     TemplateEngine,
     TEMPLATE_ENGINES,
     getSidecarMetadata,
     validateRecord,
+    CSV_DEFAULT_FIELD_NAMES,
+    RawCSVRecord,
 } from "@docsoc/libmailmerge";
 import { getRecordPreviewPrefixForIndividual, writeMetadata } from "@docsoc/libmailmerge";
 import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
@@ -35,6 +37,11 @@ export interface CliOptions {
     output: string;
     // Overrides mappings attachments from CSV
     attachments?: string[];
+    features: {
+        // Enable CC & BCC mapping from CSV - column values must be a space separate list
+        enableCC?: boolean;
+        enableBCC?: boolean;
+    };
 }
 
 // const opts: CliOptions = {
@@ -54,7 +61,7 @@ export interface CliOptions {
 // };
 
 // TODO: Put somewhere nice
-const ADDITIONAL_FIELDS = ["email", "subject"];
+const ADDITIONAL_FIELDS = [CSV_DEFAULT_FIELD_NAMES.to, CSV_DEFAULT_FIELD_NAMES.subject];
 
 export default async function generatePreviews(opts: CliOptions) {
     // 0: What to call this run?
@@ -70,7 +77,7 @@ export default async function generatePreviews(opts: CliOptions) {
     );
     logger.debug("Parsing & loading CSV...");
     const csvParsed = parse(csvRaw, { columns: true });
-    const records: CSVRecord[] = [];
+    const records: RawCSVRecord[] = [];
     for await (const record of csvParsed) {
         records.push(record);
     }
@@ -96,6 +103,14 @@ export default async function generatePreviews(opts: CliOptions) {
 
     // 6: Map CSV fields to template interactively
     logger.info("Mapping CSV fields to template interactively");
+    if (opts.features.enableCC) {
+        logger.debug("Enabling CC mapping from CSV");
+        ADDITIONAL_FIELDS.push(CSV_DEFAULT_FIELD_NAMES.cc);
+    }
+    if (opts.features.enableBCC) {
+        logger.debug("Enabling BCC mapping from CSV");
+        ADDITIONAL_FIELDS.push(CSV_DEFAULT_FIELD_NAMES.bcc);
+    }
     const fieldsMapCSVtoTemplate = await mapCSVFieldsInteractive(
         new Set([...Array.from(templateFields), ...ADDITIONAL_FIELDS]),
         headers,
@@ -103,7 +118,7 @@ export default async function generatePreviews(opts: CliOptions) {
 
     // 6.5: handle attachments
     logger.debug("Handling attachments...");
-    let getAttachmentsFromRecord: (record: CSVRecord) => string[];
+    let getAttachmentsFromRecord: (record: MappedCSVRecord) => string[];
     if (typeof opts.attachments === "undefined" || opts.attachments.length <= 0) {
         logger.info("Using attachments from CSV");
         const attachmentHeaders = await getCSVColumnsForAttachments(headers);
@@ -120,7 +135,7 @@ export default async function generatePreviews(opts: CliOptions) {
     // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
     // NOTE: CSVRecord here is the record with the CSV headers mapped to the template fields, rather than with the raw template fields
-    const previews: [TemplatePreviews, CSVRecord][] = await Promise.all(
+    const previews: [TemplatePreviews, MappedCSVRecord][] = await Promise.all(
         records
             .map((csvRecord) =>
                 Object.fromEntries(

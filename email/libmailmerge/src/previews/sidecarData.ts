@@ -11,7 +11,7 @@ import { join } from "path";
 import { TEMPLATE_ENGINES } from "../engines";
 import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types";
 import Mailer from "../mailer/mailer";
-import { CSVRecord, EmailString } from "../util/types";
+import { MappedCSVRecord, EmailString } from "../util/types";
 import { SidecarData } from "./types";
 
 const PARTS_SEPARATOR = "__";
@@ -26,8 +26,8 @@ const logger = createLogger("docsoc.sidecar");
  * @returns
  */
 export const getRecordPreviewPrefix = (
-    record: CSVRecord,
-    fileNamer: (record: CSVRecord) => string,
+    record: MappedCSVRecord,
+    fileNamer: (record: MappedCSVRecord) => string,
 ) => `${fileNamer(record)}`;
 
 /**
@@ -40,8 +40,8 @@ export const getRecordPreviewPrefix = (
  * // => "file_1__nunjucks__preview1.txt"
  */
 export const getRecordPreviewPrefixForIndividual = (
-    record: CSVRecord,
-    fileNamer: (record: CSVRecord) => string,
+    record: MappedCSVRecord,
+    fileNamer: (record: MappedCSVRecord) => string,
     templateEngine: string,
     preview: TemplatePreview,
 ) =>
@@ -58,8 +58,8 @@ export const getRecordPreviewPrefixForIndividual = (
  * // => "file_1-metadata.json"
  */
 export const getRecordPreviewPrefixForMetadata = (
-    record: CSVRecord,
-    fileNamer: (record: CSVRecord) => string,
+    record: MappedCSVRecord,
+    fileNamer: (record: MappedCSVRecord) => string,
 ) => `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
 
 type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
@@ -67,7 +67,7 @@ type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
  * Check a record is valid for use in mailmerge - specifically, that it has a valid email address and a subject.
  * @param record __Mapped__ CSV Record to validate
  */
-export const validateRecord = (record: CSVRecord): ValidRecordReturn => {
+export const validateRecord = (record: MappedCSVRecord): ValidRecordReturn => {
     if (!Mailer.validateEmail(record["email"] as string)) {
         return {
             valid: false,
@@ -96,9 +96,9 @@ export const validateRecord = (record: CSVRecord): ValidRecordReturn => {
  * @returns
  */
 export async function writeMetadata(
-    record: CSVRecord,
+    record: MappedCSVRecord,
     sidecarData: SidecarData,
-    fileNamer: (record: CSVRecord) => string,
+    fileNamer: (record: MappedCSVRecord) => string,
     previewsRoot: string,
 ): Promise<void> {
     const recordState = validateRecord(record);
@@ -116,6 +116,9 @@ export async function writeMetadata(
     return Promise.resolve();
 }
 
+const parseEmailList = (emailList: string | undefined): EmailString[] =>
+    emailList ? (emailList.split(/\s/) as EmailString[]) : [];
+
 /**
  * Generate sidecar metadata for a record & the previews generated from it.
  * It is recommended you then store this info alongside the preview, e.g. in a JSON file
@@ -130,8 +133,8 @@ export async function writeMetadata(
  * @returns Sidecar metadata
  */
 export function getSidecarMetadata(
-    fileNamer: (record: CSVRecord) => string,
-    record: CSVRecord,
+    fileNamer: (record: MappedCSVRecord) => string,
+    record: MappedCSVRecord,
     templateEngine: TEMPLATE_ENGINES,
     templateOptions: TemplateEngineOptions,
     attachments: string[],
@@ -155,7 +158,9 @@ export function getSidecarMetadata(
             },
         })),
         email: {
-            to: record["email"] as EmailString,
+            to: parseEmailList(record["email"] as string),
+            cc: parseEmailList(record["cc"] as string),
+            bcc: parseEmailList(record["bcc"] as string),
             subject: record["subject"] as string,
         },
         attachments,

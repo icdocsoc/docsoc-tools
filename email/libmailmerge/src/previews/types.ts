@@ -1,6 +1,6 @@
 import { ENGINES_MAP } from "../engines";
 import { TemplateEngineOptions, TemplatePreview } from "../engines/types";
-import { CSVRecord, EmailString } from "../util/types";
+import { MappedCSVRecord, EmailString } from "../util/types";
 
 /**
  * Outputted to JSON files next to rendered template previews, containing metadata about the preview.
@@ -9,7 +9,7 @@ export interface SidecarData {
     /** Name of the template rendered (used for logging) */
     name: string;
     /** Record associated with the template rendered  */
-    record: CSVRecord;
+    record: MappedCSVRecord;
     /** Engine used */
     engine: keyof typeof ENGINES_MAP;
     /** Options given to the engine */
@@ -24,7 +24,9 @@ export interface SidecarData {
     }>;
     /** Metadata for emailing */
     email: {
-        to: EmailString;
+        to: EmailString[];
+        cc: EmailString[];
+        bcc: EmailString[];
         subject: string;
     };
     /** Array of paths to attachments to include in the final email, relative to the mailmerge workspace root (top level folder) */

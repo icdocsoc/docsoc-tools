@@ -43,6 +43,15 @@ export default class GenerateNunjucks extends Command {
                 "Attachments to add to the email, relative to mailmerge workspace root. Can specify multiple.",
             default: [],
         }),
+        cc: Flags.boolean({
+            char: "c",
+            description: "Enable CC mapping from CSV - column values must be a space separate list",
+        }),
+        bcc: Flags.boolean({
+            char: "b",
+            description:
+                "Enable BCC mapping from CSV - column values must be a space separate list",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -60,6 +69,10 @@ export default class GenerateNunjucks extends Command {
             },
             output: flags.output,
             attachments: flags.attachment,
+            features: {
+                enableBCC: flags.bcc,
+                enableCC: flags.cc,
+            },
         };
         await generatePreviews(options);
     }

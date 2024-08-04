@@ -13,7 +13,7 @@ import {
     writeMetadata,
 } from "../../src/previews/sidecarData";
 import { SidecarData } from "../../src/previews/types";
-import { CSVRecord } from "../../src/util/types";
+import { MappedCSVRecord } from "../../src/util/types";
 
 jest.mock("fs/promises");
 jest.mock("@docsoc/util", () => {
@@ -27,13 +27,13 @@ jest.mock("@docsoc/util", () => {
 });
 
 describe("Sidecar Data Functions", () => {
-    const mockRecord: CSVRecord = {
+    const mockRecord: MappedCSVRecord = {
         id: "1",
         name: "Test Record",
         email: "meap@hotmail.com",
         subject: "Test Record",
     };
-    const mockFileNamer = (record: CSVRecord) => `file_${record["id"]}`;
+    const mockFileNamer = (record: MappedCSVRecord) => `file_${record["id"]}`;
     const mockTemplateEngine = "nunjucks" as TEMPLATE_ENGINES;
     const mockTemplateOptions = {};
     const mockPreviews: TemplatePreviews = [
@@ -92,7 +92,14 @@ describe("Sidecar Data Functions", () => {
 
         await writeMetadata(
             mockRecord,
-            getSidecarMetadata(mockFileNamer, mockRecord, mockTemplateEngine, mockTemplateOptions, [], mockPreviews),
+            getSidecarMetadata(
+                mockFileNamer,
+                mockRecord,
+                mockTemplateEngine,
+                mockTemplateOptions,
+                [],
+                mockPreviews,
+            ),
             mockFileNamer,
             mockPreviewsRoot,
         );

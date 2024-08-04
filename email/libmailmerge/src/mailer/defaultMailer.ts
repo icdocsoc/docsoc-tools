@@ -27,6 +27,7 @@ export const defaultMailer = (
     html: string,
     mailer: Mailer,
     attachments: Mail.Options["attachments"] = [],
+    additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
 ): Promise<void> =>
     mailer.sendMail(
         Mailer.makeFromLineFromEmail(
@@ -39,4 +40,5 @@ export const defaultMailer = (
         subject,
         html,
         attachments,
+        additionalInfo,
     );

@@ -40,6 +40,7 @@ export default class Mailer {
         subject: string,
         html: string,
         attachments: Mail.Options["attachments"] = [],
+        additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
         text: string = convert(html),
     ): Promise<void> {
         const info = await this.transporter.sendMail({
@@ -49,6 +50,8 @@ export default class Mailer {
             text: text, // plain text body
             html: html, // html body
             attachments,
+            cc: additionalInfo.cc,
+            bcc: additionalInfo.bcc,
         });
 
         logger.debug(

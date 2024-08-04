@@ -1,4 +1,4 @@
-import { CSVRecord } from "@docsoc/libmailmerge";
+import { MappedCSVRecord } from "@docsoc/libmailmerge";
 import inquirer from "inquirer";
 
 /**
@@ -9,8 +9,8 @@ import inquirer from "inquirer";
  */
 export async function getFileNameSchemeInteractively(
     headers: string[],
-    records: CSVRecord[],
-): Promise<(record: CSVRecord) => string> {
+    records: MappedCSVRecord[],
+): Promise<(record: MappedCSVRecord) => string> {
     if (records.length === 0) {
         throw new Error("No records available to provide examples.");
     }
@@ -34,7 +34,7 @@ export async function getFileNameSchemeInteractively(
 
     const selectedFields: string[] = answers.selectedFields;
 
-    return (record: CSVRecord) => {
+    return (record: MappedCSVRecord) => {
         return selectedFields.map((field) => record[field]).join("-");
     };
 }
