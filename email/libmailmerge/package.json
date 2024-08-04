@@ -5,6 +5,7 @@
         "@azure/identity": "^4.4.1",
         "@docsoc/util": "^0.1.0",
         "@microsoft/microsoft-graph-client": "^3.0.7",
+        "cli-progress": "^3.12.0",
         "email-validator": "^2.0.4",
         "html-to-text": "^9.0.5",
         "markdown-it": "^14.1.0",
@@ -25,6 +26,7 @@
     "private": true,
     "devDependencies": {
         "@types/chalk": "^2.2.0",
+        "@types/cli-progress": "^3.11.6",
         "@types/csv-parse": "^1.2.2",
         "@types/dotenv": "^8.2.0",
         "@types/email-validator": "^1.0.6",
