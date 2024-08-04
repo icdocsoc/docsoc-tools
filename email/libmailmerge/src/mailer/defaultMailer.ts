@@ -1,7 +1,7 @@
 import Mail from "nodemailer/lib/mailer";
 
-import { EmailString } from "../util/types";
-import Mailer from "./mailer";
+import { EmailString } from "../util/types.js";
+import Mailer from "./mailer.js";
 
 /**
  * Default mailer that uses the env vars `DOCSOC_SMTP_SERVER`, `DOCSOC_SMTP_USERNAME`, `DOCSOC_SMTP_PASSWORD` to create a mailer.

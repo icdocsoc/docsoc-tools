@@ -1,3 +1,3 @@
-export * from "./getFileNameSchemeInteractively";
-export * from "./getRunNameInteractively";
-export * from "./mapCSVFieldsInteractive";
+export * from "./getFileNameSchemeInteractively.js";
+export * from "./getRunNameInteractively.js";
+export * from "./mapCSVFieldsInteractive.js";

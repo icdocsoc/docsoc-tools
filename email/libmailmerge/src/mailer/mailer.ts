@@ -1,15 +1,10 @@
 import { createLogger } from "@docsoc/util";
 import { validate } from "email-validator";
-import fs from "fs/promises";
 import { convert } from "html-to-text";
-import { ImapFlow } from "imapflow";
-import mime from "mime-types";
 import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
-import { basename } from "path";
 
-import emlFormat, { EMLData } from "../external/eml-format";
-import { EmailString, FromEmail } from "../util/types";
+import { EmailString, FromEmail } from "../util/types.js";
 
 const logger = createLogger("mailer");
 
@@ -41,18 +36,6 @@ export default class Mailer {
         },
     });
 
-    private imapClient = new ImapFlow({
-        host: this.imapHost,
-        port: this.imapPort,
-        secure: true,
-        auth: {
-            user: this.username,
-            pass: this.password,
-        },
-        tls: { ciphers: "SSLv3" },
-    });
-    private imapConnected = false;
-
     async sendMail(
         from: FromEmail,
         to: string[],
@@ -78,56 +61,6 @@ export default class Mailer {
                 info.messageId
             }`,
         );
-    }
-
-    async uploadEmailToDraft(
-        from: FromEmail,
-        to: string[],
-        subject: string,
-        html: string,
-        attachmentPaths: string[] = [],
-        additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
-        text: string = convert(html),
-    ): Promise<void> {
-        if (!this.imapConnected) {
-            await this.imapClient.connect();
-            this.imapConnected = true;
-        }
-
-        const lock = await this.imapClient.getMailboxLock("Drafts");
-        try {
-            const eml: EMLData = {
-                from,
-                to: to.map((to) => ({
-                    email: to,
-                    name: "",
-                })),
-                cc: additionalInfo.cc.map((cc) => ({
-                    email: cc,
-                    name: "",
-                })),
-                bcc: additionalInfo.bcc.map((bcc) => ({
-                    email: bcc,
-                    name: "",
-                })),
-                subject,
-                text,
-                html,
-                attachments: await Promise.all(
-                    attachmentPaths.map(async (attachment) => ({
-                        name: basename(attachment),
-                        contentType: mime.lookup(attachment) || "application/octet-stream",
-                        data: (await fs.readFile(attachment)).toString("utf-8"),
-                    })),
-                ),
-            };
-
-            const emlData = await emlFormat.build(eml);
-
-            await this.imapClient.append("Drafts", emlData);
-        } finally {
-            lock.release();
-        }
     }
 
     /** Helper function to check an email is a valid email address (and also tells the TS compiler we have a valid EmailString)  */

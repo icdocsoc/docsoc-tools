@@ -1,2 +1,2 @@
-export * from "./defaultMailer";
-export { default as Mailer } from "./mailer";
+export * from "./defaultMailer.js";
+export { default as Mailer } from "./mailer.js";

@@ -1,2 +1,3 @@
-export * from "./files";
-export { default as createLogger } from "./logger";
+export * from "./files.js";
+export { default as createLogger } from "./logger.js";
+export * from "./oauth.js";

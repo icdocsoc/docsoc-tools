@@ -1,25 +1,11 @@
-import { ENGINES_MAP, getDefaultDoCSocFromLine, uploadDraftsIMAP } from "@docsoc/libmailmerge";
-import {
-    defaultMailer,
-    getDefaultMailer,
-    loadPreviewsFromSidecar,
-    loadSidecars,
-    EmailString,
-} from "@docsoc/libmailmerge";
+import { EmailUploader, ENGINES_MAP } from "@docsoc/libmailmerge";
+import { loadPreviewsFromSidecar, loadSidecars, EmailString } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
-import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
-import { promises as fs } from "fs";
-import { mkdirp } from "mkdirp";
-import { basename, join } from "path";
-import readlineSync from "readline-sync";
+import { join } from "path";
 
 const logger = createLogger("docsoc");
-
-const move = (file: string, directory: string) => {
-    return fs.rename(file, join(directory, basename(file)));
-};
 
 export async function uploadDrafts(directory: string) {
     logger.info(`Uploading previews at ${directory} to drafts...`);
@@ -73,52 +59,51 @@ export async function uploadDrafts(directory: string) {
 
     // Print the warning
     // TODO: Move sent emails elsewhere
-    console.log(
-        chalk.yellow(`⚠️   --- WARNING --- ⚠️
-You are about to upload ${pendingEmails.length} emails.
-This action is IRREVERSIBLE.
+    //     console.log(
+    //         chalk.yellow(`⚠️   --- WARNING --- ⚠️
+    // You are about to upload ${pendingEmails.length} emails.
+    // This action is IRREVERSIBLE.
 
-If the system crashes, you will need to manually upload the emails.
-Re-running this after a partial upload will end up uploading duplicate emails.
-Unlike with send, emails will not be moved to a different folder after upload.
+    // If the system crashes, you will need to manually upload the emails.
+    // Re-running this after a partial upload will end up uploading duplicate emails.
+    // Unlike with send, emails will not be moved to a different folder after upload.
 
-Check that:
-1. The template was correct
-1. You are satisfied with ALL previews, including the HTML previews
-3. You have tested the system beforehand
-4. All indications this is a test have been removed
+    // Check that:
+    // 1. The template was correct
+    // 1. You are satisfied with ALL previews, including the HTML previews
+    // 3. You have tested the system beforehand
+    // 4. All indications this is a test have been removed
 
-You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
-            (20 * pendingEmails.length) / 60 / 60
-        } hours.
+    // You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
+    //             (20 * pendingEmails.length) / 60 / 60
+    //         } hours.
 
-If you are happy to proceed, please type "Yes, upload emails" below.`),
-    );
+    // If you are happy to proceed, please type "Yes, upload emails" below.`),
+    //     );
 
-    const input = readlineSync.question("");
-    if (input !== "Yes, upload emails") {
-        process.exit(0);
-    }
+    //     const input = readlineSync.question("");
+    //     if (input !== "Yes, upload emails") {
+    //         process.exit(0);
+    //     }
 
     // Send the emails
     logger.info("Uploading emails...");
     const total = pendingEmails.length;
     let sent = 0;
+    const uploader = new EmailUploader();
+    await uploader.authenticate(
+        "docsoc@ic.ac.uk",
+        process.env["MS_ENTRA_TENANT_ID"],
+        process.env["MS_ENTRA_CLIENT_ID"],
+    );
     for (const { to, subject, html, attachments, filesToMove, cc, bcc } of pendingEmails) {
         logger.info(
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
-        const mailer = getDefaultMailer();
-        await mailer.uploadEmailToDraft(
-            getDefaultDoCSocFromLine(),
-            to,
-            subject,
-            html,
-            attachments,
-            {
-                cc,
-                bcc,
-            },
-        );
+
+        await uploader.uploadEmail(to, subject, html, attachments, {
+            cc,
+            bcc,
+        });
     }
 }

@@ -2,8 +2,8 @@ import { NunjucksMarkdownEngine, NunjucksMarkdownTemplateOptions } from "@docsoc
 import { Args, Command, Flags } from "@oclif/core";
 import { join } from "path";
 
-import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate";
-import { DEFAULT_DIRS } from "../../util/constant";
+import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate.js";
+import { DEFAULT_DIRS } from "../../util/constant.js";
 
 export default class GenerateNunjucks extends Command {
     static override args = {

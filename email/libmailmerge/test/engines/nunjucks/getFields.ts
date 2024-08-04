@@ -1,5 +1,5 @@
 // getFields.test.ts
-import getTemplateFields from "../../../src/engines/nunjucks-md/getFields";
+import getTemplateFields from "../../../src/engines/nunjucks-md/getFields.js";
 
 describe("getTemplateFields", () => {
     test("should return an empty set for a template with no fields", () => {
@@ -21,13 +21,15 @@ describe("getTemplateFields", () => {
     });
 
     test("should return a set with fields containing pipes", () => {
-        const template = "This template has fields with pipes: {{ field1 | pipe1 }} and {{ field2 | pipe2 }}.";
+        const template =
+            "This template has fields with pipes: {{ field1 | pipe1 }} and {{ field2 | pipe2 }}.";
         const result = getTemplateFields(template);
         expect(result).toEqual(new Set(["field1", "field2"]));
     });
 
     test("should return a set with fields containing underscores and numbers", () => {
-        const template = "This template has fields with underscores and numbers: {{ field_1 }} and {{ field_2 }}.";
+        const template =
+            "This template has fields with underscores and numbers: {{ field_1 }} and {{ field_2 }}.";
         const result = getTemplateFields(template);
         expect(result).toEqual(new Set(["field_1", "field_2"]));
     });

@@ -1,19 +1,19 @@
 import { promises as fs } from "fs";
 import nunjucks from "nunjucks";
 
-import { renderMarkdownToHtml } from "../../markdown/toHtml";
-import { MappedCSVRecord } from "../../util/types";
-import { TemplateEngineOptions, TemplatePreviews } from "../types";
-import { TemplateEngine } from "../types";
-import getTemplateFields from "./getFields";
+import { renderMarkdownToHtml } from "../../markdown/toHtml.js";
+import { MappedCSVRecord } from "../../util/types.js";
+import { TemplateEngineOptions, TemplatePreviews } from "../types.js";
+import { TemplateEngine } from "../types.js";
+import getTemplateFields from "./getFields.js";
 import {
     assertIsNunjucksTemplateOptions,
     NunjucksMarkdownTemplateOptions,
     NunjucksSidecarMetadata,
-} from "./types";
+} from "./types.js";
 
-export { default as getNunjucksTemplateFields } from "./getFields";
-export * from "./types";
+export { default as getNunjucksTemplateFields } from "./getFields.js";
+export * from "./types.js";
 
 /**
  * A Nunjucks Markdown template engine

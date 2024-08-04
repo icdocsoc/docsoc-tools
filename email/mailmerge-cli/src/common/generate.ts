@@ -18,12 +18,12 @@ import { mkdirp } from "mkdirp";
 // load .env
 import { join } from "path";
 
+import { getCSVColumnsForAttachments } from "../interactivity/getCSVColumnsForAttachments.js";
 import {
     getFileNameSchemeInteractively,
     getRunNameInteractively,
     mapCSVFieldsInteractive,
-} from "../interactivity";
-import { getCSVColumnsForAttachments } from "../interactivity/getCSVColumnsForAttachments";
+} from "../interactivity/index.js";
 
 const logger = createLogger("docsoc");
 
