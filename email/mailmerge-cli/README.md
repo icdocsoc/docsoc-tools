@@ -41,6 +41,10 @@ I recommend placing attachments in an `attachments` folder.
 
 This library was generated with [Nx](https://nx.dev).
 
+### Uploading to drafts
+
+You can also upload the emails to drafts instead of sending them. To do this, run `docsoc-mailmerge upload-drafts ./output/<runname> `. This will upload the emails to drafts instead of sending them.
+
 ## Building
 
 Run `nx build mailmerge-cli` to build the library.

@@ -52,6 +52,10 @@ export default class GenerateNunjucks extends Command {
             description:
                 "Enable BCC mapping from CSV - column values must be a space separate list",
         }),
+        name: Flags.string({
+            char: "n",
+            description: "Name of the run, created as a subdirectory in the output directory",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -73,6 +77,7 @@ export default class GenerateNunjucks extends Command {
                 enableBCC: flags.bcc,
                 enableCC: flags.cc,
             },
+            name: flags.name,
         };
         await generatePreviews(options);
     }

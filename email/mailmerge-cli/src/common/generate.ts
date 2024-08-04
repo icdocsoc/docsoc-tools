@@ -42,6 +42,8 @@ export interface CliOptions {
         enableCC?: boolean;
         enableBCC?: boolean;
     };
+    /** Run name, created as subdir under output */
+    name?: string;
 }
 
 // TODO: Put somewhere nice
@@ -49,7 +51,7 @@ const ADDITIONAL_FIELDS = [CSV_DEFAULT_FIELD_NAMES.to, CSV_DEFAULT_FIELD_NAMES.s
 
 export default async function generatePreviews(opts: CliOptions) {
     // 0: What to call this run?
-    const runName = await getRunNameInteractively();
+    const runName = opts.name ?? (await getRunNameInteractively());
 
     // Workspace root
     const workspaceRoot = process.cwd();
