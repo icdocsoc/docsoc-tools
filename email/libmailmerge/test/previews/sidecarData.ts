@@ -11,7 +11,7 @@ import {
     getRecordPreviewPrefixForMetadata,
     getSidecarMetadata,
     writeMetadata,
-} from "../../src/previews/sidecarData/index.js";
+} from "../../src/previews/sidecarData.js";
 import { SidecarData } from "../../src/previews/types.js";
 import { MappedCSVRecord } from "../../src/util/types.js";
 

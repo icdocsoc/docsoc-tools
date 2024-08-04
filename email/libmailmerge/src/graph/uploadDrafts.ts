@@ -1,4 +1,4 @@
-import { DeviceCodeCredential, InteractiveBrowserCredential } from "@azure/identity";
+import { InteractiveBrowserCredential } from "@azure/identity";
 import { createLogger } from "@docsoc/util";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
