@@ -113,6 +113,12 @@ export class EmailUploader {
                     throw new Error(`Failed to upload chunk: ${response.statusText}`);
                 }
 
+                if (response.status === 201) {
+                    // Upload complete
+                    logger.info(`File ${path} uploaded successfully in chunks.`);
+                    break;
+                }
+
                 const responseBody = await response.json();
 
                 // Update start and end based on next expected ranges
