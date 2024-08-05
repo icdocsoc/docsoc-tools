@@ -79,8 +79,8 @@ export async function sendEmails(
 
     console.log(
         chalk.yellow(`⚠️   --- WARNING --- ⚠️
-                You are about to send ${pendingEmails.length} emails.
-                This action is IRREVERSIBLE.
+You are about to send ${pendingEmails.length} emails.
+This action is IRREVERSIBLE.
                 
 If the system crashes, restarting will NOT necessarily send already-sent emails again.
 

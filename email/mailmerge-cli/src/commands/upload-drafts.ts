@@ -1,4 +1,9 @@
-import { JSONSidecarsBackend, uploadDrafts, ENGINES_MAP } from "@docsoc/libmailmerge";
+import {
+    JSONSidecarsBackend,
+    uploadDrafts,
+    ENGINES_MAP,
+    DEFAULT_FIELD_NAMES,
+} from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
 
 export default class UploadDrafts extends Command {

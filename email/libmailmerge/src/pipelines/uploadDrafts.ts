@@ -118,6 +118,10 @@ export async function uploadDrafts(
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
 
+        const options = {
+            enableOutlookParagraphSpacingHack: true,
+        };
+
         await uploader.uploadEmail(
             to,
             subject,
@@ -127,9 +131,7 @@ export async function uploadDrafts(
                 cc,
                 bcc,
             },
-            {
-                enableOutlookParagraphSpacingHack: true,
-            },
+            options,
         );
     }
 }

@@ -9,13 +9,9 @@ import Mailer from "./mailer.js";
 export const getDefaultMailer = () =>
     new Mailer(
         process.env["DOCSOC_SMTP_SERVER"] ?? "smtp-mail.outlook.com",
-        process.env["DOCSOC_IMAP_SERVER"] ?? "outlook.office365.com",
         process.env["DOCSOC_SMTP_PORT"] && isFinite(parseInt(process.env["DOCSOC_SMTP_PORT"]))
             ? parseInt(process.env["DOCSOC_SMTP_PORT"])
             : 587,
-        process.env["DOCSOC_IMAP_PORT"] && isFinite(parseInt(process.env["DOCSOC_IMAP_PORT"]))
-            ? parseInt(process.env["DOCSOC_IMAP_PORT"])
-            : 993,
         process.env["DOCSOC_OUTLOOK_USERNAME"] ?? "docsoc@ic.ac.uk",
         process.env["DOCSOC_OUTLOOK_PASSWORD"] ?? "password",
     );

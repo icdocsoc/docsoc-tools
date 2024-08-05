@@ -1,9 +1,9 @@
 import { createLogger } from "@docsoc/util";
 import "dotenv/config";
-import { DEFAULT_FIELD_NAMES, MappedRecord } from "src/util";
 
 import { TemplateEngineOptions, TemplateEngine, TemplatePreviews } from "../engines/index.js";
 import { validateRecord, createEmailData } from "../previews/index.js";
+import { DEFAULT_FIELD_NAMES, MappedRecord } from "../util/index.js";
 import { DataSource } from "./loaders";
 import { StorageBackend, MergeResult } from "./storage/types";
 

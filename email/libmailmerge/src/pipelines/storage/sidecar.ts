@@ -2,6 +2,8 @@ import { createLogger, move } from "@docsoc/util";
 import fs from "fs/promises";
 import { mkdirp } from "mkdirp";
 import { join } from "path";
+
+import { ENGINES_MAP, TemplatePreviews } from "../../engines/index.js";
 import {
     SidecarData,
     loadSidecars,
@@ -10,9 +12,7 @@ import {
     getRecordPreviewPrefixForIndividual,
     writeMetadata,
     getSidecarMetadata,
-} from "src/previews";
-
-import { ENGINES_MAP, TemplatePreviews } from "../../engines/index.js";
+} from "../../previews/index.js";
 import { MappedRecord } from "../../util/index.js";
 import { StorageBackend, MergeResultWithMetadata, MergeResult } from "./types";
 
@@ -134,9 +134,11 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
         this.logger.info(`Moving sent emails for ${sidecar.name} to ${sentRoot}...`);
         await mkdirp(sentRoot);
         await Promise.all(
-            sidecar.files.map(async (file) => {
-                await move(join(this.outputRoot, file.filename), sentRoot);
-            }),
+            sidecar.files
+                .map(async (file) => {
+                    await move(join(this.outputRoot, file.filename), sentRoot);
+                })
+                .concat([move(sidecar.$originalFilepath, sentRoot)]),
         );
     }
 

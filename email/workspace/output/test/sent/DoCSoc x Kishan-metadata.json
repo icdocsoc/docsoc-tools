@@ -1,8 +1,8 @@
 {
-    "name": "Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
+    "name": "DoCSoc x Kishan",
     "record": {
         "name": "Kishan",
-        "email": "kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
+        "to": "kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
         "subject": "DoCSoc x Kishan",
         "attachment1": "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf",
         "attachment2": "./attachments/munch.jpg",
@@ -16,7 +16,7 @@
     },
     "files": [
         {
-            "filename": "Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk__nunjucks__Preview-Markdown.md",
+            "filename": "DoCSoc x Kishan__nunjucks__Preview-Markdown.md",
             "engineData": {
                 "name": "Preview-Markdown.md",
                 "metadata": {
@@ -25,7 +25,7 @@
             }
         },
         {
-            "filename": "Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk__nunjucks__Preview-HTML.html",
+            "filename": "DoCSoc x Kishan__nunjucks__Preview-HTML.html",
             "engineData": {
                 "name": "Preview-HTML.html",
                 "metadata": {
@@ -36,17 +36,20 @@
     ],
     "email": {
         "to": [
-            "kss22@ic.ac.uk"
+            "kss22@ic.ac.uk",
+            "kishansambhi@hotmail.co.uk"
         ],
-        "cc": [],
+        "cc": [
+            "jaskishansaran@gmail.com",
+            "kishansambhi@outlook.com"
+        ],
         "bcc": [
             "kishansambhi@hotmail.co.uk"
         ],
         "subject": "DoCSoc x Kishan"
     },
     "attachments": [
-        "./attachments/munch.jpg",
-        "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf"
+        "./attachments/munch.jpg"
     ],
-    "$originalFilepath": "output/ill.violet.snipe/Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk-metadata.json"
+    "$originalFilepath": "output/test/DoCSoc x Kishan-metadata.json"
 }

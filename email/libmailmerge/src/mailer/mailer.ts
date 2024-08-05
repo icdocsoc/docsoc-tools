@@ -19,9 +19,7 @@ const logger = createLogger("mailer");
 export default class Mailer {
     constructor(
         private smtpHost: string,
-        private imapHost: string,
         private smtpPort: number,
-        private imapPort: number,
         private username: string,
         private password: string,
     ) {}
