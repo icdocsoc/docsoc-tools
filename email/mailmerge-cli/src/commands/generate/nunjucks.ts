@@ -5,7 +5,7 @@ import { join } from "path";
 
 import { CSVBackend } from "../../common/dataSource.js";
 import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate.js";
-import { JSONSidecarsBackend } from "../../common/outputBackend.js";
+import { JSONSidecarsBackend } from "../../common/storageBackend.js";
 import { getFileNameSchemeInteractively } from "../../interactivity/getFileNameSchemeInteractively.js";
 import { getKeysForAttachments } from "../../interactivity/getKeysForAttachments.js";
 import { getRunNameInteractively } from "../../interactivity/getRunNameInteractively.js";

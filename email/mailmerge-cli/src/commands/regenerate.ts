@@ -1,6 +1,7 @@
 import { Args, Command } from "@oclif/core";
 
 import { rerenderPreviews } from "../common/rerender.js";
+import { JSONSidecarsBackend } from "../common/storageBackend.js";
 
 export default class Regenerate extends Command {
     static override args = {
@@ -23,6 +24,11 @@ export default class Regenerate extends Command {
         const directory = args.directory;
 
         // Rerender previews
-        await rerenderPreviews(directory);
+        const storageBackend = new JSONSidecarsBackend(directory, {
+            type: "fixed",
+            /// @ts-expect-error: Required for fileNamer
+            namer: (record) => record["email"],
+        });
+        await rerenderPreviews(storageBackend);
     }
 }

@@ -11,9 +11,8 @@ import {
 import { createLogger } from "@docsoc/util";
 import "dotenv/config";
 
-import { getFileNameSchemeInteractively } from "../interactivity/index.js";
 import { DataSource } from "./dataSource.js";
-import { MergeResult, StorageBackend } from "./outputBackend.js";
+import { MergeResult, StorageBackend } from "./storageBackend.js";
 
 const logger = createLogger("docsoc");
 
@@ -153,7 +152,7 @@ export default async function generatePreviews(opts: CliOptions) {
         email: createEmailData(record),
     }));
 
-    await opts.storageBackend.storeMergeResult(results, { headers, records });
+    await opts.storageBackend.storeOriginalMergeResults(results, { headers, records });
 
     logger.info(`Done! Review the previews and then send.`);
 }

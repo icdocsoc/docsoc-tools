@@ -1,6 +1,8 @@
+import { getDefaultDoCSocFromLine, getDefaultMailer } from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
 
 import { sendEmails } from "../common/send.js";
+import { JSONSidecarsBackend } from "../common/storageBackend.js";
 
 export default class Send extends Command {
     static override args = {
@@ -20,8 +22,12 @@ export default class Send extends Command {
         const { args } = await this.parse(Send);
 
         const directory = args.directory;
-
+        const storageBackend = new JSONSidecarsBackend(directory, {
+            type: "fixed",
+            /// @ts-expect-error: Required for fileNamer
+            namer: (record) => record["email"],
+        });
         // Rerender previews
-        await sendEmails(directory);
+        await sendEmails(storageBackend, getDefaultMailer(), getDefaultDoCSocFromLine());
     }
 }
