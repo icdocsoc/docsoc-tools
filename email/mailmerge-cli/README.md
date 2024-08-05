@@ -6,7 +6,7 @@
 2. Run `npm run build` in this folder (`email/mailmerge-cli`)
 3. Run `npm link` in this folder - this adds `docsoc-mailmerge` to your path
 4. In a blank directory somewhere (known as the "mailmerge workspace"), create these folders & files:
-    1. `./data/names.csv` - CSV file with at the minimum `email` & `subject` columns
+    1. `./data/names.csv` - CSV file with at the minimum `to` & `subject` columns
     2. `./templates/template.md.njk` - nunjucks markdown template for your emails (see `/email/workspace/templates/tempkate.md.njk` for an example, where `/` is the repo root)
     3. `./templates/wrapper.html.njk`, a HTML wrapper for the email (use the contents of `/email/workspace/templates/wrapper.html.njk`)
 5. Run `docsoc-mailmerge generate nunjucks --help` and read the help text
