@@ -84,7 +84,7 @@ export class EmailUploader {
                         size: fileStats.size,
                     },
                 });
-            const { uploadUrl, nextExpectedRanges } = uploadSession;
+            const { uploadUrl } = uploadSession;
 
             if (!uploadUrl) {
                 throw new Error("No upload URL returned from createUploadSession.");
@@ -136,13 +136,11 @@ export class EmailUploader {
             logger.info(`File ${path} uploaded successfully in chunks.`);
         } else {
             try {
-                const response = await this.client
-                    .api(`/me/messages/${messageID}/attachments`)
-                    .post({
-                        "@odata.type": "#microsoft.graph.fileAttachment",
-                        name: filename,
-                        contentBytes: fileData.toString("base64"),
-                    });
+                await this.client.api(`/me/messages/${messageID}/attachments`).post({
+                    "@odata.type": "#microsoft.graph.fileAttachment",
+                    name: filename,
+                    contentBytes: fileData.toString("base64"),
+                });
                 logger.debug(`File ${path} uploaded.`);
             } catch (error) {
                 console.error("Error uploading file: ", error);
