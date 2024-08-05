@@ -98,7 +98,6 @@ export class EmailUploader {
             while (start < fileSize) {
                 const chunk = fileData.slice(start, end + 1);
                 const contentRange = `bytes ${start}-${end}/${fileSize}`;
-
                 const response = await fetch(uploadUrl, {
                     method: "PUT",
                     headers: {
