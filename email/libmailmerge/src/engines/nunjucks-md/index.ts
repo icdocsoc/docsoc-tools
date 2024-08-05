@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import nunjucks from "nunjucks";
 
 import { renderMarkdownToHtml } from "../../markdown/toHtml.js";
-import { MappedCSVRecord } from "../../util/types.js";
+import { MappedRecord } from "../../util/types.js";
 import { TemplateEngineOptions, TemplatePreviews } from "../types.js";
 import { TemplateEngine } from "../types.js";
 import getTemplateFields from "./getFields.js";
@@ -69,7 +69,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         return getTemplateFields(this.loadedTemplate);
     }
 
-    public override async renderPreview(record: MappedCSVRecord) {
+    public override async renderPreview(record: MappedRecord) {
         if (!this.loadedTemplate) {
             throw new Error("Template not loaded");
         }

@@ -1,6 +1,9 @@
 import inquirer from "inquirer";
 
-export const getCSVColumnsForAttachments = async (csvFields: string[]): Promise<string[]> => {
+/**
+ * From the headers of a data source, prompt the user to select fields that contain the path of attachments.
+ */
+export const getKeysForAttachments = async (fields: Set<string>): Promise<string[]> => {
     // Prompt user to select fields
     /// @ts-expect-error: Bad inquirer types
     const answers = await inquirer.prompt([
@@ -8,7 +11,7 @@ export const getCSVColumnsForAttachments = async (csvFields: string[]): Promise<
             type: "checkbox",
             name: "selectedFields",
             message: "Select fields that contain the path of attachments:",
-            choices: csvFields.map((field) => ({
+            choices: [...fields].map((field) => ({
                 name: field,
                 value: field,
                 checked: field.startsWith("attachment"),

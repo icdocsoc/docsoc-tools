@@ -1,6 +1,6 @@
 import { ENGINES_MAP } from "../engines/index.js";
 import { TemplateEngineOptions, TemplatePreview } from "../engines/types.js";
-import { MappedCSVRecord, EmailString } from "../util/types.js";
+import { MappedRecord, EmailString } from "../util/types.js";
 
 /**
  * Outputted to JSON files next to rendered template previews, containing metadata about the preview.
@@ -9,7 +9,7 @@ export interface SidecarData {
     /** Name of the template rendered (used for logging) */
     name: string;
     /** Record associated with the template rendered  */
-    record: MappedCSVRecord;
+    record: MappedRecord;
     /** Engine used */
     engine: keyof typeof ENGINES_MAP;
     /** Options given to the engine */

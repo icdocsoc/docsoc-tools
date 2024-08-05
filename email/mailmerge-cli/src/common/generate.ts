@@ -1,81 +1,66 @@
 import {
     TemplatePreviews,
-    MappedCSVRecord,
+    MappedRecord,
     TemplateEngineOptions,
     TemplateEngine,
     TEMPLATE_ENGINES,
-    getSidecarMetadata,
     validateRecord,
-    CSV_DEFAULT_FIELD_NAMES,
-    RawCSVRecord,
+    DEFAULT_FIELD_NAMES,
+    createEmailData,
 } from "@docsoc/libmailmerge";
-import { getRecordPreviewPrefixForIndividual, writeMetadata } from "@docsoc/libmailmerge";
-import { createLogger, stopIfCriticalFsError } from "@docsoc/util";
-import { parse } from "csv-parse";
+import { createLogger } from "@docsoc/util";
 import "dotenv/config";
-import { promises as fs } from "fs";
-import { mkdirp } from "mkdirp";
-// load .env
-import { join } from "path";
 
-import { getCSVColumnsForAttachments } from "../interactivity/getCSVColumnsForAttachments.js";
-import {
-    getFileNameSchemeInteractively,
-    getRunNameInteractively,
-    mapCSVFieldsInteractive,
-} from "../interactivity/index.js";
+import { getFileNameSchemeInteractively } from "../interactivity/index.js";
+import { DataSource } from "./dataSource.js";
+import { MergeResult, StorageBackend } from "./outputBackend.js";
 
 const logger = createLogger("docsoc");
 
 export interface CliOptions {
-    csvFile: string;
     engineInfo: {
         name: TEMPLATE_ENGINES;
         options: TemplateEngineOptions;
         engine: TemplateEngine;
     };
     output: string;
-    // Overrides mappings attachments from CSV
+    /**
+     * Overrides mappings attachments from the records - will result
+     * in {@link CliOptions.mappings.keysForAttachments} being ignored.
+     *
+     * As a result, every email will have the same attachments.
+     */
     attachments?: string[];
     features: {
-        // Enable CC & BCC mapping from CSV - column values must be a space separate list
+        // Enable CC & BCC mapping from records - column values must be a space separate list
         enableCC?: boolean;
         enableBCC?: boolean;
     };
-    /** Run name, created as subdir under output */
-    name?: string;
+    /** DataSource backend to get records to data merge on from */
+    dataSource: DataSource;
+    /** Storage backend for storing mail merge result */
+    storageBackend: StorageBackend;
+    /** Mappings the data merge system needs to go from data to mail merge, or functions to get these mappings */
+    mappings: {
+        /** Maps of data source headers to template headers */
+        headersToTemplateMap:
+            | Map<string, string>
+            | ((
+                  templateFields: Set<string>,
+                  headers: Set<string>,
+              ) => PromiseLike<Map<string, string>>);
+        /** Use these keys in data source entires for attachment paths. */
+        keysForAttachments: string[] | ((headers: Set<string>) => PromiseLike<string[]>);
+    };
 }
 
 // TODO: Put somewhere nice
-const ADDITIONAL_FIELDS = [CSV_DEFAULT_FIELD_NAMES.to, CSV_DEFAULT_FIELD_NAMES.subject];
+const ADDITIONAL_FIELDS: Array<string> = [DEFAULT_FIELD_NAMES.to, DEFAULT_FIELD_NAMES.subject];
 
 export default async function generatePreviews(opts: CliOptions) {
-    // 0: What to call this run?
-    const runName = opts.name ?? (await getRunNameInteractively());
-
-    // Workspace root
-    const workspaceRoot = process.cwd();
-
-    // 1: Load the CSV
-    logger.info("Loading CSV...");
-    const csvRaw = await stopIfCriticalFsError(
-        fs.readFile(join(workspaceRoot, opts.csvFile), "utf-8"),
-    );
-    logger.debug("Parsing & loading CSV...");
-    const csvParsed = parse(csvRaw, { columns: true });
-    const records: RawCSVRecord[] = [];
-    for await (const record of csvParsed) {
-        records.push(record);
-    }
-    logger.info(`Loaded ${records.length} records`);
-
-    // 3: Grab CSV fields
-    if (records.length === 0) {
-        logger.error("No records found in CSV");
-        throw new Error("No records found in CSV");
-    }
-    const headers = Object.keys(records[0]);
-    logger.info(`Fields: ${headers.join(", ")}`);
+    // 1: Load data
+    logger.info("Loading data...");
+    const { headers, records } = await opts.dataSource.loadRecords();
 
     // 4: Load template via template engine
     logger.info("Loading template...");
@@ -87,27 +72,32 @@ export default async function generatePreviews(opts: CliOptions) {
     const templateFields = engine.extractFields();
     logger.info(`Fields found: ${Array.from(templateFields).join(", ")}`);
 
-    // 6: Map CSV fields to template interactively
-    logger.info("Mapping CSV fields to template interactively");
+    // 6: Map fields to template
+    logger.info("Mapping fields to template");
     if (opts.features.enableCC) {
-        logger.debug("Enabling CC mapping from CSV");
-        ADDITIONAL_FIELDS.push(CSV_DEFAULT_FIELD_NAMES.cc);
+        logger.debug("Enabling CC mapping from records");
+        ADDITIONAL_FIELDS.push(DEFAULT_FIELD_NAMES.cc);
     }
     if (opts.features.enableBCC) {
-        logger.debug("Enabling BCC mapping from CSV");
-        ADDITIONAL_FIELDS.push(CSV_DEFAULT_FIELD_NAMES.bcc);
+        logger.debug("Enabling BCC mapping from records");
+        ADDITIONAL_FIELDS.push(DEFAULT_FIELD_NAMES.bcc);
     }
-    const fieldsMapCSVtoTemplate = await mapCSVFieldsInteractive(
-        new Set([...Array.from(templateFields), ...ADDITIONAL_FIELDS]),
-        headers,
-    );
+
+    const fieldsToMap = new Set([...templateFields, ...ADDITIONAL_FIELDS]);
+
+    const fieldsMaptoTemplate =
+        opts.mappings.headersToTemplateMap instanceof Map
+            ? opts.mappings.headersToTemplateMap
+            : await opts.mappings.headersToTemplateMap(fieldsToMap, headers);
 
     // 6.5: handle attachments
     logger.debug("Handling attachments...");
-    let getAttachmentsFromRecord: (record: MappedCSVRecord) => string[];
+    let getAttachmentsFromRecord: (record: MappedRecord) => string[];
     if (typeof opts.attachments === "undefined" || opts.attachments.length <= 0) {
-        logger.info("Using attachments from CSV");
-        const attachmentHeaders = await getCSVColumnsForAttachments(headers);
+        logger.info("Using attachments from records");
+        const attachmentHeaders = Array.isArray(opts.mappings.keysForAttachments)
+            ? opts.mappings.keysForAttachments
+            : await opts.mappings.keysForAttachments(headers);
         getAttachmentsFromRecord = (record) =>
             attachmentHeaders.map((head) => record[head] as string);
     } else {
@@ -115,24 +105,20 @@ export default async function generatePreviews(opts: CliOptions) {
         getAttachmentsFromRecord = () => opts.attachments ?? [];
     }
 
-    // 7: Ask what to name files using
-    const fileNamer = await getFileNameSchemeInteractively(headers, records);
-
     // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
-    // NOTE: CSVRecord here is the record with the CSV headers mapped to the template fields, rather than with the raw template fields
-    const previews: [TemplatePreviews, MappedCSVRecord][] = await Promise.all(
+    // NOTE: MappedRecord here is the record with its fields mapped to the template fields, rather than with the raw template fields
+    const previews: [TemplatePreviews, MappedRecord][] = await Promise.all(
         records
-            .map((csvRecord) =>
+            .map((record) =>
                 // Only include fields that are mapped
                 Object.fromEntries(
-                    Object.entries(csvRecord)
+                    Object.entries(record)
                         .filter(
-                            ([key]) =>
-                                fieldsMapCSVtoTemplate.has(key) || key.startsWith("attachment"),
+                            ([key]) => fieldsMaptoTemplate.has(key) || key.startsWith("attachment"),
                         )
                         .map(([key, value]) => {
-                            return [fieldsMapCSVtoTemplate.get(key) ?? key, value];
+                            return [fieldsMaptoTemplate.get(key) ?? key, value];
                         }),
                 ),
             )
@@ -140,7 +126,7 @@ export default async function generatePreviews(opts: CliOptions) {
                 const validState = validateRecord(preparedRecord);
                 if (!validState.valid) {
                     logger.warn(
-                        `Skipping metadata for ${fileNamer(
+                        `Skipping metadata for ${JSON.stringify(
                             preparedRecord,
                         )} due to invalid record: ${validState.reason}`,
                     );
@@ -155,47 +141,19 @@ export default async function generatePreviews(opts: CliOptions) {
     );
 
     // 9: Write to file
-    logger.info("Writing preview files...");
-    const previewsRoot = join(opts.output, runName);
-    logger.warn(`Writing previews to ${previewsRoot}...`);
-    logger.debug("Creating directories...");
-    await mkdirp(previewsRoot);
-    logger.debug("Writing files...");
-    await Promise.all(
-        previews.flatMap(async ([previews, record]) => {
-            const operations = previews.map(async (preview) => {
-                const fileName = getRecordPreviewPrefixForIndividual(
-                    record,
-                    fileNamer,
-                    opts.engineInfo.name,
-                    preview,
-                );
-                logger.debug(`Writing ${fileName}__${opts.engineInfo.name}__${preview.name}`);
-                await stopIfCriticalFsError(
-                    fs.writeFile(join(previewsRoot, fileName), preview.content),
-                );
-            });
+    logger.info("Writing results...");
+    const results: MergeResult[] = previews.map(([previews, record]) => ({
+        record,
+        previews,
+        engineInfo: {
+            name: opts.engineInfo.name,
+            options: opts.engineInfo.options,
+        },
+        attachmentPaths: getAttachmentsFromRecord(record),
+        email: createEmailData(record),
+    }));
 
-            // Add metadata write operation
-            operations.push(
-                writeMetadata(
-                    record,
-                    getSidecarMetadata(
-                        fileNamer,
-                        record,
-                        opts.engineInfo.name,
-                        opts.engineInfo.options,
-                        getAttachmentsFromRecord(record),
-                        previews,
-                    ),
-                    fileNamer,
-                    previewsRoot,
-                ),
-            );
+    await opts.storageBackend.storeMergeResult(results, { headers, records });
 
-            return operations;
-        }),
-    );
-
-    logger.info(`Done! Review previews at ${previewsRoot} and then send.`);
+    logger.info(`Done! Review the previews and then send.`);
 }

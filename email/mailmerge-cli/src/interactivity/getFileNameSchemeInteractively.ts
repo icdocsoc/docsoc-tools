@@ -1,23 +1,23 @@
-import { MappedCSVRecord } from "@docsoc/libmailmerge";
+import { MappedRecord } from "@docsoc/libmailmerge";
 import inquirer from "inquirer";
 
 /**
  * Interactively get a function that generates a filename from a record, by asking a user which fields to use and separating the chosen fields with a hyphen.
- * @param headers CSV headers
+ * @param headers Data source headers to provide options to the user
  * @param records Records to provide examples
  * @returns
  */
 export async function getFileNameSchemeInteractively(
-    headers: string[],
-    records: MappedCSVRecord[],
-): Promise<(record: MappedCSVRecord) => string> {
+    headers: Set<string>,
+    records: MappedRecord[],
+): Promise<(record: MappedRecord) => string> {
     if (records.length === 0) {
         throw new Error("No records available to provide examples.");
     }
 
     const firstRecord = records[0];
 
-    const choices = headers.map((header) => ({
+    const choices = [...headers].map((header) => ({
         name: `${header} (e.g. ${firstRecord[header]})`,
         value: header,
     }));
@@ -34,7 +34,7 @@ export async function getFileNameSchemeInteractively(
 
     const selectedFields: string[] = answers.selectedFields;
 
-    return (record: MappedCSVRecord) => {
+    return (record: MappedRecord) => {
         return selectedFields.map((field) => record[field]).join("-");
     };
 }

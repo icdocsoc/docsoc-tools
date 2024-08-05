@@ -11,7 +11,7 @@ import { join } from "path";
 import { TEMPLATE_ENGINES } from "../engines/index.js";
 import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types.js";
 import Mailer from "../mailer/mailer.js";
-import { MappedCSVRecord, EmailString } from "../util/types.js";
+import { MappedRecord, EmailString } from "../util/types.js";
 import { SidecarData } from "./types.js";
 
 const PARTS_SEPARATOR = "__";
@@ -26,8 +26,8 @@ const logger = createLogger("docsoc.sidecar");
  * @returns
  */
 export const getRecordPreviewPrefix = (
-    record: MappedCSVRecord,
-    fileNamer: (record: MappedCSVRecord) => string,
+    record: MappedRecord,
+    fileNamer: (record: MappedRecord) => string,
 ) => `${fileNamer(record)}`;
 
 /**
@@ -40,8 +40,8 @@ export const getRecordPreviewPrefix = (
  * // => "file_1__nunjucks__preview1.txt"
  */
 export const getRecordPreviewPrefixForIndividual = (
-    record: MappedCSVRecord,
-    fileNamer: (record: MappedCSVRecord) => string,
+    record: MappedRecord,
+    fileNamer: (record: MappedRecord) => string,
     templateEngine: string,
     preview: TemplatePreview,
 ) =>
@@ -58,8 +58,8 @@ export const getRecordPreviewPrefixForIndividual = (
  * // => "file_1-metadata.json"
  */
 export const getRecordPreviewPrefixForMetadata = (
-    record: MappedCSVRecord,
-    fileNamer: (record: MappedCSVRecord) => string,
+    record: MappedRecord,
+    fileNamer: (record: MappedRecord) => string,
 ) => `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
 
 type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
@@ -67,7 +67,7 @@ type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
  * Check a record is valid for use in mailmerge - specifically, that it has a valid email address and a subject.
  * @param record __Mapped__ CSV Record to validate
  */
-export const validateRecord = (record: MappedCSVRecord): ValidRecordReturn => {
+export const validateRecord = (record: MappedRecord): ValidRecordReturn => {
     const validateAll = parseEmailList(record["email"] as string).reduce(
         (acc, email) => acc && Mailer.validateEmail(email),
         true,
@@ -100,9 +100,9 @@ export const validateRecord = (record: MappedCSVRecord): ValidRecordReturn => {
  * @returns
  */
 export async function writeMetadata(
-    record: MappedCSVRecord,
+    record: MappedRecord,
     sidecarData: SidecarData,
-    fileNamer: (record: MappedCSVRecord) => string,
+    fileNamer: (record: MappedRecord) => string,
     previewsRoot: string,
 ): Promise<void> {
     const recordState = validateRecord(record);
@@ -137,8 +137,8 @@ const parseEmailList = (emailList: string | undefined): EmailString[] =>
  * @returns Sidecar metadata
  */
 export function getSidecarMetadata(
-    fileNamer: (record: MappedCSVRecord) => string,
-    record: MappedCSVRecord,
+    fileNamer: (record: MappedRecord) => string,
+    record: MappedRecord,
     templateEngine: TEMPLATE_ENGINES,
     templateOptions: TemplateEngineOptions,
     attachments: string[],
@@ -161,13 +161,29 @@ export function getSidecarMetadata(
                 content: undefined,
             },
         })),
-        email: {
-            to: parseEmailList(record["email"] as string),
-            cc: parseEmailList(record["cc"] as string),
-            bcc: parseEmailList(record["bcc"] as string),
-            subject: record["subject"] as string,
-        },
+        email: createEmailData(record),
         attachments,
+    };
+}
+
+export interface EmailData {
+    to: EmailString[];
+    cc: EmailString[];
+    bcc: EmailString[];
+    subject: string;
+}
+
+/**
+ * Given a __mapped__ record, extract the expected email data from it.
+ * @param record Mapped record to get email data from
+ * @returns 
+ */
+export function createEmailData(record: MappedRecord): EmailData {
+    return {
+        to: parseEmailList(record["email"] as string),
+        cc: parseEmailList(record["cc"] as string),
+        bcc: parseEmailList(record["bcc"] as string),
+        subject: record["subject"] as string,
     };
 }
 

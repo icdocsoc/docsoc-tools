@@ -1,5 +1,5 @@
 export type EmailString = `${string}@${string}`;
 export type FromEmail = `"${string}" <${EmailString}>`;
 
-export type RawCSVRecord = Record<string, unknown>;
-export type MappedCSVRecord = Record<string, unknown>;
+export type RawRecord = Record<string, unknown>;
+export type MappedRecord = Record<string, unknown>;

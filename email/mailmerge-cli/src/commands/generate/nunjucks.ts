@@ -1,8 +1,15 @@
 import { NunjucksMarkdownEngine, NunjucksMarkdownTemplateOptions } from "@docsoc/libmailmerge";
 import { Args, Command, Flags } from "@oclif/core";
+import { mkdirp } from "mkdirp";
 import { join } from "path";
 
+import { CSVBackend } from "../../common/dataSource.js";
 import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate.js";
+import { JSONSidecarsBackend } from "../../common/outputBackend.js";
+import { getFileNameSchemeInteractively } from "../../interactivity/getFileNameSchemeInteractively.js";
+import { getKeysForAttachments } from "../../interactivity/getKeysForAttachments.js";
+import { getRunNameInteractively } from "../../interactivity/getRunNameInteractively.js";
+import { mapFieldsInteractive } from "../../interactivity/mapFieldsInteractive.js";
 import { DEFAULT_DIRS } from "../../util/constant.js";
 
 export default class GenerateNunjucks extends Command {
@@ -64,8 +71,10 @@ export default class GenerateNunjucks extends Command {
             templatePath: args.template,
             rootHtmlTemplate: flags.htmlTemplate,
         };
+        const runName = flags.name ?? (await getRunNameInteractively());
+        const outputRoot = join(flags.output, runName);
+        await mkdirp(outputRoot);
         const options: GeneratePreviewsOptions = {
-            csvFile: args.csvFile,
             engineInfo: {
                 options: engineOptions,
                 name: "nunjucks",
@@ -77,7 +86,15 @@ export default class GenerateNunjucks extends Command {
                 enableBCC: flags.bcc,
                 enableCC: flags.cc,
             },
-            name: flags.name,
+            dataSource: new CSVBackend(join(process.cwd(), args.csvFile)),
+            storageBackend: new JSONSidecarsBackend(outputRoot, {
+                type: "dynamic",
+                namer: getFileNameSchemeInteractively,
+            }),
+            mappings: {
+                headersToTemplateMap: mapFieldsInteractive,
+                keysForAttachments: getKeysForAttachments,
+            },
         };
         await generatePreviews(options);
     }
