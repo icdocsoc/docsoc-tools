@@ -1,20 +1,15 @@
-import {
-    TemplatePreviews,
-    MappedRecord,
-    TemplateEngineOptions,
-    TemplateEngine,
-    validateRecord,
-    DEFAULT_FIELD_NAMES,
-    createEmailData,
-} from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 import "dotenv/config";
+import { DEFAULT_FIELD_NAMES, MappedRecord } from "src/util";
 
-import { DataSource } from "./dataSource.js";
-import { MergeResult, StorageBackend } from "./storageBackend.js";
+import { TemplateEngineOptions, TemplateEngine, TemplatePreviews } from "../engines/index.js";
+import { validateRecord, createEmailData } from "../previews/index.js";
+import { DataSource } from "./loaders";
+import { StorageBackend, MergeResult } from "./storage/types";
 
 const logger = createLogger("docsoc");
 
+/** Options & required things when running a mailmerge */
 export interface GenerateOptions {
     /** The engine to use for mapping records to merged outputs */
     engineInfo: {
@@ -85,7 +80,7 @@ const ADDITIONAL_FIELDS_TO_MAP: Array<string> = [
 /**
  * A generic way to generate previews for a mail merge.
  */
-export default async function generatePreviews(opts: GenerateOptions) {
+export async function generatePreviews(opts: GenerateOptions) {
     // 1: Load data
     logger.info("Loading data...");
     const { headers, records } = await opts.dataSource.loadRecords();

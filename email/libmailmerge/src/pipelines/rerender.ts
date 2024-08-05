@@ -1,7 +1,8 @@
-import { ENGINES_MAP, TemplateEngineConstructor } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 
-import { MergeResultWithMetadata, StorageBackend } from "./storageBackend";
+import { ENGINES_MAP } from "../engines/index.js";
+import { TemplateEngineConstructor } from "../engines/types.js";
+import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
 
 const logger = createLogger("docsoc");
 

@@ -1,34 +1,38 @@
-import { ENGINES_MAP, FromEmail, Mailer, TemplateEngineConstructor } from "@docsoc/libmailmerge";
-import { EmailString } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
 import readlineSync from "readline-sync";
 
-import { MergeResultWithMetadata, StorageBackend } from "./storageBackend";
+import { TemplateEngineConstructor, ENGINES_MAP } from "../engines/index.js";
+import { EmailUploader } from "../graph/index.js";
+import { EmailString } from "../util/index.js";
+import { StorageBackend, MergeResultWithMetadata } from "./storage";
 
 const logger = createLogger("docsoc");
 
 /**
- * Generic way to send emails, given a storage backend to get mail merge results from to send and a mailer to send them with.
+ * Upload mail merge results to drafts of an inbox using the Microsoft graph API
  *
  * NOTE: This function will prompt the user before sending emails, unless `disablePrompt` is set to true. SO make sure it is set to true if you want to do a fully headless send.
+ *
+ * NOTE: THis will initiate an interactive OAuth2 flow to authenticate with Microsoft Graph. This will open a browser to be opened.
  * @param storageBackend Storage backend to get mail merge results from
- * @param mailer Mailer to send emails with
- * @param fromAddress From address to send emails from (note the format - RFC5322. E.g. `"DoCSoc" <docsoc@ic.ac.uk>`)
  * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
- * @param disablePrompt If true, will not prompt the user before sending emails. Defaults to false (will prompt)
+ * @param entraTenantId The tenant ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_TENANT_ID)
+ * @param entraClientId The client ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_CLIENT_ID)
+ * @param disablePrompt If true, will not prompt the user before uploading emails. Defaults to false (will prompt)
+ * @param expectedEmail The email address to expect the emails to be sent to. If the email address does not match, the email will not be sent.
  */
-export async function sendEmails(
+export async function uploadDrafts(
     storageBackend: StorageBackend,
-    mailer: Mailer,
-    fromAddress: FromEmail,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
+    entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
+    entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
+    expectedEmail = "docsoc@ic.ac.uk",
 ) {
-    logger.info(`Sending mail merge results...`);
-
+    logger.info(`Uploading previews to drafts...`);
     // 1: Load data
     logger.info("Loading merge results...");
     const results = storageBackend.loadMergeResults();
@@ -74,58 +78,58 @@ export async function sendEmails(
     }
 
     // Print the warning
-
     console.log(
         chalk.yellow(`⚠️   --- WARNING --- ⚠️
-                You are about to send ${pendingEmails.length} emails.
-                This action is IRREVERSIBLE.
-                
-If the system crashes, restarting will NOT necessarily send already-sent emails again.
+    You are about to upload ${pendingEmails.length} emails.
+    This action is IRREVERSIBLE.
 
-Check that:
-1. The template was correct
-1. You are satisfied with ALL previews, including the HTML previews
-3. You have tested the system beforehand
-4. All indications this is a test have been removed
+    If the system crashes, you will need to manually upload the emails.
+    Re-running this after a partial upload will end up uploading duplicate emails.
+    Unlike with send, emails will not be moved to a different folder after upload.
 
-You are about to send ${pendingEmails.length} emails. The esitmated time for this is ${
+    Check that:
+    1. The template was correct
+    1. You are satisfied with ALL previews, including the HTML previews
+    3. You have tested the system beforehand
+    4. All indications this is a test have been removed
+
+    You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
             (20 * pendingEmails.length) / 60 / 60
         } hours.
 
-    If you are happy to proceed, please type "Yes, send emails" below.`),
+    If you are happy to proceed, please type "Yes, upload emails" below.`),
     );
+
     if (!disablePrompt) {
         const input = readlineSync.question("");
-        if (input !== "Yes, send emails") {
-            throw new Error("User did not confirm sending emails!");
+        if (input !== "Yes, upload emails") {
+            process.exit(0);
         }
     }
 
     // Send the emails
-    logger.info("Sending emails...");
+    logger.info("Uploading emails...");
     const total = pendingEmails.length;
     let sent = 0;
-    for (const { to, subject, html, attachments, cc, bcc, originalResult } of pendingEmails) {
-        logger.info(`(${++sent} / ${total}) Sending email to ${to} with subject ${subject}...`);
-        await mailer.sendMail(
-            fromAddress,
+    const uploader = new EmailUploader();
+    await uploader.authenticate(expectedEmail, entraTenantId, entraClientId);
+    for (const { to, subject, html, attachments, cc, bcc } of pendingEmails) {
+        logger.info(
+            `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
+        );
+
+        await uploader.uploadEmail(
             to,
             subject,
             html,
-            attachments.map((file) => ({
-                path: file,
-            })),
+            attachments,
             {
                 cc,
                 bcc,
             },
+            {
+                enableOutlookParagraphSpacingHack: true,
+            },
         );
-
-        if (storageBackend.postSendAction) {
-            logger.info("Calling post-send hook...");
-            await storageBackend.postSendAction(originalResult);
-        }
-
-        logger.info("Email sent!");
     }
 }

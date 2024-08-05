@@ -1,13 +1,15 @@
-import { NunjucksMarkdownEngine, NunjucksMarkdownTemplateOptions } from "@docsoc/libmailmerge";
+import {
+    CSVBackend,
+    GenerateOptions,
+    generatePreviews,
+    JSONSidecarsBackend,
+    NunjucksMarkdownEngine,
+    NunjucksMarkdownTemplateOptions,
+} from "@docsoc/libmailmerge";
 import { Args, Command, Flags } from "@oclif/core";
 import { mkdirp } from "mkdirp";
 import { join } from "path";
 
-import { CSVBackend } from "../../common/dataSource.js";
-import generatePreviews, {
-    GenerateOptions as GeneratePreviewsOptions,
-} from "../../common/generate.js";
-import { JSONSidecarsBackend } from "../../common/storageBackend.js";
 import { getFileNameSchemeInteractively } from "../../interactivity/getFileNameSchemeInteractively.js";
 import { getKeysForAttachments } from "../../interactivity/getKeysForAttachments.js";
 import { getRunNameInteractively } from "../../interactivity/getRunNameInteractively.js";
@@ -76,7 +78,7 @@ export default class GenerateNunjucks extends Command {
         const runName = flags.name ?? (await getRunNameInteractively());
         const outputRoot = join(flags.output, runName);
         await mkdirp(outputRoot);
-        const options: GeneratePreviewsOptions = {
+        const options: GenerateOptions = {
             engineInfo: {
                 options: engineOptions,
                 name: "nunjucks",

@@ -1,7 +1,5 @@
+import { JSONSidecarsBackend, rerenderPreviews } from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
-
-import { rerenderPreviews } from "../common/rerender.js";
-import { JSONSidecarsBackend } from "../common/storageBackend.js";
 
 export default class Regenerate extends Command {
     static override args = {

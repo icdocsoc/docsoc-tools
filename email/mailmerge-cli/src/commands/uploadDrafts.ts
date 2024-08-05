@@ -1,8 +1,5 @@
-import { ENGINES_MAP } from "@docsoc/libmailmerge";
+import { JSONSidecarsBackend, uploadDrafts, ENGINES_MAP } from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
-
-import { uploadDrafts } from "../common/uploadDrafts.js";
-import { JSONSidecarsBackend } from "src/common/storageBackend.js";
 
 export default class UploadDrafts extends Command {
     static override args = {

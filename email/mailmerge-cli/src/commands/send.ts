@@ -1,8 +1,10 @@
-import { getDefaultDoCSocFromLine, getDefaultMailer } from "@docsoc/libmailmerge";
+import {
+    JSONSidecarsBackend,
+    sendEmails,
+    getDefaultMailer,
+    getDefaultDoCSocFromLine,
+} from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
-
-import { sendEmails } from "../common/send.js";
-import { JSONSidecarsBackend } from "../common/storageBackend.js";
 
 export default class Send extends Command {
     static override args = {
