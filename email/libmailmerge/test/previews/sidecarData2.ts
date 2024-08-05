@@ -33,7 +33,7 @@ describe("sidecarData", () => {
     const record = {
         id: "1",
         name: "Test Record",
-        email: "testmail@outlook.com",
+        to: "testmail@outlook.com",
         subject: "Test Subject",
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,7 +87,7 @@ describe("sidecarData", () => {
         const result = validateRecord(record);
         expect(result).toEqual({
             valid: false,
-            reason: `Invalid email address in list ${record.email}`,
+            reason: `Invalid email address in list ${record.to}`,
         });
     });
 

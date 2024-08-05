@@ -30,7 +30,7 @@ describe("Sidecar Data Functions", () => {
     const mockRecord: MappedRecord = {
         id: "1",
         name: "Test Record",
-        email: "meap@hotmail.com",
+        to: "meap@hotmail.com",
         subject: "Test Record",
     };
     const mockFileNamer = (record: MappedRecord) => `file_${record["id"]}`;

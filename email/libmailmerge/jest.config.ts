@@ -7,7 +7,7 @@ export default {
         "^.+\\.ts$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],
         "^(.*).js$": ["babel-jest"],
     },
-    transformIgnorePatterns: ["/node_modules/(?!(@docsoc)/)", "\\.pnp\\.[^\\/]+$"],
+    transformIgnorePatterns: ["/node_modules/(?!(@docsoc|chalk)/)", "\\.pnp\\.[^\\/]+$"],
     moduleFileExtensions: ["ts", "js", "html"],
     coverageDirectory: "../../coverage/email/mailmerge-cli",
     testMatch: ["<rootDir>/test/**/*.ts"],
