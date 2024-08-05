@@ -1,6 +1,6 @@
 import { Args, Command } from "@oclif/core";
 
-import { uploadDrafts } from "../common/upload-drafts.js";
+import { uploadDrafts } from "../common/uploadDrafts.js";
 
 export default class UploadDrafts extends Command {
     static override args = {

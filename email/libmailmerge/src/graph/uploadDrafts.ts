@@ -143,7 +143,7 @@ export class EmailUploader {
                         name: filename,
                         contentBytes: fileData.toString("base64"),
                     });
-                logger.debug(`File ${path} uploaded with response: ${JSON.stringify(response)}.`);
+                logger.debug(`File ${path} uploaded.`);
             } catch (error) {
                 console.error("Error uploading file: ", error);
             }
@@ -156,10 +156,24 @@ export class EmailUploader {
         html: string,
         attachmentPaths: string[] = [],
         additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
+        options: {
+            /**
+             * Enable a hack to place a `<p><br></p>` between adjacent paragraphs
+             * to ensure blank lines between paragraphs show up in Outlook
+             * (outlook clears the default margin on `<p>` elements which usually
+             * gives the illusion of a blank line)
+             */
+            enableOutlookParagraphSpacingHack?: boolean;
+        },
         text: string = convert(html),
     ) {
         if (!this.client) {
             throw new Error("Client not authenticated");
+        }
+        // HACK: Replace </p><p> (adjacent paragraphs) with </p><p><br></p><p>
+        // to create blank lines in outlook
+        if (options.enableOutlookParagraphSpacingHack) {
+            html = html.replace(/<\/p>\s<p>/g, "</p><p><br></p><p>");
         }
         try {
             const draftMessage = {

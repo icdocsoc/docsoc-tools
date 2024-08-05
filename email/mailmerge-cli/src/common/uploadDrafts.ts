@@ -82,10 +82,10 @@ export async function uploadDrafts(directory: string) {
     If you are happy to proceed, please type "Yes, upload emails" below.`),
     );
 
-    const input = readlineSync.question("");
-    if (input !== "Yes, upload emails") {
-        process.exit(0);
-    }
+    // const input = readlineSync.question("");
+    // if (input !== "Yes, upload emails") {
+    //     process.exit(0);
+    // }
 
     // Send the emails
     logger.info("Uploading emails...");
@@ -102,9 +102,18 @@ export async function uploadDrafts(directory: string) {
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
 
-        await uploader.uploadEmail(to, subject, html, attachments, {
-            cc,
-            bcc,
-        });
+        await uploader.uploadEmail(
+            to,
+            subject,
+            html,
+            attachments,
+            {
+                cc,
+                bcc,
+            },
+            {
+                enableOutlookParagraphSpacingHack: true,
+            },
+        );
     }
 }
