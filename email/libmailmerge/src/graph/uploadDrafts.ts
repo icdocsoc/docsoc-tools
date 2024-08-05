@@ -169,15 +169,16 @@ export class EmailUploader {
         }
         // HACK: Replace </p><p> (adjacent paragraphs) with </p><p><br></p><p>
         // to create blank lines in outlook
+        let htmlToUpload = html;
         if (options.enableOutlookParagraphSpacingHack) {
-            html = html.replace(/<\/p>\s<p>/g, "</p><p><br></p><p>");
+            htmlToUpload = html.replace(/<\/p>\s*<p>/g, "</p><p><br></p><p>");
         }
         try {
             const draftMessage = {
                 subject,
                 body: {
                     contentType: "HTML",
-                    content: html,
+                    content: htmlToUpload,
                 },
                 toRecipients: to.map((email) => ({
                     emailAddress: {

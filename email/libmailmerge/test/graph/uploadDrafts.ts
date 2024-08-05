@@ -113,6 +113,39 @@ describe("EmailUploader", () => {
             expect(mockClient.post).toHaveBeenCalled();
         });
 
+        it("should apply the outlook paragraph hack", async () => {
+            const mockClient = {
+                api: jest.fn().mockReturnThis(),
+                /// @ts-expect-error: Mocking method
+                post: jest.fn().mockResolvedValue({ id: "messageId" }),
+            };
+
+            /// @ts-expect-error: Mocking property
+            emailUploader["client"] = mockClient;
+
+            await emailUploader.uploadEmail(
+                ["to@example.com"],
+                "Subject",
+                "<p>HTML content</p><p>And some more</p>   <p>And some more</p>",
+                [],
+                { cc: [], bcc: [] },
+                { enableOutlookParagraphSpacingHack: true },
+            );
+
+            expect(mockClient.api).toHaveBeenCalledWith("/me/messages");
+            expect(mockClient.post).toHaveBeenCalledWith({
+                subject: "Subject",
+                toRecipients: [{ emailAddress: { address: "to@example.com" } }],
+                ccRecipients: [],
+                bccRecipients: [],
+                body: {
+                    contentType: "HTML",
+                    content:
+                        "<p>HTML content</p><p><br></p><p>And some more</p><p><br></p><p>And some more</p>",
+                },
+            });
+        });
+
         it("should upload email successfully with attachments", async () => {
             const mockClient = {
                 api: jest.fn().mockReturnThis(),
