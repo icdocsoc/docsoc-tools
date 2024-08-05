@@ -10,7 +10,7 @@ describe("getFileNameSchemeInteractively", () => {
     // ];
 
     it("should throw an error if no records are available", async () => {
-        await expect(getFileNameSchemeInteractively(headers, [])).rejects.toThrow(
+        await expect(getFileNameSchemeInteractively(new Set(headers), [])).rejects.toThrow(
             "No records available to provide examples.",
         );
     });

@@ -1,7 +1,7 @@
 import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
 
-import { mapCSVFieldsInteractive } from "../../src/interactivity/mapCSVFieldsInteractive.js";
+import { mapFieldsInteractive } from "../../src/interactivity/mapFieldsInteractive.js";
 
 jest.mock("inquirer");
 jest.mock("@docsoc/util", () => {
@@ -33,7 +33,7 @@ describe("mapInteractive", () => {
             header3: "field3",
         });
 
-        const result = await mapCSVFieldsInteractive(templateFields, csvHeaders);
+        const result = await mapFieldsInteractive(templateFields, new Set(csvHeaders));
 
         expect(result.get("header1")).toBe("field1");
         expect(result.get("header2")).toBe("field2");
@@ -52,7 +52,7 @@ describe("mapInteractive", () => {
             header2: "field2",
         });
 
-        const result = await mapCSVFieldsInteractive(templateFields, csvHeaders);
+        const result = await mapFieldsInteractive(templateFields, new Set(csvHeaders));
 
         expect(result.get("header1")).toBe("field1");
         expect(result.get("header2")).toBe("field2");
