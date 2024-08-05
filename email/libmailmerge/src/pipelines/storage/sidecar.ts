@@ -54,7 +54,7 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     /**
      * Load all sidecar files from the output root, and the files associated with them and return them as merge results.
      */
-    async *loadMergeResults(): AsyncGenerator<
+    public async *loadMergeResults(): AsyncGenerator<
         MergeResultWithMetadata<JSONSidecarsBackendMetadata>
     > {
         this.logger.info(`Loading previews from ${this.outputRoot}...`);
@@ -96,7 +96,7 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     /**
      * Store the updated merge results back to the storage - called after they are rerendered
      */
-    async storeUpdatedMergeResults(
+    public async storeUpdatedMergeResults(
         results: MergeResultWithMetadata<JSONSidecarsBackendMetadata>[],
     ): Promise<void> {
         for (const result of results) {
@@ -126,7 +126,7 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     /**
      * After send move the sent emails to a sent folder
      */
-    async postSendAction(
+    public async postSendAction(
         resultSent: MergeResultWithMetadata<JSONSidecarsBackendMetadata>,
     ): Promise<void> {
         const sidecar = resultSent.storageBackendMetadata.sideCar;
@@ -143,7 +143,7 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     /**
      * Store results - see {@link getRecordPreviewPrefixForIndividual} for how the previews are named
      */
-    async storeOriginalMergeResults(
+    public async storeOriginalMergeResults(
         results: MergeResult[],
         { headers, records }: { headers: Set<string>; records: MappedRecord[] },
     ): Promise<void> {

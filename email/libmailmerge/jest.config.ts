@@ -10,5 +10,5 @@ export default {
     transformIgnorePatterns: ["/node_modules/(?!(@docsoc|chalk)/)", "\\.pnp\\.[^\\/]+$"],
     moduleFileExtensions: ["ts", "js", "html"],
     coverageDirectory: "../../coverage/email/mailmerge-cli",
-    testMatch: ["<rootDir>/test/**/*.ts"],
+    testMatch: ["<rootDir>/test/**/*.ts", "<rootDir>/src/**/*.spec.ts"],
 };
