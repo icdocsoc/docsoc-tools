@@ -1,4 +1,3 @@
-import { promises } from "dns";
 import { promises as fs } from "fs";
 import nunjucks from "nunjucks";
 
@@ -9,7 +8,7 @@ import {
     TemplatePreviews,
 } from "../../../src/index.js";
 import { renderMarkdownToHtml } from "../../../src/markdown/toHtml.js";
-import { MappedCSVRecord } from "../../../src/util/types.js";
+import { MappedRecord } from "../../../src/util/types.js";
 
 jest.mock("fs", () => ({
     promises: {
@@ -67,7 +66,7 @@ describe("NunjucksMarkdownEngine", () => {
 
         (renderMarkdownToHtml as jest.Mock).mockReturnValue("rendered html");
 
-        const record: MappedCSVRecord = { name: "John Doe" };
+        const record: MappedRecord = { name: "John Doe" };
         const previews = await engine.renderPreview(record);
 
         expect(nunjucks.compile).toHaveBeenNthCalledWith(1, "template content", undefined);
@@ -141,5 +140,5 @@ describe("NunjucksMarkdownEngine", () => {
         engine["loadedTemplate"] = undefined;
 
         await expect(engine.renderPreview({})).rejects.toThrow("Template not loaded");
-    })
+    });
 });

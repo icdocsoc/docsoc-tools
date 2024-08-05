@@ -1,19 +1,40 @@
-import { EmailUploader, ENGINES_MAP } from "@docsoc/libmailmerge";
-import { loadPreviewsFromSidecar, loadSidecars, EmailString } from "@docsoc/libmailmerge";
+import { EmailUploader, ENGINES_MAP, TemplateEngineConstructor } from "@docsoc/libmailmerge";
+import { EmailString } from "@docsoc/libmailmerge";
 import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
-import { join } from "path";
 import readlineSync from "readline-sync";
+
+import { MergeResultWithMetadata, StorageBackend } from "./storageBackend";
 
 const logger = createLogger("docsoc");
 
-export async function uploadDrafts(directory: string) {
-    logger.info(`Uploading previews at ${directory} to drafts...`);
-
-    // 1: Load sidecars
-    const sidecars = loadSidecars(directory);
+/**
+ * Upload mail merge results to drafts of an inbox using the Microsoft graph API
+ *
+ * NOTE: This function will prompt the user before sending emails, unless `disablePrompt` is set to true. SO make sure it is set to true if you want to do a fully headless send.
+ *
+ * NOTE: THis will initiate an interactive OAuth2 flow to authenticate with Microsoft Graph. This will open a browser to be opened.
+ * @param storageBackend Storage backend to get mail merge results from
+ * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
+ * @param entraTenantId The tenant ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_TENANT_ID)
+ * @param entraClientId The client ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_CLIENT_ID)
+ * @param disablePrompt If true, will not prompt the user before uploading emails. Defaults to false (will prompt)
+ * @param expectedEmail The email address to expect the emails to be sent to. If the email address does not match, the email will not be sent.
+ */
+export async function uploadDrafts(
+    storageBackend: StorageBackend,
+    enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
+    disablePrompt = false,
+    entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
+    entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
+    expectedEmail = "docsoc@ic.ac.uk",
+) {
+    logger.info(`Uploading previews to drafts...`);
+    // 1: Load data
+    logger.info("Loading merge results...");
+    const results = storageBackend.loadMergeResults();
 
     // For each sidecar, send the previews
     const pendingEmails: {
@@ -21,41 +42,37 @@ export async function uploadDrafts(directory: string) {
         subject: string;
         html: string;
         attachments: string[];
-        /** These files will be moved to the sent folder on the file system so they are not resent (include sidecar data) */
-        filesToMove: string[];
         cc: EmailString[];
         bcc: EmailString[];
+        originalResult: MergeResultWithMetadata;
     }[] = [];
-    for await (const sidecar of sidecars) {
-        const { name, engine: engineName, engineOptions, files } = sidecar;
+    for await (const result of results) {
+        const { engineInfo, previews, email, attachmentPaths } = result;
 
-        const EngineClass = ENGINES_MAP[engineName as keyof typeof ENGINES_MAP];
+        const EngineClass = enginesMap[engineInfo.name];
         if (!EngineClass) {
-            logger.error(`Invalid template engine: ${engineName}`);
-            logger.warn(`Skipping record ${name} as the engine is invalid!`);
+            logger.error(`Invalid template engine: ${engineInfo.name}`);
+            logger.warn(`Skipping record addressed to ${email.to} as the engine is invalid!`);
             continue;
         }
 
         // Load in the engine
-        const engine = new EngineClass(engineOptions);
-        logger.debug(`Loading engine ${engineName} for ${name}...`);
+        const engine = new EngineClass(engineInfo.options);
+        logger.debug(`Loading engine ${engineInfo.name}...`);
         await engine.loadTemplate();
 
         // Get data to send
-        const loadedPreviews = await loadPreviewsFromSidecar(files, directory);
-        const html = await engine.getHTMLToSend(loadedPreviews, sidecar.record);
+        const html = await engine.getHTMLToSend(previews, result.record);
 
         // Add to pending emails
         pendingEmails.push({
-            to: sidecar.email.to,
-            subject: sidecar.email.subject,
+            to: email.to,
+            subject: email.subject,
             html,
-            attachments: sidecar.attachments,
-            filesToMove: files
-                .map((file) => join(directory, file.filename))
-                .concat([sidecar.$originalFilepath]),
-            cc: sidecar.email.cc,
-            bcc: sidecar.email.bcc,
+            attachments: attachmentPaths,
+            cc: email.cc,
+            bcc: email.bcc,
+            originalResult: result,
         });
     }
 
@@ -82,22 +99,20 @@ export async function uploadDrafts(directory: string) {
     If you are happy to proceed, please type "Yes, upload emails" below.`),
     );
 
-    // const input = readlineSync.question("");
-    // if (input !== "Yes, upload emails") {
-    //     process.exit(0);
-    // }
+    if (!disablePrompt) {
+        const input = readlineSync.question("");
+        if (input !== "Yes, upload emails") {
+            process.exit(0);
+        }
+    }
 
     // Send the emails
     logger.info("Uploading emails...");
     const total = pendingEmails.length;
     let sent = 0;
     const uploader = new EmailUploader();
-    await uploader.authenticate(
-        "docsoc@ic.ac.uk",
-        process.env["MS_ENTRA_TENANT_ID"],
-        process.env["MS_ENTRA_CLIENT_ID"],
-    );
-    for (const { to, subject, html, attachments, filesToMove, cc, bcc } of pendingEmails) {
+    await uploader.authenticate(expectedEmail, entraTenantId, entraClientId);
+    for (const { to, subject, html, attachments, cc, bcc } of pendingEmails) {
         logger.info(
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );

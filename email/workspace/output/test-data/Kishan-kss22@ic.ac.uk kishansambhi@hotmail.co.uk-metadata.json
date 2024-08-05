@@ -2,7 +2,7 @@
     "name": "Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
     "record": {
         "name": "Kishan",
-        "email": "kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
+        "to": "kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
         "subject": "DoCSoc x Kishan",
         "attachment1": "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf",
         "attachment2": "./attachments/munch.jpg",
@@ -50,6 +50,5 @@
     },
     "attachments": [
         "./attachments/munch.jpg"
-    ],
-    "$originalFilepath": "output/test-data/Kishan-kss22@ic.ac.uk kishansambhi@hotmail.co.uk-metadata.json"
+    ]
 }

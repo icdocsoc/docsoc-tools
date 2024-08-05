@@ -13,7 +13,7 @@ import {
     writeMetadata,
 } from "../../src/previews/sidecarData.js";
 import { SidecarData } from "../../src/previews/types.js";
-import { MappedCSVRecord } from "../../src/util/types.js";
+import { MappedRecord } from "../../src/util/types.js";
 
 jest.mock("fs/promises");
 jest.mock("@docsoc/util", () => {
@@ -27,13 +27,13 @@ jest.mock("@docsoc/util", () => {
 });
 
 describe("Sidecar Data Functions", () => {
-    const mockRecord: MappedCSVRecord = {
+    const mockRecord: MappedRecord = {
         id: "1",
         name: "Test Record",
         email: "meap@hotmail.com",
         subject: "Test Record",
     };
-    const mockFileNamer = (record: MappedCSVRecord) => `file_${record["id"]}`;
+    const mockFileNamer = (record: MappedRecord) => `file_${record["id"]}`;
     const mockTemplateEngine = "nunjucks" as TEMPLATE_ENGINES;
     const mockTemplateOptions = {};
     const mockPreviews: TemplatePreviews = [

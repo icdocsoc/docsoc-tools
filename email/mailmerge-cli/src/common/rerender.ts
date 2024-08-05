@@ -5,6 +5,11 @@ import { MergeResultWithMetadata, StorageBackend } from "./storageBackend";
 
 const logger = createLogger("docsoc");
 
+/**
+ * Generic way tp rerender previews (so that modification to them may be made)
+ * @param storageBackend Backend to load and re-save merge results
+ * @param enginesMap Map of engine names to engine constructors, so that we can rerender previews using the original engine.
+ */
 export async function rerenderPreviews(
     storageBackend: StorageBackend,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
@@ -16,7 +21,7 @@ export async function rerenderPreviews(
     const rerenderedPreviews: MergeResultWithMetadata<unknown>[] = [];
 
     for await (const result of mergeResults) {
-        const { record, previews, engineInfo, email, attachmentPaths } = result;
+        const { record, previews, engineInfo, email } = result;
         logger.info(
             `Rerendering email addressed to ${JSON.stringify(email.to)} using engine ${
                 engineInfo.name

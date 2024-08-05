@@ -4,7 +4,9 @@ import { mkdirp } from "mkdirp";
 import { join } from "path";
 
 import { CSVBackend } from "../../common/dataSource.js";
-import generatePreviews, { CliOptions as GeneratePreviewsOptions } from "../../common/generate.js";
+import generatePreviews, {
+    GenerateOptions as GeneratePreviewsOptions,
+} from "../../common/generate.js";
 import { JSONSidecarsBackend } from "../../common/storageBackend.js";
 import { getFileNameSchemeInteractively } from "../../interactivity/getFileNameSchemeInteractively.js";
 import { getKeysForAttachments } from "../../interactivity/getKeysForAttachments.js";
@@ -80,7 +82,6 @@ export default class GenerateNunjucks extends Command {
                 name: "nunjucks",
                 engine: new NunjucksMarkdownEngine(engineOptions),
             },
-            output: flags.output,
             attachments: flags.attachment,
             features: {
                 enableBCC: flags.bcc,

@@ -27,7 +27,7 @@ export default class Regenerate extends Command {
         const storageBackend = new JSONSidecarsBackend(directory, {
             type: "fixed",
             /// @ts-expect-error: Required for fileNamer
-            namer: (record) => record["email"],
+            namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
         await rerenderPreviews(storageBackend);
     }

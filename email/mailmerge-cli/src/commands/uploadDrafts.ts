@@ -1,6 +1,8 @@
+import { ENGINES_MAP } from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
 
 import { uploadDrafts } from "../common/uploadDrafts.js";
+import { JSONSidecarsBackend } from "src/common/storageBackend.js";
 
 export default class UploadDrafts extends Command {
     static override args = {
@@ -21,6 +23,12 @@ export default class UploadDrafts extends Command {
         const { args } = await this.parse(UploadDrafts);
         const directory = args.directory;
 
-        await uploadDrafts(directory);
+        const storageBackend = new JSONSidecarsBackend(directory, {
+            type: "fixed",
+            /// @ts-expect-error: Required for fileNamer
+            namer: (record) => record[DEFAULT_FIELD_NAMES.to],
+        });
+
+        await uploadDrafts(storageBackend, ENGINES_MAP, false);
     }
 }

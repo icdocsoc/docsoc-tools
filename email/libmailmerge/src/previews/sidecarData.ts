@@ -8,9 +8,9 @@ import { createLogger } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
-import { TEMPLATE_ENGINES } from "../engines/index.js";
 import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types.js";
 import Mailer from "../mailer/mailer.js";
+import { DEFAULT_FIELD_NAMES } from "../util/constants.js";
 import { MappedRecord, EmailString } from "../util/types.js";
 import { SidecarData } from "./types.js";
 
@@ -68,18 +68,18 @@ type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
  * @param record __Mapped__ CSV Record to validate
  */
 export const validateRecord = (record: MappedRecord): ValidRecordReturn => {
-    const validateAll = parseEmailList(record["email"] as string).reduce(
+    const validateAll = parseEmailList(record[DEFAULT_FIELD_NAMES.to] as string).reduce(
         (acc, email) => acc && Mailer.validateEmail(email),
         true,
     );
     if (!validateAll) {
         return {
             valid: false,
-            reason: `Invalid email address in list ${record["email"]}`,
+            reason: `Invalid email address in list ${record[DEFAULT_FIELD_NAMES.to]}`,
         };
     }
 
-    if (!record["subject"]) {
+    if (!record[DEFAULT_FIELD_NAMES.subject]) {
         return {
             valid: false,
             reason: "No subject provided",
@@ -139,7 +139,7 @@ const parseEmailList = (emailList: string | undefined): EmailString[] =>
 export function getSidecarMetadata(
     fileNamer: (record: MappedRecord) => string,
     record: MappedRecord,
-    templateEngine: TEMPLATE_ENGINES,
+    templateEngine: string,
     templateOptions: TemplateEngineOptions,
     attachments: string[],
     previews: TemplatePreviews,
@@ -176,14 +176,14 @@ export interface EmailData {
 /**
  * Given a __mapped__ record, extract the expected email data from it.
  * @param record Mapped record to get email data from
- * @returns 
+ * @returns
  */
 export function createEmailData(record: MappedRecord): EmailData {
     return {
-        to: parseEmailList(record["email"] as string),
-        cc: parseEmailList(record["cc"] as string),
-        bcc: parseEmailList(record["bcc"] as string),
-        subject: record["subject"] as string,
+        to: parseEmailList(record[DEFAULT_FIELD_NAMES.to] as string),
+        cc: parseEmailList(record[DEFAULT_FIELD_NAMES.cc] as string),
+        bcc: parseEmailList(record[DEFAULT_FIELD_NAMES.bcc] as string),
+        subject: record[DEFAULT_FIELD_NAMES.subject] as string,
     };
 }
 

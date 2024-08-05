@@ -11,7 +11,7 @@ export interface SidecarData {
     /** Record associated with the template rendered  */
     record: MappedRecord;
     /** Engine used */
-    engine: keyof typeof ENGINES_MAP;
+    engine: string;
     /** Options given to the engine */
     engineOptions: TemplateEngineOptions;
     /** Data about the files rendered */

@@ -19,9 +19,24 @@ export interface ImapConfig {
 /** Docs say limit to 4MB uplod chuncks for large files */
 const UPLOAD_ATTACHMENT_CHUNK_SIZE = 4 * 1024 * 1024;
 
+/**
+ * Class to upload emails to an authenticated user's mailbox.
+ *
+ * Uses the Microsoft Graph API via OAuth for this.
+ *
+ * NOTE: This will trigger a browser window to open for OAuth authentication.
+ */
 export class EmailUploader {
     private client?: Client;
 
+    /**
+     * Authenticate and check we have the correct user we want to upload to
+     *
+     * NOTE: This will trigger a browser window to open for OAuth authentication.
+     * @param desiredEmail
+     * @param tenantId
+     * @param clientId
+     */
     public async authenticate(desiredEmail: string, tenantId?: string, clientId?: string) {
         logger.info("Getting OAuth token using Microsoft libraries...");
 
@@ -63,6 +78,11 @@ export class EmailUploader {
         }
     }
 
+    /**
+     * Upload attachments to a created message
+     * @param path Path to attachment to upload
+     * @param messageID ID of the message to upload the attachment to
+     */
     private async uploadFile(path: string, messageID: string) {
         logger.info(`Uploading file ${path}...`);
         if (!this.client) {
@@ -147,6 +167,15 @@ export class EmailUploader {
         }
     }
 
+    /**
+     * Upload an email draft to the authenticated user's Drafts
+     * @param to List of email addresses to send to
+     * @param subject Subject of the email
+     * @param html HTML content of the email
+     * @param attachmentPaths List of paths to attachments to upload
+     * @param additionalInfo Additional info for the email (cc, bcc)
+     * @param options Options for the uploader (e.g. enabling hacks to get around Outlook limitations)
+     */
     public async uploadEmail(
         to: string[],
         subject: string,
@@ -158,11 +187,10 @@ export class EmailUploader {
              * Enable a hack to place a `<p><br></p>` between adjacent paragraphs
              * to ensure blank lines between paragraphs show up in Outlook
              * (outlook clears the default margin on `<p>` elements which usually
-             * gives the illusion of a blank line)
+             * gives the illusion of a blank line betwee them)
              */
             enableOutlookParagraphSpacingHack?: boolean;
         },
-        text: string = convert(html),
     ) {
         if (!this.client) {
             throw new Error("Client not authenticated");
