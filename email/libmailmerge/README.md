@@ -15,6 +15,12 @@ This is a library to help with all the core parts of doing a mailmerge for DoCSo
 This library was originally designed to be used in conjunction with the `mailmerge-cli` tool, but can be used by itself.
 The library has been made, with few exceptions, to work headlessly: so long as the right options are passed in the whole thing can be ran without user input to e.g. automate the sending of emails for events.
 
+# Installation
+
+```bash
+npm install @docsoc/libmailmerge
+```
+
 # Building
 
 Make sure to run `npm install` before building.

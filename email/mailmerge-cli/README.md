@@ -1,6 +1,22 @@
 # mailmerge-cli
 
+This is a CLI tool that can be used to generate emails from templates, regenerate them after modifying the results, upload them to Outlook drafts and send them.
+
+It was created using `oclif` and `nx`.
+
+Since it was created using `oclif`, when developing on it please use `oclif`'s commands to e.g. add new commands.
+
+The CLI tool also acts as a library for user-facing function that might help when using `@docsoc/libmailmerge` - see `src/libmailmerge` for more info.
+
 ## Installation
+
+### Production
+
+```bash
+npm install -g @docsoc/mailmerge-cli
+```
+
+### Locally
 
 1. Run `npm install` from the root of the repo
 2. Run `npm run build` in this folder (`email/mailmerge-cli`)

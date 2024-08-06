@@ -43,6 +43,7 @@ Thumbs.db
 
 # ENV
 .env
+!email/mailmerge-cli/assets/template-workspace/.env
 
 # legacy code that has secrets
 legacy

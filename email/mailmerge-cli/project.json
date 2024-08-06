@@ -23,7 +23,10 @@
                 "main": "email/mailmerge-cli/src/index.ts",
                 "tsConfig": "email/mailmerge-cli/tsconfig.lib.json",
                 "assets": [
-                    "email/mailmerge-cli/*.md"
+                    "email/mailmerge-cli/*.md",
+                    "email/mailmerge-cli/assets/**/*",
+                    "email/mailmerge-cli/assets/*",
+                    "email/mailmerge-cli/assets/.env"
                 ],
                 "rootDir": "email/mailmerge-cli/src"
             }

@@ -35,3 +35,25 @@ docsoc-mailmerge send --help
 1. Each record in the CSV will result in 3 files in `./output/<runname>`: an editable markdown file to allow you to modify the email, a HTML rendering of the markdown that you should not edit, and a `.json` metadata file
 2. The HTML files, which is what is actually sent, can be regenerated after edting the markdown files with `regenerate` command (see below)
 3. If you want to edit the to address or subject after this point you will need to edit the JSON files; csv edits are ignored. If you edit the CSV, delete all outputs and run generate again.
+
+## If the .env file is missing
+
+Use this template:
+
+```bash
+# Fill these in to send emails
+DOCSOC_SMTP_SERVER=smtp-mail.outlook.com
+DOCSOC_SMTP_PORT=587
+DOCSOC_OUTLOOK_USERNAME=
+# Password to docsoc email
+DOCSOC_OUTLOOK_PASSWORD=
+
+# Optional: Fill these in to uplod drafts
+# You will need to create an app registration in Entra ID, restricted to the organisation,
+# And grant it the following permissions:
+# - Mail.ReadWrite
+# - User.Read
+MS_ENTRA_CLIENT_ID=
+MS_ENTRA_CLIENT_SECRET=
+MS_ENTRA_TENANT_ID=
+```

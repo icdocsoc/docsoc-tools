@@ -19,24 +19,41 @@
             "options": {
                 "targetName": "test"
             },
-            "exclude": ["packages/email/docsoc-mail-merge-node-e2e/**/*"]
+            "exclude": [
+                "packages/email/docsoc-mail-merge-node-e2e/**/*"
+            ]
         }
     ],
     "targetDefaults": {
         "@nx/esbuild:esbuild": {
             "cache": true,
-            "dependsOn": ["^build"],
-            "inputs": ["default", "^default"]
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "default",
+                "^default"
+            ]
         },
         "@nx/js:tsc": {
             "cache": true,
-            "dependsOn": ["^build"],
-            "inputs": ["default", "^default"]
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "default",
+                "^default"
+            ]
         }
     },
     "release": {
         "version": {
             "preVersionCommand": "npx nx run-many -t build"
-        }
+        },
+        "projects": [
+            "common/util",
+            "email/libmailmerge",
+            "email/mailmerge-cli"
+        ]
     }
 }

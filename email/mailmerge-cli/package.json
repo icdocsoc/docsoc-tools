@@ -25,7 +25,7 @@
     },
     "type": "module",
     "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts",
+    "typings": "./index.d.ts",
     "bin": {
         "docsoc-mailmerge": "./bin/run.js"
     },
@@ -37,5 +37,13 @@
         "hooks": {
             "prerun": "./dist/hooks/prerun/print-version"
         }
+    },
+    "exports": {
+        "./package.json": "./package.json",
+        ".": "./index.js",
+        "./commands": "./commands/index.js",
+        "./hooks": "./hooks/index.js",
+        "./interactivity": "./interactivity/index.js",
+        "./util": "./util/index.js"
     }
 }

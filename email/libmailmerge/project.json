@@ -12,7 +12,7 @@
             ],
             "options": {
                 "outputPath": "dist/email/libmailmerge",
-                "main": "email/libmailmerge/src/cli.ts",
+                "main": "email/libmailmerge/src/index.ts",
                 "tsConfig": "email/libmailmerge/tsconfig.lib.json",
                 "assets": [
                     "email/libmailmerge/*.md"

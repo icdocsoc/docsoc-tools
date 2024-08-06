@@ -12,5 +12,10 @@
     },
     "type": "module",
     "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts"
+    "typings": "./index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": "./index.js",
+        "./logger": "./logger.js"
+    }
 }

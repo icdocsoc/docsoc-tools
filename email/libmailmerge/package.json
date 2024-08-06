@@ -13,19 +13,8 @@
         "nodemailer": "^6.9.14",
         "nunjucks": "^3.2.4",
         "readline-sync": "^1.4.10",
-        "tslib": "^2.3.0"
-    },
-    "scripts": {
-        "start": "ts-node src/cli.ts",
-        "build": "tsc --build --verbose",
-        "build-local": "tsc --build --verbose"
-    },
-    "bin": "./dist/cli.js",
-    "type": "module",
-    "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts",
-    "private": true,
-    "devDependencies": {
+        "tslib": "^2.3.0",
+        "csv-parse": "^5.5.6",
         "@babel/preset-env": "^7.25.3",
         "@types/chalk": "^2.2.0",
         "@types/cli-progress": "^3.11.6",
@@ -40,10 +29,31 @@
         "@types/nodemailer": "^6.4.15",
         "@types/nunjucks": "^3.2.6",
         "@types/readline-sync": "^1.4.8",
-        "@types/winston": "^2.4.4",
+        "@types/winston": "^2.4.4"
+    },
+    "scripts": {
+        "start": "ts-node src/cli.ts",
+        "build": "tsc --build --verbose",
+        "build-local": "tsc --build --verbose"
+    },
+    "type": "module",
+    "main": "./dist/index.js",
+    "typings": "./index.d.ts",
+    "private": true,
+    "devDependencies": {
         "babel-jest": "^29.7.0",
-        "csv-parse": "^5.5.6",
         "jest-mock-extended": "^3.0.7",
         "ts-node": "^10.9.2"
+    },
+    "exports": {
+        "./package.json": "./package.json",
+        ".": "./index.js",
+        "./engines": "./engines/index.js",
+        "./graph": "./graph/index.js",
+        "./mailer": "./mailer/index.js",
+        "./markdown": "./markdown/index.js",
+        "./pipelines": "./pipelines/index.js",
+        "./previews": "./previews/index.js",
+        "./util": "./util/index.js"
     }
 }
