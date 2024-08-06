@@ -1,9 +1,9 @@
 
 [package]
 name = 'clickup-ical-sync'
-description = "Sync iCal calendar to ClickUp tasks. One-way sync from iCal to ClickUp."
-license = "MIT"
-version = '1.1.0'
+description = 'Sync iCal calendar to ClickUp tasks. One-way sync from iCal to ClickUp.'
+license = 'MIT'
+version = '1.1.1'
 edition = '2021'
 homepage = 'https://github.com/icdocsoc/docsoc-tools/tree/main/clickup/calendar-sync'
 repository = 'https://github.com/icdocsoc/docsoc-tools/tree/main/clickup/calendar-sync'
