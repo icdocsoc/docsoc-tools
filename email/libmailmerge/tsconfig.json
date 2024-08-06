@@ -15,13 +15,14 @@
     "include": [],
     "references": [
         {
+            "path": "../../common/util/tsconfig.json"
+        },
+        {
             "path": "./tsconfig.lib.json"
         },
         {
             "path": "./tsconfig.spec.json"
         },
-        {
-            "path": "../../common/util/tsconfig.json"
-        }
+
     ]
 }

@@ -32,7 +32,7 @@ jobs:
             - uses: nrwl/nx-set-shas@v4
 
             # Build util
-            - run: npx nx run util:build-local
+            - run: npx nx run-many -t build-local
 
             # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
             # - run: npx nx-cloud record -- echo Hello World
