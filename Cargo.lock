@@ -181,7 +181,7 @@ dependencies = [
 
 [[package]]
 name = "clickup-ical-sync"
-version = "1.1.2"
+version = "1.2.0"
 dependencies = [
  "chrono",
  "diesel",

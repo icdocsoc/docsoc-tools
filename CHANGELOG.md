@@ -1,3 +1,15 @@
+## 1.2.0 (2024-08-06)
+
+
+### 🩹 Fixes
+
+- build cli in place so oclif won't complain ([596a78c](https://github.com/icdocsoc/docsoc-tools/commit/596a78c))
+- tests breaking because ESM ([49823c9](https://github.com/icdocsoc/docsoc-tools/commit/49823c9))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.1.2 (2024-08-06)
 
 
