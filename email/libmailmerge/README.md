@@ -1,6 +1,6 @@
 # libmailmerge
 
-> [NOTE!]
+> [!NOTE]
 > Don't be fooled by the name - this library can be used to d general data merges, into any format, given the right config!
 > See the note at the end
 
@@ -80,7 +80,7 @@ Checks the typedoc for more info on how to make your own & instantiate the provi
 
 Now, for the provided pipelines:
 
-> [IMPORTANT!]
+> [!IMPORTANT]
 > Check the typedoc for more information about each pipeline, what they do, and their options
 
 > [!NOTE]
@@ -218,3 +218,7 @@ const previews = await Promise.all(yourData.map(engine.generatePreview));
 
 // Do something with the previews, e.g. commit to file or use the Mailer to email
 ```
+
+## Using it for non-mail
+
+Tip for using it for non-mail: if you provide dummy data for to & subject from your `DataSource`, and handle `attachments`, `bcc`, `cc` properly as well, all the pipelines should just work.
