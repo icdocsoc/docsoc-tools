@@ -23,27 +23,27 @@
         "build-local": "tsc --build --verbose"
     },
     "type": "module",
-    "main": "./dist/index.js",
+    "main": "./src/index.js",
     "typings": "./index.d.ts",
     "bin": {
         "docsoc-mailmerge": "./bin/run.js"
     },
     "oclif": {
         "bin": "docsoc-mailmerge",
-        "commands": "./dist/commands",
+        "commands": "./src/commands",
         "dirname": "docsoc-mailmerge",
         "topicSeparator": " ",
         "hooks": {
-            "prerun": "./dist/hooks/prerun/print-version"
+            "prerun": "./src/hooks/prerun/print-version"
         }
     },
     "exports": {
         "./package.json": "./package.json",
-        ".": "./index.js",
-        "./commands": "./commands/index.js",
-        "./hooks": "./hooks/index.js",
-        "./interactivity": "./interactivity/index.js",
-        "./util": "./util/index.js"
+        ".": "./src/index.js",
+        "./commands": "./src/commands/index.js",
+        "./hooks": "./src/hooks/index.js",
+        "./interactivity": "./src/interactivity/index.js",
+        "./util": "./src/util/index.js"
     },
     "author": {
         "name": "Kishan Sambhi",

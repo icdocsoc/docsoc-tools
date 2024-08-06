@@ -28,8 +28,7 @@
                     "email/mailmerge-cli/assets/*",
                     "email/mailmerge-cli/assets/.env",
                     "email/mailmerge-cli/bin/*"
-                ],
-                "rootDir": "email/mailmerge-cli/src"
+                ]
             }
         },
         "nx-release-publish": {
