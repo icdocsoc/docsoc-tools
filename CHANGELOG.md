@@ -1,3 +1,14 @@
+## 1.1.2 (2024-08-06)
+
+
+### 🩹 Fixes
+
+- add bin to mailmerge cli bundle ([8fec651](https://github.com/icdocsoc/docsoc-tools/commit/8fec651))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.1.1 (2024-08-06)
 
 This was a version bump only, there were no code changes.
