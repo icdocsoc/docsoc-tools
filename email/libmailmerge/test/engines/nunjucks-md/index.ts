@@ -27,11 +27,8 @@ describe("NunjucksMarkdownEngine", () => {
     };
 
     beforeEach(() => {
-        engine = new NunjucksMarkdownEngine(templateOptions);
-    });
-
-    afterEach(() => {
         jest.clearAllMocks();
+        engine = new NunjucksMarkdownEngine(templateOptions);
     });
 
     test("loadTemplate should load the template", async () => {
@@ -143,5 +140,22 @@ describe("NunjucksMarkdownEngine", () => {
         engine["loadedTemplate"] = undefined;
 
         await expect(engine.renderPreview({})).rejects.toThrow("Template not loaded");
+    });
+
+    test("can render dicts & arrays", async () => {
+        const template = `{{ dict.name }}
+{% for item in items %}{{ item }}
+{% endfor %}`;
+        const record = {
+            dict: { name: "John Doe" },
+            items: ["item1", "item2"],
+        };
+
+        engine["loadedTemplate"] = template;
+        (nunjucks.compile as jest.Mock).mockImplementation(jest.requireActual("nunjucks").compile);
+
+        const result = await engine.renderPreview(record);
+        console.log(result);
+        expect(result[0].content).toBe("John Doe\nitem1\nitem2\n");
     });
 });
