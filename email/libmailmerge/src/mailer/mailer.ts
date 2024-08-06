@@ -1,3 +1,6 @@
+/**
+ * Contains the `Mailer` class, which is a core abstraction for sending emails.
+ */
 import { validate } from "email-validator";
 import { convert } from "html-to-text";
 import nodemailer from "nodemailer";

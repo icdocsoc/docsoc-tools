@@ -9,17 +9,20 @@ import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
  * @param storageBackend Backend to load and re-save merge results
  * @param enginesMap Map of engine names to engine constructors, so that we can rerender previews using the original engine.
  * @param logger Logger to use for logging
+ *
+ * @template T Metadata type for the storage backend, if known - defaults to unknown. Useful if you want to use the returned results directly.
+ * @return The rerendered merge results.
  */
-export async function rerenderPreviews(
-    storageBackend: StorageBackend,
+export async function rerenderPreviews<T = unknown>(
+    storageBackend: StorageBackend<T>,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     logger = createLogger("docsoc"),
-) {
+): Promise<MergeResultWithMetadata<T>[]> {
     logger.info(`Rerendering previews...`);
 
     logger.info("Loading merge results...");
     const mergeResults = storageBackend.loadMergeResults();
-    const rerenderedPreviews: MergeResultWithMetadata<unknown>[] = [];
+    const rerenderedPreviews: MergeResultWithMetadata<T>[] = [];
 
     for await (const result of mergeResults) {
         const { record, previews, engineInfo, email } = result;
@@ -56,4 +59,7 @@ export async function rerenderPreviews(
 
     logger.info("Writing rerendered previews...");
     await storageBackend.storeUpdatedMergeResults(rerenderedPreviews);
+
+    logger.info("Rerendering complete!");
+    return rerenderedPreviews;
 }

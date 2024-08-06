@@ -1,6 +1,9 @@
 import { JSONSidecarsBackend, rerenderPreviews } from "@docsoc/libmailmerge";
 import { Args, Command } from "@oclif/core";
 
+/**
+ * Regenerate previews for a given directory, using the sidecard JSON file next to preview & the rerender method of the associated engine
+ */
 export default class Regenerate extends Command {
     static override args = {
         directory: Args.string({
@@ -24,7 +27,7 @@ export default class Regenerate extends Command {
         // Rerender previews
         const storageBackend = new JSONSidecarsBackend(directory, {
             type: "fixed",
-            /// @ts-expect-error: Required for fileNamer
+            /// @ts-expect-error: Required for fileNamer, not actually ued here
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
         await rerenderPreviews(storageBackend);

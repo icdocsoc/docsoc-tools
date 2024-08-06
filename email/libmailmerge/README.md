@@ -1,9 +1,220 @@
 # libmailmerge
 
-This library was generated with [Nx](https://nx.dev).
+> [NOTE!]
+> Don't be fooled by the name - this library can be used to d general data merges, into any format, given the right config!
+> See the note at the end
 
-## Building
+This is a library to help with all the core parts of doing a mailmerge for docs:
 
-Run `nx build libmailmerge` to build the library.
+1. Loading data to mailmerge on (`DataSource` interface)
+2. Loading and using the template to mail merge with, using something called an `Engine`
+3. Storing results of the mailmerge somewhere, so you can check them before sending
+4. Sending the mailmerged results via SMTP
+5. Uploading the mailmerged results to Outlook drafts
 
-## Plan
+This library is designed to be used in conjunction with the `mailmerge-cli` tool, but can be used by itself.
+The library has been made, with few exceptions, to work headlessly: so long as the right options are passed in the whole thing can be ran without user input to e.g. automate the sending of emails for events.
+
+# Core concepts
+
+Core concepts in this library are:
+
+## `TemplateEngine` (aka engine)
+
+Lives in `src/engines/`
+
+A `TemplateEngine` is a generic class that takes a template and data, and returns the result of merging the two. It also needs to be able to tell us what fields the template has, so we can map the data to the template before passing the mapped data to the template.
+
+Engines return a list of `TemplatePreview`s, which contain the content of the merged template, and the fields that were used in the template. The idea is you can return multiple as you might have intermediate results you want users to be able to edit.
+
+Engines also need to be able to rerender their previews, to allow for the user to edit the results of the merge.
+
+Check the typedoc for more info.
+
+Relavent file: `src/engines/types.ts`. This contains the abstract class `TemplateEngine` that all engines must extend, the constructor for the engine, and what an engine should return.
+
+### Included engines
+
+-   `NunjucksMarkdownEngine`:
+    -   A `TemplateEngine` that uses Nunjucks to render markdown templates.
+    -   It outputs two previews: an editable markdown preview, and a rendered HTML preview.
+    -   The rendered HTML is then what is sent
+    -   This is the default engine for the `mailmerge-cli` tool.
+
+## `Mailer`
+
+Lives in `src/mailer/`
+
+Provides a way to send emails via SMTP.
+
+Note that for Microsoft 365, you can login using your username and password.
+
+It also provides some static methods to help with the sending of emails.
+
+See the typedoc for more info of the files in `src/mailer/`.
+
+Generlly you want to use the stuff exported by `src/mailer/defaultMailer.ts` as it has the most useful stuff.
+
+## Pipelines
+
+Pipelines provide a way to chain together the different parts of the mailmerge process automatically & headlessly
+
+All pieplines are in `src/pipelines/`.
+
+They are designed to be generic, and accept instances of:
+
+1. A `DataSource` (`src/pipelines/loaders/`), to get records to merge on from.
+    1. Provided data sources:
+        1. `CSVBackend` - loads records from a CSV file
+2. A `TemplateEngine` (`src/engines/`), to merge the records with
+    1. Provided engines:
+        1. `NunjucksMarkdownEngine` - uses Nunjucks to render markdown templates, which it then renders in HTML
+    2. Future engines you might want to write might include e.g. one to use `react-email` or the equivalent for Vue.
+3. A `StorageBackend` (`src/pipelines/storage/`), to store the results of the merge somehow, and later load them back in and update them on disk after a regeneration.
+    1. Provided storage backends:
+        1. `JSONSidecarsBackend` - stores the results of a merge to the filesystem, with JSON sidecar files placed next to each record
+
+Each of these folders has a `types.ts` files, that you should checkout if you want to write your own.
+
+Checks the typedoc for more info on how to make your own & instantiate the provided ones. You can also check the CLI tool `mailmerge-cli` for examples of how to use them.
+
+Now, for the provided pipelines:
+
+> [IMPORTANT!]
+> Check the typedoc for more information about each pipeline, what they do, and their options
+
+> [!NOTE]
+> Some pipelines contain interactive elements, however they generally have an option to switch this off - check the typedoc.
+
+### `generate` (`src/pipelines/generate.ts`)
+
+This pipeline is designed to take a `DataSource`, `TemplateEngine`, and `StorageBackend`, and merge the records from the `DataSource` with the `TemplateEngine`, storing the results in the `StorageBackend` (and also returning them directly for convenience).
+
+### `regenerate` (`src/pipelines/rerender.ts`)
+
+This pipeline is designed to take a `TemplateEngine`, and `StorageBackend`, and load the previouse merge results from the `StorageBackend`, regenerate them using the `TemplateEngine`, and store the results back in the `StorageBackend` (and also return them directly for convenience).
+
+### `send` (`src/pipelines/send.ts`)
+
+This pipeline is designed to take a `Mailer`, `StorageBackend` and `TemplateEngine`, and load the previouse merge results from the `StorageBackend`. It then asks the `TemplateEngine` for each merge result which sub-result is the HTML to send, and then send it using the `Mailer`.
+
+### `upload` (`src/pipelines/uploadDrafts.ts`)
+
+This pipeline is designed to take a `StorageBackend` and `TemplateEngine`, and load the previouse merge results from the `StorageBackend`. It then asks the `TemplateEngine` for each merge result which sub-result is the HTML for the final email. Then, using the Microsoft Graph API, it uploads the email to the drafts folder of the user's Outlook account.
+
+Note that because this requires OAuth, it can't be done headlessly - the user will need to authenticate; the pipeline will prompt for this.
+
+# Developing with the library
+
+## Quick Start
+
+### Using the pipelines (recommended)
+
+The beter option is to use the pipelines, writing your own data source, engine & storage backend if needed.
+
+E.g to do a simple nunjucks markdown merge with a database you might do:
+
+```typescript
+import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/libmailmerge';
+
+class DatabaseDataSource implements DataSource {
+    async loadRecords(): Promise<{ headers: Set<String>; records: RawRecord[] }[]> {
+        // Load records from your database, somehow
+        const headers = db.findHeaders();
+        const records = db.findRecords();
+
+        // And return them
+        return {
+            headers,
+            records,
+        };
+    }
+}
+
+class DatabaseStorageBackend implements StorageBackend<TableModel> {
+    async loadMergeResults(): AsyncGenerator<MergeResultWithMetadata<TableModel>> {
+        // Load the merge results from your database, somehow
+        // The storageBackendMetadata is so that you know how to put it back into the database.
+        return db
+            .findMergeResults()
+            .map((item) => ({
+                ...transformItemToFormatRequired(item),
+                storageBackendMetadata: item,
+            }))
+            .asAsyncGenerator();
+    }
+
+    async storeMergeResults(
+        results: MergeResult[],
+        rawData: { headers: Set<string>; records: MappedRecord[] },
+    ): Promise<void> {
+        // Store the merge results in your database, somehow
+        for (const result of results) {
+            db.storeMergeResult(transformResultForDB(result));
+        }
+    }
+
+    async storeUpdatedMergeResults(results: MergeResultWithMetadata<TableModel>[]): Promise<void> {
+        // Store the merge results in your database, somehow
+        for (const result of results) {
+            db.replaceMergeResult(transformResultForDB(result), result.storageBackendMetadata);
+        }
+    }
+
+    async postSendAction(resultSent: MergeResultWithMetadata<TableModel>) {
+        // Mark as sent
+        db.markAsSent(resultSent.storageBackendMetadata);
+    }
+}
+
+// We'll use the NunjucksMarkdownEngine
+const pipelineOptions: GenerateOptions = {
+    engineInfo: {
+        name: "nunjucks",
+        options: {
+            templatePath: "path/to/your/template.md",
+            rootHtmlTemplate: "path/to/your/root.html",
+        }
+        engine: NunjucksMarkdownEngine,
+    },
+    mappings: {
+        // Ask the user to do the mapping on the CLI using one of the built-in helpers
+        headersToTemplatMap: mapFieldsInteractive
+        // We know our DB record has these keys
+        keysForAttachments: ["attachment"],
+    },
+    dataSource: new DatabaseDataSource(),
+    storageBackend: new DatabaseStorageBackend(),
+    // ... other propertis (check typedoc) ...
+};
+
+// Call the pipeline
+await generate(pipelineOptions);
+```
+
+### Doing it manually
+
+The manua method involves creating the instances of the classes yourself, and calling the methods on them.
+
+E.g. to do a simple nunjucks markdown merge, you might do:
+
+```typescript
+import { NunjucksMarkdownEngine } from '@docsoc/libmailmerge';
+
+const yourData = [{
+    // your data here
+    name: 'John Doe',
+    email: 'a@b.com'
+}];
+
+const engine = new NunjucksMarkdownEngine({
+    templatePath: 'path/to/your/template.md'
+    rootHtmlTemplate: 'path/to/your/root.html'
+});
+
+// Call the engine
+await engine.loadTemplate();
+const previews = await Promise.all(yourData.map(engine.generatePreview));
+
+// Do something with the previews, e.g. commit to file or use the Mailer to email
+```

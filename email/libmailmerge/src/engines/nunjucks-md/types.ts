@@ -6,7 +6,11 @@ import { TemplateEngineOptions } from "../types.js";
 export interface NunjucksMarkdownTemplateOptions {
     /** Path to the Markdown template to use to produce __editable__ previews of emails */
     templatePath: string;
-    /** Path to the root HTML template to use to produce __final__ emails - this is what the final rendered markdown from {@link NunjucksMarkdownTemplateOptions.templatePath} will be embedded into */
+    /**
+     * Path to the root HTML template to use to produce __final__ emails - this is what the final rendered markdown from {@link NunjucksMarkdownTemplateOptions.templatePath} will be embedded into.
+     *
+     * It must contain a singular {{ content }} field for the markdown HTML to go.
+     */
     rootHtmlTemplate: string;
     [key: string]: string;
 }

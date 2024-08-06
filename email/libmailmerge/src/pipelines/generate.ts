@@ -79,8 +79,12 @@ const ADDITIONAL_FIELDS_TO_MAP: Array<string> = [
  * A generic way to generate previews for a mail merge.
  * @param opts Options for the mail merge - see the type
  * @param logger Winston logger to use for logging
+ * @return The merge results (in case you wish to use them outside of the storage backend)
  */
-export async function generatePreviews(opts: GenerateOptions, logger = createLogger("docsoc")) {
+export async function generatePreviews(
+    opts: GenerateOptions,
+    logger = createLogger("docsoc"),
+): Promise<MergeResult[]> {
     // 1: Load data
     logger.info("Loading data...");
     const { headers, records } = await opts.dataSource.loadRecords();
@@ -179,4 +183,6 @@ export async function generatePreviews(opts: GenerateOptions, logger = createLog
     await opts.storageBackend.storeOriginalMergeResults(results, { headers, records });
 
     logger.info(`Done! Review the previews and then send.`);
+
+    return results;
 }

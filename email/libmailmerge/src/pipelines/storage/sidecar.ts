@@ -33,7 +33,11 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     constructor(
         /** Root to load/store sidecar fils to */
         private outputRoot: string,
-        /** How to name the files when outputting them: specifcally what to prefix with them */
+        /**
+         * How to name the files when outputting them: specifcally what to prefix with them.
+         *
+         * Note that fileNamer is only used in {@link storeOriginalMergeResults} - in
+         * other cases like regenerating outputs and resaving them via {@link storeUpdatedMergeResults} or {@link loadMergeResults}, provide a blank/dummy filenamer. */
         private fileNamer:
             | {
                   /** You already know the shape of a record, so can provide the namer upfront */
@@ -53,6 +57,12 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
 
     /**
      * Load all sidecar files from the output root, and the files associated with them and return them as merge results.
+     *
+     * Uses this with an async for loop, e.g.:
+     * @example
+     * for await (const mergeResult of storageBackend.loadMergeResults()) {
+     *    // Do something with mergeResult
+     * }
      */
     public async *loadMergeResults(): AsyncGenerator<
         MergeResultWithMetadata<JSONSidecarsBackendMetadata>
@@ -94,7 +104,9 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     }
 
     /**
-     * Store the updated merge results back to the storage - called after they are rerendered
+     * Store the updated merge results back to the storage - called after they are rerendered with all new results.
+     *
+     * Acts as a bulk replace operation
      */
     public async storeUpdatedMergeResults(
         results: MergeResultWithMetadata<JSONSidecarsBackendMetadata>[],
@@ -124,7 +136,9 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
     }
 
     /**
-     * After send move the sent emails to a sent folder
+     * After send, move the sent emails to a sent folder.
+     *
+     * Operates on a singular result.
      */
     public async postSendAction(
         resultSent: MergeResultWithMetadata<JSONSidecarsBackendMetadata>,

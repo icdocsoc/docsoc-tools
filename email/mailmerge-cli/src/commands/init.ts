@@ -5,6 +5,9 @@ import copy from "recursive-copy";
 
 const logger = createLogger("init");
 
+/**
+ * Create a new mailmerge workspace, by copying the template in the assets folder
+ */
 export default class Init extends Command {
     static override args = {
         directory: Args.string({

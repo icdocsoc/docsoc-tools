@@ -17,7 +17,7 @@ import { RawRecord } from "../../util";
  * 2. Emails should not be passed as an array but a string with space separated emails.
  *
  * Generally, passing any of the {@link DEFAULT_FIELD_NAMES} as anything other than a string will probably
- * result in [object Object] bappearing in places you don't expect
+ * result in [object Object] appearing in places you don't expect
  *
  */
 export interface DataSource {

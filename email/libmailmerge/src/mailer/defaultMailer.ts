@@ -1,3 +1,7 @@
+/**
+ * Default mailer functions for DoCSoc mail merge.
+ * @packageDocumentation
+ */
 import Mail from "nodemailer/lib/mailer";
 
 import { EmailString } from "../util/types.js";
@@ -16,6 +20,11 @@ export const getDefaultMailer = () =>
         process.env["DOCSOC_OUTLOOK_PASSWORD"] ?? "password",
     );
 
+/**
+ * Get the default RFC5322 from line for DoCSoc emails, using the env vars `DOCSOC_SENDER_NAME` and `DOCSOC_SENDER_EMAIL`.
+ *
+ * If these are not set, it defaults to "DoCSoc" and "docsoc@ic.ac.uk", giving `"DoCSoc" <docsoc@ic.ac.uk>`
+ */
 export const getDefaultDoCSocFromLine = () =>
     Mailer.makeFromLineFromEmail(
         process.env["DOCSOC_SENDER_NAME"] ?? "DoCSoc",
@@ -27,7 +36,12 @@ export const getDefaultDoCSocFromLine = () =>
 /**
  * The default mailer function for DoCSoc mail merge: sends an email to a list of recipients using the appriopritate env vars to populate fields.
  *
+ * Specifcally, this wraps {@link Mailer.sendMail} with the default from line {@link getDefaultDoCSocFromLine}, and the default mailer.
+ *
  * Pass it an instance of a Mailer from {@link getDefaultMailer} to use the default mailer.
+ *
+ * @example
+ * defaultMailer(["example@example.com"], "Subject","<h1>Hello</h1>", getDefaultMailer(), [], { cc: [], bcc: [] });
  */
 export const defaultMailer = (
     to: EmailString[],

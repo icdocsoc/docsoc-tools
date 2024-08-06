@@ -20,7 +20,7 @@ import { StorageBackend, MergeResultWithMetadata } from "./storage";
  * @param entraTenantId The tenant ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_TENANT_ID)
  * @param entraClientId The client ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_CLIENT_ID)
  * @param disablePrompt If true, will not prompt the user before uploading emails. Defaults to false (will prompt)
- * @param expectedEmail The email address to expect the emails to be sent to. If the email address does not match, the email will not be sent.
+ * @param expectedEmail The email address to expect the emails to be sent to. If the email address of the account signed into does not match, the email will not be uploaded.
  * @param logger Logger to use for logging
  */
 export async function uploadDrafts(
