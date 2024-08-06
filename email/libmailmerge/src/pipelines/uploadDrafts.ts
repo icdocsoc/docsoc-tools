@@ -21,12 +21,14 @@ import { StorageBackend, MergeResultWithMetadata } from "./storage";
  * @param entraClientId The client ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_CLIENT_ID)
  * @param disablePrompt If true, will not prompt the user before uploading emails. Defaults to false (will prompt)
  * @param expectedEmail The email address to expect the emails to be sent to. If the email address of the account signed into does not match, the email will not be uploaded.
+ * @param sleepBetween Time to sleep in seconds between uploading emails to prevent hitting rate limits
  * @param logger Logger to use for logging
  */
 export async function uploadDrafts(
     storageBackend: StorageBackend,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
+    sleepBetween = 0,
     entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
     entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
     expectedEmail = "docsoc@ic.ac.uk",
@@ -94,7 +96,7 @@ export async function uploadDrafts(
     4. All indications this is a test have been removed
 
     You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
-            (20 * pendingEmails.length) / 60 / 60
+            ((5 + sleepBetween) * pendingEmails.length) / 60 / 60
         } hours.
 
     If you are happy to proceed, please type "Yes, upload emails" below.`),
@@ -109,6 +111,9 @@ export async function uploadDrafts(
 
     // Send the emails
     logger.info("Uploading emails...");
+    if (sleepBetween > 0) {
+        logger.warn(`Sleeping for ${sleepBetween} seconds between uploads.`);
+    }
     const total = pendingEmails.length;
     let sent = 0;
     const uploader = new EmailUploader(logger);
@@ -133,5 +138,10 @@ export async function uploadDrafts(
             },
             options,
         );
+
+        if (sleepBetween > 0) {
+            logger.warn(`Sleeping for ${sleepBetween} seconds to prevent hitting rate limits...`);
+            await new Promise((resolve) => setTimeout(resolve, sleepBetween * 1000));
+        }
     }
 }

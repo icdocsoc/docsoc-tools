@@ -219,10 +219,63 @@ describe("sendEmails", () => {
             '"From" <from@example.com>',
             enginesMap,
             true,
+            0,
             /// @ts-expect-error: Mocking
             mockLogger,
         );
 
         expect(mockLogger.info).toHaveBeenCalled();
+    });
+
+    it("should sleep after each email", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        // mock setTimeout
+        const originalSetTimeout = setTimeout;
+        const mockSetTimeout = jest.fn((fn) => originalSetTimeout(fn, 0));
+        /// @ts-expect-error: Mocking global setTimeout
+        global.setTimeout = mockSetTimeout;
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        const mockLogger = {
+            info: jest.fn(),
+            debug: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+        };
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            20,
+            /// @ts-expect-error: Mocking
+            mockLogger,
+        );
+
+        expect(mockSetTimeout).toHaveBeenNthCalledWith(1, expect.anything(), 20 * 1000);
+        expect(mockSetTimeout).toHaveBeenNthCalledWith(2, expect.anything(), 20 * 1000);
     });
 });

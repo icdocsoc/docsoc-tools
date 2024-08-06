@@ -20,6 +20,7 @@ import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
  * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
  * @param disablePrompt If true, will not prompt the user before sending emails. Defaults to false (will prompt)
  * @param logger Logger to use for logging
+ * @param sleepBetween Time to sleep between sending emails to prevent hitting rate limits
  */
 export async function sendEmails(
     storageBackend: StorageBackend,
@@ -27,6 +28,7 @@ export async function sendEmails(
     fromAddress: FromEmail,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
+    sleepBetween = 0,
     logger = createLogger("docsoc"),
 ) {
     logger.info(`Sending mail merge results...`);
@@ -91,7 +93,7 @@ Check that:
 4. All indications this is a test have been removed
 
 You are about to send ${pendingEmails.length} emails. The esitmated time for this is ${
-            (20 * pendingEmails.length) / 60 / 60
+            ((3 + sleepBetween) * pendingEmails.length) / 60 / 60
         } hours.
 
     If you are happy to proceed, please type "Yes, send emails" below.`),
@@ -124,10 +126,15 @@ You are about to send ${pendingEmails.length} emails. The esitmated time for thi
         );
 
         if (storageBackend.postSendAction) {
-            logger.info("Calling post-send hook...");
+            logger.debug("Calling post-send hook...");
             await storageBackend.postSendAction(originalResult);
         }
 
         logger.info("Email sent!");
+
+        if (sleepBetween > 0) {
+            logger.info(`Sleeping for ${sleepBetween}s before the next email...`);
+            await new Promise((resolve) => setTimeout(resolve, sleepBetween * 1000));
+        }
     }
 }

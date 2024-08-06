@@ -4,7 +4,7 @@ import {
     ENGINES_MAP,
     DEFAULT_FIELD_NAMES,
 } from "@docsoc/libmailmerge";
-import { Args, Command } from "@oclif/core";
+import { Args, Command, Flags } from "@oclif/core";
 
 export default class UploadDrafts extends Command {
     static override args = {
@@ -19,10 +19,21 @@ export default class UploadDrafts extends Command {
 
     static override examples = ["<%= config.bin %> <%= command.id %>"];
 
-    static override flags = {};
+    static override flags = {
+        sleepBetween: Flags.integer({
+            char: "s",
+            description: "Time to sleep between sending emails to prevent hitting rate limits",
+            default: 0,
+        }),
+        yes: Flags.boolean({
+            char: "y",
+            description: "Skip confirmation prompt",
+            default: false,
+        }),
+    };
 
     public async run(): Promise<void> {
-        const { args } = await this.parse(UploadDrafts);
+        const { args, flags } = await this.parse(UploadDrafts);
         const directory = args.directory;
 
         const storageBackend = new JSONSidecarsBackend(directory, {
@@ -31,6 +42,6 @@ export default class UploadDrafts extends Command {
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
 
-        await uploadDrafts(storageBackend, ENGINES_MAP, false);
+        await uploadDrafts(storageBackend, ENGINES_MAP, flags.yes, flags.sleepBetween);
     }
 }

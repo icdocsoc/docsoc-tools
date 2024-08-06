@@ -68,6 +68,10 @@ This library was generated with [Nx](https://nx.dev).
 
 You can also upload the emails to drafts instead of sending them. To do this, run `docsoc-mailmerge upload-drafts ./output/<runname> `. This will upload the emails to drafts instead of sending them.
 
+## Hitting Rate Limits?
+
+Use the `-s` flag to set a delay between each email sent. The delay is in seconds.
+
 ## Building
 
 Run `nx build mailmerge-cli` to build the library.

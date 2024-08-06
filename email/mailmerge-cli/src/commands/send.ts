@@ -3,8 +3,9 @@ import {
     sendEmails,
     getDefaultMailer,
     getDefaultDoCSocFromLine,
+    ENGINES_MAP,
 } from "@docsoc/libmailmerge";
-import { Args, Command } from "@oclif/core";
+import { Args, Command, Flags } from "@oclif/core";
 
 export default class Send extends Command {
     static override args = {
@@ -18,10 +19,21 @@ export default class Send extends Command {
 
     static override examples = ["<%= config.bin %> <%= command.id %>"];
 
-    static override flags = {};
+    static override flags = {
+        sleepBetween: Flags.integer({
+            char: "s",
+            description: "Time to sleep between sending emails to prevent hitting rate limits",
+            default: 0,
+        }),
+        yes: Flags.boolean({
+            char: "y",
+            description: "Skip confirmation prompt",
+            default: false,
+        }),
+    };
 
     public async run(): Promise<void> {
-        const { args } = await this.parse(Send);
+        const { args, flags } = await this.parse(Send);
 
         const directory = args.directory;
         const storageBackend = new JSONSidecarsBackend(directory, {
@@ -30,6 +42,13 @@ export default class Send extends Command {
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
         // Rerender previews
-        await sendEmails(storageBackend, getDefaultMailer(), getDefaultDoCSocFromLine());
+        await sendEmails(
+            storageBackend,
+            getDefaultMailer(),
+            getDefaultDoCSocFromLine(),
+            ENGINES_MAP,
+            flags.yes,
+            flags.sleepBetween,
+        );
     }
 }

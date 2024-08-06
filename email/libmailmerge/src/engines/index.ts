@@ -41,7 +41,11 @@ import { TemplateEngineConstructor } from "./types.js";
 
 export type TEMPLATE_ENGINES = "nunjucks";
 
-/** Map of engine names (provided on the CLI) to constructors for those engines */
+/**
+ * Default map of engine names (provided on the CLI) to constructors for those engines.
+ *
+ * Only includes engines bundled with libmailmerge - if using a custom engine, make a custom map!
+ */
 export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = {
     nunjucks: nunjucksEngine,
 };
