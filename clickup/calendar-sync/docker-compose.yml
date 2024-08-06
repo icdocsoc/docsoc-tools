@@ -6,7 +6,7 @@ services:
             dockerfile: ./packages/docsoc_clickup_calendar_sync/Dockerfile
         init: true # don't run as PID 1 so we can kill the sleep process
         # Run every 30 mins
-        command: ["./scripts/run_interval.sh", "/usr/local/bin/docsoc_clickup_calendar_sync", "30m"]
+        command: ["./scripts/run_interval.sh", "/usr/local/bin/clickup-ical-sync", "30m"]
         depends_on:
             - postgres
         environment:

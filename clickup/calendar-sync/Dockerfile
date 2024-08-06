@@ -4,7 +4,7 @@
 # ===============
 # NOTE: Because this is a monorepo, Cargo.lock is in the root of the repo & so we need the build context to start there
 # Hence build from the root of the monorepo like so:
-# ``docker build -f ./packages/docsoc_clickup_calendar_sync/Dockerfile -t docsoc/docsoc_clickup_calendar_sync .`
+# ``docker build -f ./clickup/calendar-sync/Dockerfile -t docsoc/docsoc_clickup_calendar_sync .`
 # ===============
 
 FROM lukemathwalker/cargo-chef:latest as chef
@@ -12,8 +12,8 @@ WORKDIR /app
 
 FROM chef AS planner
 COPY ./Cargo.toml ./Cargo.lock ./
-COPY ./packages/docsoc_clickup_calendar_sync/*.toml ./packages/docsoc_clickup_calendar_sync/
-COPY ./packages/docsoc_clickup_calendar_sync/src ./packages/docsoc_clickup_calendar_sync/src
+COPY ./clickup/calendar-sync/*.toml ./clickup/calendar-sync/
+COPY ./clickup/calendar-sync/src ./clickup/calendar-sync/src
 RUN cargo chef prepare
 
 FROM chef AS builder
@@ -21,7 +21,7 @@ COPY --from=planner /app/recipe.json .
 RUN cargo chef cook --release
 COPY . .
 RUN cargo build --release
-RUN mv ./dist/target/release/docsoc_clickup_calendar_sync ./docsoc_clickup_calendar_sync
+RUN mv ./dist/target/release/clickup-ical-sync ./clickup-ical-sync
 
 FROM debian:stable-slim AS runtime
 WORKDIR /app
@@ -34,7 +34,8 @@ RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/re
 # # Install pm2
 # RUN npm install pm2 -g
 
-COPY --from=builder /app/docsoc_clickup_calendar_sync /usr/local/bin/
-COPY ./packages/docsoc_clickup_calendar_sync/scripts /app/scripts
+COPY --from=builder /app/clickup-ical-sync /usr/local/bin/
+COPY ./clickup/calendar-sync/scripts /app/scripts
+RUN chmod +x /app/scripts/*.sh
 # Run it every 10 secs
-CMD ["/usr/local/bin/docsoc_clickup_calendar_sync"]
+CMD ["/usr/local/bin/clickup-ical-sync"]

@@ -88,7 +88,7 @@ CLICKUP_RATE_LIMIT_PER_MIN=100
 > To build the docker image:
 
 1. Go to the root of the monorepo
-2. Run `docker build -f ./packages/calendar-sync/Dockerfile -t docsoc/calendar-sync .`
+2. Run `docker build -f ./clickup/calendar-sync/Dockerfile -t docsoc/clickup-calendar-sync .`
 
 ## How it works
 
