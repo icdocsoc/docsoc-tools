@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { TemplateEngine } from "@docsoc/libmailmerge";
+import { TemplateEngine } from "@docsoc/mailmerge";
 import { createLogger } from "@docsoc/util";
 import inquirer from "inquirer";
 

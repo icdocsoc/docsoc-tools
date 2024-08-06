@@ -1,4 +1,4 @@
-# libmailmerge
+# mailmerge
 
 > [!NOTE]
 > Don't be fooled by the name - this library can be used to do general data merges, into any format, given the right config!
@@ -18,7 +18,7 @@ The library has been made, with few exceptions, to work headlessly: so long as t
 # Installation
 
 ```bash
-npm install @docsoc/libmailmerge
+npm install @docsoc/mailmerge
 ```
 
 # Building
@@ -144,7 +144,7 @@ Note that because this requires OAuth, it can't be done headlessly - the user wi
 
 ### Final note
 
-All pipelines are exported from `src/index.ts` and can be imported directly from `@docsoc/libmailmerge`.
+All pipelines are exported from `src/index.ts` and can be imported directly from `@docsoc/mailmerge`.
 
 ## Other files
 
@@ -170,7 +170,7 @@ The best option to do custom mail merge is to use the pipelines, writing your ow
 E.g to do a nunjucks markdown merge with a database:
 
 ```typescript
-import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/libmailmerge';
+import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/mailmerge';
 import { mapFieldsInteractive } from '@docsoc/mailmerge-cli';
 
 class DatabaseDataSource implements DataSource {
@@ -256,7 +256,7 @@ The manua method involves creating the instances of the classes yourself, and ca
 E.g. to do a simple nunjucks markdown merge, you might do:
 
 ```typescript
-import { NunjucksMarkdownEngine } from '@docsoc/libmailmerge';
+import { NunjucksMarkdownEngine } from '@docsoc/mailmerge';
 
 const yourData = [{
     // your data here

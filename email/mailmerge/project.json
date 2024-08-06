@@ -1,7 +1,7 @@
 {
-    "name": "libmailmerge",
+    "name": "mailmerge",
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "email/libmailmerge/src",
+    "sourceRoot": "email/mailmerge/src",
     "projectType": "library",
     "release": {
         "version": {
@@ -15,17 +15,13 @@
     "targets": {
         "build": {
             "executor": "@nx/js:tsc",
-            "outputs": [
-                "{options.outputPath}"
-            ],
+            "outputs": ["{options.outputPath}"],
             "options": {
-                "outputPath": "dist/email/libmailmerge",
-                "main": "email/libmailmerge/src/index.ts",
-                "tsConfig": "email/libmailmerge/tsconfig.lib.json",
-                "assets": [
-                    "email/libmailmerge/*.md"
-                ],
-                "rootDir": "email/libmailmerge/src"
+                "outputPath": "dist/email/mailmerge",
+                "main": "email/mailmerge/src/index.ts",
+                "tsConfig": "email/mailmerge/tsconfig.lib.json",
+                "assets": ["email/mailmerge/*.md"],
+                "rootDir": "email/mailmerge/src"
             }
         },
         "nx-release-publish": {

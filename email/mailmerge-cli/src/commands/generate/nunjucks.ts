@@ -5,7 +5,7 @@ import {
     JSONSidecarsBackend,
     NunjucksMarkdownEngine,
     NunjucksMarkdownTemplateOptions,
-} from "@docsoc/libmailmerge";
+} from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
 import { mkdirp } from "mkdirp";
 import { join } from "path";

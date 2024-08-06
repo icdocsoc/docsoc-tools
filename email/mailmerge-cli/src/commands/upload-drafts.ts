@@ -3,7 +3,7 @@ import {
     uploadDrafts,
     ENGINES_MAP,
     DEFAULT_FIELD_NAMES,
-} from "@docsoc/libmailmerge";
+} from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class UploadDrafts extends Command {

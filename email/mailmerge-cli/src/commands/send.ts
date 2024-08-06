@@ -4,7 +4,7 @@ import {
     getDefaultMailer,
     getDefaultDoCSocFromLine,
     ENGINES_MAP,
-} from "@docsoc/libmailmerge";
+} from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
 
 export default class Send extends Command {

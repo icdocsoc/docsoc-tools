@@ -21,7 +21,7 @@
  *
  * ### Example pipeline usage:
  * ```typescript
- * import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/libmailmerge';
+ * import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/mailmerge';
  * import { mapFieldsInteractive } from '@docsoc/mailmerge-cli';
  *
  * class DatabaseDataSource implements DataSource {

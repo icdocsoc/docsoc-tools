@@ -11,7 +11,7 @@ The repo is structured as an Nx monorepo (I recommend you look at the [Nx docume
 
 -   `clickup/calendar-sync`: A rust tool that syncs the DoCSoc ClickUp calendar with the DoCSoc Google Calendar. It is designed to be run as a cron job on a server.
 -   `common/util`: A set of common utilities used by other tools written in TypeScript
--   `email/libmailmerge`: A TypeScript library that can be used to generate emails from templates and send them. It is designed to be used in conjunction with the `email/mailmerge-cli` tool, but can be used by itself
+-   `email/mailmerge`: A TypeScript library that can be used to generate emails from templates and send them. It is designed to be used in conjunction with the `email/mailmerge-cli` tool, but can be used by itself
 -   `email/mailmerge-cli`: A TypeScript CLI tool that can be used to generate emails from templates, regenerate them after modifying the results, upload them to Outlook drafts and send them.
 
 Each tool's directory has a README with more information on how to use it.

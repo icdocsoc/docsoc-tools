@@ -1,4 +1,4 @@
-import { JSONSidecarsBackend, rerenderPreviews } from "@docsoc/libmailmerge";
+import { JSONSidecarsBackend, rerenderPreviews } from "@docsoc/mailmerge";
 import { Args, Command } from "@oclif/core";
 
 /**

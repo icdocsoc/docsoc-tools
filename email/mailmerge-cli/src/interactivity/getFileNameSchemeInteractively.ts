@@ -1,4 +1,4 @@
-import { MappedRecord } from "@docsoc/libmailmerge";
+import { MappedRecord } from "@docsoc/mailmerge";
 import inquirer from "inquirer";
 
 /**

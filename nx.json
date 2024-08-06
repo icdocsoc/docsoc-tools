@@ -52,7 +52,7 @@
         },
         "projects": [
             "common/util",
-            "email/libmailmerge",
+            "email/mailmerge",
             "email/mailmerge-cli",
             "clickup/calendar-sync"
         ]

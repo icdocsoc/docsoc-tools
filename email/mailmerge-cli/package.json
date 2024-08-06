@@ -5,7 +5,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@docsoc/libmailmerge": "^1.0.0",
+        "@docsoc/mailmerge": "^1.0.0",
         "@docsoc/util": "^1.0.0",
         "@oclif/core": "^4.0.17",
         "inquirer": "^10.1.6",

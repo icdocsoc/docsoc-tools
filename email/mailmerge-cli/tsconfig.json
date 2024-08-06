@@ -17,7 +17,7 @@
             "path": "../../common/util/tsconfig.json"
         },
         {
-            "path": "../libmailmerge/tsconfig.json"
+            "path": "../mailmerge/tsconfig.json"
         },
         {
             "path": "./tsconfig.lib.json"

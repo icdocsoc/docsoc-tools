@@ -1,4 +1,3 @@
-
 import { TemplateEngine, TemplateEngineOptions, TemplatePreviews } from "../engines/index.js";
 import { validateRecord, createEmailData } from "../previews/index.js";
 import { generatePreviews, GenerateOptions } from "./generate";

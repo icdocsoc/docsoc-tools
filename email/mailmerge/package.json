@@ -1,5 +1,5 @@
 {
-    "name": "@docsoc/libmailmerge",
+    "name": "@docsoc/mailmerge",
     "version": "1.0.0",
     "publishConfig": {
         "access": "public"
@@ -66,7 +66,7 @@
         "email": "kishansambhi@hotmail.co.uk"
     },
     "license": "MIT",
-    "homepage": "https://github.com/icdocsoc/docsoc-tools/tree/main/email/libmailmerge#readme",
+    "homepage": "https://github.com/icdocsoc/docsoc-tools/tree/main/email/mailmerge#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/icdocsoc/docsoc-tools.git"

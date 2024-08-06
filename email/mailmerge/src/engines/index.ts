@@ -15,7 +15,7 @@
  * 
  * ### Example simpl usage:
  * ```typescript
- * import { NunjucksMarkdownEngine } from '@docsoc/libmailmerge';
+ * import { NunjucksMarkdownEngine } from '@docsoc/mailmerge';
  * 
  * const yourData = [{
  *     // your data here
@@ -44,7 +44,7 @@ export type TEMPLATE_ENGINES = "nunjucks";
 /**
  * Default map of engine names (provided on the CLI) to constructors for those engines.
  *
- * Only includes engines bundled with libmailmerge - if using a custom engine, make a custom map!
+ * Only includes engines bundled with mailmerge - if using a custom engine, make a custom map!
  */
 export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = {
     nunjucks: nunjucksEngine,
