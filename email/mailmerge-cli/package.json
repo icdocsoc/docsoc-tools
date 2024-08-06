@@ -2,8 +2,8 @@
     "name": "@docsoc/mailmerge-cli",
     "version": "0.0.1",
     "dependencies": {
-        "@docsoc/libmailmerge": "^0.1.0",
-        "@docsoc/util": "^0.1.0",
+        "@docsoc/libmailmerge": "^1.0.0",
+        "@docsoc/util": "^1.0.0",
         "@oclif/core": "^4.0.17",
         "inquirer": "^10.1.6",
         "mkdirp": "^3.0.1",

@@ -4,7 +4,7 @@
     "dependencies": {
         "@azure/identity": "^4.4.1",
         "@babel/preset-env": "^7.25.3",
-        "@docsoc/util": "^0.1.0",
+        "@docsoc/util": "^1.0.0",
         "@microsoft/microsoft-graph-client": "^3.0.7",
         "@types/chalk": "^2.2.0",
         "@types/cli-progress": "^3.11.6",
@@ -41,7 +41,6 @@
     "type": "module",
     "main": "./dist/index.js",
     "typings": "./index.d.ts",
-    "private": true,
     "devDependencies": {
         "@jest/globals": "^29.7.0",
         "babel-jest": "^29.7.0",
