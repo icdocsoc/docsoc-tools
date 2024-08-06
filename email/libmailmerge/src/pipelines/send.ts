@@ -10,8 +10,6 @@ import Mailer from "../mailer/mailer.js";
 import { EmailString, FromEmail } from "../util/types.js";
 import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
 
-const logger = createLogger("docsoc");
-
 /**
  * Generic way to send emails, given a storage backend to get mail merge results from to send and a mailer to send them with.
  *
@@ -21,6 +19,7 @@ const logger = createLogger("docsoc");
  * @param fromAddress From address to send emails from (note the format - RFC5322. E.g. `"DoCSoc" <docsoc@ic.ac.uk>`)
  * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
  * @param disablePrompt If true, will not prompt the user before sending emails. Defaults to false (will prompt)
+ * @param logger Logger to use for logging
  */
 export async function sendEmails(
     storageBackend: StorageBackend,
@@ -28,6 +27,7 @@ export async function sendEmails(
     fromAddress: FromEmail,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
+    logger = createLogger("docsoc"),
 ) {
     logger.info(`Sending mail merge results...`);
 

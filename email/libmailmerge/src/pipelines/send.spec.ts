@@ -1,3 +1,4 @@
+import { logger } from "@azure/identity";
 import readlineSync from "readline-sync";
 
 import { TemplateEngineConstructor, TemplateEngine } from "../engines/types";
@@ -199,5 +200,31 @@ describe("sendEmails", () => {
 
         expect(readlineSync.question).toHaveBeenCalled();
         expect(mockMailer.sendMail).not.toHaveBeenCalled();
+    });
+
+    it("should use a provided logger", async () => {
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue([]);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        const mockLogger = {
+            info: jest.fn(),
+            debug: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+        };
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            /// @ts-expect-error: Mocking
+            mockLogger,
+        );
+
+        expect(mockLogger.info).toHaveBeenCalled();
     });
 });

@@ -9,8 +9,6 @@ import { EmailUploader } from "../graph/index.js";
 import { EmailString } from "../util/index.js";
 import { StorageBackend, MergeResultWithMetadata } from "./storage";
 
-const logger = createLogger("docsoc");
-
 /**
  * Upload mail merge results to drafts of an inbox using the Microsoft graph API
  *
@@ -23,6 +21,7 @@ const logger = createLogger("docsoc");
  * @param entraClientId The client ID for the Microsoft Graph API to authenticate with (taken from process.env.MS_ENTRA_CLIENT_ID)
  * @param disablePrompt If true, will not prompt the user before uploading emails. Defaults to false (will prompt)
  * @param expectedEmail The email address to expect the emails to be sent to. If the email address does not match, the email will not be sent.
+ * @param logger Logger to use for logging
  */
 export async function uploadDrafts(
     storageBackend: StorageBackend,
@@ -31,6 +30,7 @@ export async function uploadDrafts(
     entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
     entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
     expectedEmail = "docsoc@ic.ac.uk",
+    logger = createLogger("docsoc"),
 ) {
     logger.info(`Uploading previews to drafts...`);
     // 1: Load data
@@ -111,7 +111,7 @@ export async function uploadDrafts(
     logger.info("Uploading emails...");
     const total = pendingEmails.length;
     let sent = 0;
-    const uploader = new EmailUploader();
+    const uploader = new EmailUploader(logger);
     await uploader.authenticate(expectedEmail, entraTenantId, entraClientId);
     for (const { to, subject, html, attachments, cc, bcc } of pendingEmails) {
         logger.info(

@@ -3,12 +3,9 @@ import { createLogger } from "@docsoc/util";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
 import fs from "fs/promises";
-import { convert } from "html-to-text";
 import { basename } from "path";
 
 import { EmailString } from "../util/types.js";
-
-const logger = createLogger("imap");
 
 export interface ImapConfig {
     host: string;
@@ -29,6 +26,8 @@ const UPLOAD_ATTACHMENT_CHUNK_SIZE = 4 * 1024 * 1024;
 export class EmailUploader {
     private client?: Client;
 
+    constructor(private logger = createLogger("graph")) {}
+
     /**
      * Authenticate and check we have the correct user we want to upload to
      *
@@ -38,7 +37,7 @@ export class EmailUploader {
      * @param clientId
      */
     public async authenticate(desiredEmail: string, tenantId?: string, clientId?: string) {
-        logger.info("Getting OAuth token using Microsoft libraries...");
+        this.logger.info("Getting OAuth token using Microsoft libraries...");
 
         if (!tenantId) {
             throw new Error("Tenant ID not provided");
@@ -63,9 +62,9 @@ export class EmailUploader {
         try {
             const user = await this.client.api("/me").get();
             if (user.mail === desiredEmail || user.userPrincipalName === desiredEmail) {
-                logger.info(`Authenticated user email matches the provided email ${desiredEmail}.`);
+                this.logger.info(`Authenticated user email matches the provided email ${desiredEmail}.`);
             } else {
-                logger.error(
+                this.logger.error(
                     `Authenticated user email does not match the provided email ${desiredEmail}.`,
                 );
                 throw new Error(
@@ -73,7 +72,7 @@ export class EmailUploader {
                 );
             }
         } catch (error) {
-            logger.error("Error fetching user profile:", error);
+            this.logger.error("Error fetching user profile:", error);
             throw error;
         }
     }
@@ -84,7 +83,7 @@ export class EmailUploader {
      * @param messageID ID of the message to upload the attachment to
      */
     private async uploadFile(path: string, messageID: string) {
-        logger.info(`Uploading file ${path}...`);
+        this.logger.info(`Uploading file ${path}...`);
         if (!this.client) {
             throw new Error("Client not authenticated");
         }
@@ -134,7 +133,7 @@ export class EmailUploader {
 
                 if (response.status === 201) {
                     // Upload complete
-                    logger.info(`File ${path} uploaded successfully in chunks.`);
+                    this.logger.info(`File ${path} uploaded successfully in chunks.`);
                     break;
                 }
 
@@ -152,7 +151,7 @@ export class EmailUploader {
                 }
             }
 
-            logger.info(`File ${path} uploaded successfully in chunks.`);
+            this.logger.info(`File ${path} uploaded successfully in chunks.`);
         } else {
             try {
                 await this.client.api(`/me/messages/${messageID}/attachments`).post({
@@ -160,7 +159,7 @@ export class EmailUploader {
                     name: filename,
                     contentBytes: fileData.toString("base64"),
                 });
-                logger.debug(`File ${path} uploaded.`);
+                this.logger.debug(`File ${path} uploaded.`);
             } catch (error) {
                 console.error("Error uploading file: ", error);
             }
@@ -226,10 +225,10 @@ export class EmailUploader {
             };
 
             const response = await this.client.api("/me/messages").post(draftMessage);
-            logger.debug("Draft email created with ID: ", response.id);
+            this.logger.debug("Draft email created with ID: ", response.id);
 
             if (attachmentPaths.length > 0) {
-                logger.info("Uploading attachments...");
+                this.logger.info("Uploading attachments...");
                 await Promise.all(
                     attachmentPaths.map((path) => this.uploadFile(path, response.id)),
                 );

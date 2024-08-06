@@ -4,16 +4,16 @@ import { ENGINES_MAP } from "../engines/index.js";
 import { TemplateEngineConstructor } from "../engines/types.js";
 import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
 
-const logger = createLogger("docsoc");
-
 /**
  * Generic way tp rerender previews (so that modification to them may be made)
  * @param storageBackend Backend to load and re-save merge results
  * @param enginesMap Map of engine names to engine constructors, so that we can rerender previews using the original engine.
+ * @param logger Logger to use for logging
  */
 export async function rerenderPreviews(
     storageBackend: StorageBackend,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
+    logger = createLogger("docsoc"),
 ) {
     logger.info(`Rerendering previews...`);
 

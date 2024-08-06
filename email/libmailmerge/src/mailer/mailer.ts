@@ -1,12 +1,9 @@
-import { createLogger } from "@docsoc/util";
 import { validate } from "email-validator";
 import { convert } from "html-to-text";
 import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 
 import { EmailString, FromEmail } from "../util/types.js";
-
-const logger = createLogger("mailer");
 
 /**
  * Core abstraction for sending emails: make a instance of this class, and call `sendMail` to send an email.
@@ -43,7 +40,7 @@ export default class Mailer {
         additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
         text: string = convert(html),
     ): Promise<void> {
-        const info = await this.transporter.sendMail({
+        await this.transporter.sendMail({
             from, // sender address
             to, // list of receivers
             subject, // Subject line
@@ -53,12 +50,6 @@ export default class Mailer {
             cc: additionalInfo.cc,
             bcc: additionalInfo.bcc,
         });
-
-        logger.debug(
-            `Sent email to ${to.join(", ")}, from ${from}, subject: ${subject}, message id: ${
-                info.messageId
-            }`,
-        );
     }
 
     /** Helper function to check an email is a valid email address (and also tells the TS compiler we have a valid EmailString)  */

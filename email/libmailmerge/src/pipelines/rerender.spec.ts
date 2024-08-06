@@ -130,4 +130,24 @@ describe("rerenderPreviews", () => {
         expect(mockEngine.rerenderPreviews).not.toHaveBeenCalled();
         expect(mockStorageBackend.storeUpdatedMergeResults).toHaveBeenCalledWith([]);
     });
+
+    it("should accept a custom logger", async () => {
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue([]);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        const mockLogger = {
+            info: jest.fn(),
+            debug: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+        };
+
+        /// @ts-expect-error: Mocking
+        await rerenderPreviews(mockStorageBackend, enginesMap, mockLogger);
+
+        expect(mockLogger.info).toHaveBeenCalledWith("Rerendering previews...");
+    });
 });
