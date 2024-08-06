@@ -8,7 +8,12 @@ import { createLogger } from "@docsoc/util";
 import fs from "fs/promises";
 import { join } from "path";
 
-import { TemplateEngineOptions, TemplatePreview, TemplatePreviews } from "../engines/types.js";
+import {
+    TemplateEngineOptions,
+    TemplatePreview,
+    TemplatePreviews, // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    TemplateEngine,
+} from "../engines/types.js";
 import Mailer from "../mailer/mailer.js";
 import { DEFAULT_FIELD_NAMES } from "../util/constants.js";
 import { MappedRecord, EmailString } from "../util/types.js";
@@ -62,7 +67,7 @@ export const getRecordPreviewPrefixForMetadata = (
     fileNamer: (record: MappedRecord) => string,
 ) => `${getRecordPreviewPrefix(record, fileNamer)}${METADATA_FILE_SUFFIX}`;
 
-type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
+export type ValidRecordReturn = { valid: false; reason: string } | { valid: true };
 /**
  * Check a record is valid for use in mailmerge - specifically, that it has a valid email address and a subject.
  * @param record __Mapped__ CSV Record to validate

@@ -2,7 +2,9 @@
     "name": "docsoc-tools",
     "version": "2.0.0",
     "license": "MIT",
-    "scripts": {},
+    "scripts": {
+        "docs": "typedoc"
+    },
     "private": true,
     "devDependencies": {
         "@monodon/rust": "^1.4.0",

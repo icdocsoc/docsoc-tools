@@ -1,7 +1,8 @@
 import { promises as fs } from "fs";
 import { join } from "path";
 
-import { TemplatePreviews } from "../engines/types.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { TemplatePreviews, TemplateEngine } from "../engines/types.js";
 import { SidecarData } from "./types.js";
 
 export async function loadPreviewsFromSidecar(

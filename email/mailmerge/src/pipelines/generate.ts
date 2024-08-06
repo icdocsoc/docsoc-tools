@@ -23,7 +23,7 @@ export interface GenerateOptions {
      *
      * Using this you can overridee mappings of attachments from the records with a list of attachments for every email.
      *
-     * This will result in {@link GenerateOptions.mappings.keysForAttachments} being ignored.
+     * This will result in {@link GenerateOptions["mappings"].keysForAttachments} being ignored.
      *
      * As a result, every email will have the same attachments.
      */

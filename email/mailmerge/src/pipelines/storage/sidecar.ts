@@ -17,7 +17,7 @@ import { MappedRecord } from "../../util/index.js";
 import { StorageBackend, MergeResultWithMetadata, MergeResult } from "./types";
 
 /** Metadata the JSON backend passes on {@link MergeResultWithMetadata.storageBackendMetadata} - bsically the original sidecar file with the path it came from */
-interface JSONSidecarsBackendMetadata {
+export interface JSONSidecarsBackendMetadata {
     sideCar: SidecarData & {
         /** Path to the original sidecar file */
         $originalFilepath: string;

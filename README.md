@@ -34,6 +34,16 @@ You should use `build-local` when working on just the TypeScript code
 npx nx run-many -t build
 ```
 
+### Documentation
+
+You can get API documentation for everything in the repo by running:
+
+```
+npm run docs
+```
+
+This will output the documentation to `./docs/` in the repo root.
+
 ### Linting
 
 ```bash

@@ -3,6 +3,8 @@
  * @packageDocumentation
  */
 import { MappedRecord } from "../util/types";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import NunjucksMarkdownEngine from "./nunjucks-md/index.js";
 
 /**
  * Generic "any" type for template engine options: essentially a dictionary.
