@@ -11,6 +11,7 @@
         "inquirer": "^10.1.6",
         "mkdirp": "^3.0.1",
         "readline-sync": "^1.4.10",
+        "recursive-copy": "^2.0.14",
         "tslib": "^2.3.0",
         "unique-names-generator": "^4.7.1"
     },

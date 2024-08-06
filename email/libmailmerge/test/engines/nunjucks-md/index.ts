@@ -56,21 +56,24 @@ describe("NunjucksMarkdownEngine", () => {
     test("renderPreview should render previews correctly", async () => {
         engine["loadedTemplate"] = "template content";
         (fs.readFile as jest.Mock).mockReturnValue("html wrapper content");
+        const markdownRenderer = jest.fn().mockReturnValue("expanded markdown");
+        const htmlRenderer = jest.fn().mockReturnValue("rendered html");
         (nunjucks.compile as jest.Mock)
             .mockReturnValueOnce({
-                render: jest.fn().mockReturnValue("expanded markdown"),
+                render: markdownRenderer,
             })
             .mockReturnValueOnce({
-                render: jest.fn().mockReturnValue("rendered html"),
+                render: htmlRenderer,
             });
 
-        (renderMarkdownToHtml as jest.Mock).mockReturnValue("rendered html");
+        (renderMarkdownToHtml as jest.Mock).mockReturnValue("rendered markdown html");
 
-        const record: MappedRecord = { name: "John Doe" };
+        const record: MappedRecord = { name: "John Doe", otherField: "other" };
         const previews = await engine.renderPreview(record);
-
         expect(nunjucks.compile).toHaveBeenNthCalledWith(1, "template content", undefined);
         expect(nunjucks.compile).toHaveBeenNthCalledWith(2, "html wrapper content", undefined);
+        expect(markdownRenderer).toHaveBeenCalledWith(record);
+        expect(htmlRenderer).toHaveBeenCalledWith({ content: "rendered markdown html" });
         expect(renderMarkdownToHtml).toHaveBeenCalledWith("expanded markdown");
         expect(previews).toEqual([
             {

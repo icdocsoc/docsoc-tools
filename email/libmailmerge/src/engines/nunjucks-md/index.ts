@@ -82,9 +82,7 @@ export default class NunjucksMarkdownEngine extends TemplateEngine {
         );
 
         // Render the Markdown template with the record, so that we have something to preview
-        const expanded = templateCompiled.render({
-            name: record["name"],
-        });
+        const expanded = templateCompiled.render(record);
         // Render the MD to HTML
         const wrappedHtml = await this.renderMarkdownToHtmlInsideWrapper(expanded);
 
