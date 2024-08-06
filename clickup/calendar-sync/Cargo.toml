@@ -3,6 +3,9 @@
 name = 'clickup-ical-sync'
 version = '1.0.0'
 edition = '2021'
+homepage = "https://github.com/icdocsoc/docsoc-tools/tree/main/clickup/calendar-sync"
+repository = "https://github.com/icdocsoc/docsoc-tools/tree/main/clickup/calendar-sync"
+readme = "README.md"
 
 [dependencies]
 env_logger = '0.11.3'

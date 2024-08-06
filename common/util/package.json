@@ -1,6 +1,9 @@
 {
     "name": "@docsoc/util",
     "version": "1.0.0",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "chalk": "^4.1.2",
         "tslib": "^2.3.0",

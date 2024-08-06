@@ -1,6 +1,9 @@
 {
     "name": "@docsoc/libmailmerge",
     "version": "1.0.0",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "@azure/identity": "^4.4.1",
         "@babel/preset-env": "^7.25.3",

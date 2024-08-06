@@ -1,6 +1,9 @@
 {
     "name": "@docsoc/mailmerge-cli",
     "version": "1.0.0",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "@docsoc/libmailmerge": "^1.0.0",
         "@docsoc/util": "^1.0.0",
