@@ -1,21 +1,19 @@
-[package]
-name = "clickup-ical-sync"
-version = "0.1.0"
-edition = "2021"
 
+[package]
+name = 'clickup-ical-sync'
+version = '2.0.0'
+edition = '2021'
 
 [dependencies]
-env_logger = "0.11.3"
-log = "0.4.22"
-reqwest = { version = "0.12.5", features = ["blocking", "json"] }
-diesel = { version = "2.2.0", features = ["postgres"] }
-dotenvy = "0.15"
-ical = "0.11.0"
-chrono = "0.4.38"
-serde = { version = "1.0", features = ["derive"] }
-governor = "0.6.3"
-nonzero_ext = "0.3.0"
-futures = "0.3.30"
-diesel_migrations = "2.2.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+env_logger = '0.11.3'
+log = '0.4.22'
+reqwest = { version = '0.12.5', features = ['blocking', 'json'] }
+diesel = { version = '2.2.0', features = ['postgres'] }
+dotenvy = '0.15'
+ical = '0.11.0'
+chrono = '0.4.38'
+serde = { version = '1.0', features = ['derive'] }
+governor = '0.6.3'
+nonzero_ext = '0.3.0'
+futures = '0.3.30'
+diesel_migrations = '2.2.0'

@@ -3,6 +3,14 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "email/libmailmerge/src",
     "projectType": "library",
+    "release": {
+        "version": {
+            "generatorOptions": {
+                "packageRoot": "dist/{projectRoot}",
+                "currentVersionResolver": "git-tag"
+            }
+        }
+    },
     "tags": [],
     "targets": {
         "build": {
@@ -20,11 +28,9 @@
                 "rootDir": "email/libmailmerge/src"
             }
         },
-        "run": {
-            "executor": "@nrwl/workspace:run-commands",
-            "outputs": [],
+        "nx-release-publish": {
             "options": {
-                "command": "ts-node src/cli.ts"
+                "packageRoot": "dist/{projectRoot}"
             }
         }
     }
