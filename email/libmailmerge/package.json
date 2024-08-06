@@ -57,5 +57,15 @@
         "./pipelines": "./pipelines/index.js",
         "./previews": "./previews/index.js",
         "./util": "./util/index.js"
+    },
+    "author": {
+        "name": "Kishan Sambhi",
+        "email": "kishansambhi@hotmail.co.uk"
+    },
+    "license": "MIT",
+    "homepage": "https://github.com/icdocsoc/docsoc-tools/tree/main/email/libmailmerge#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/icdocsoc/docsoc-tools.git"
     }
 }
