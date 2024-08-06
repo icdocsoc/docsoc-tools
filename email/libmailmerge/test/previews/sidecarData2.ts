@@ -1,4 +1,3 @@
-import { createLogger } from "@docsoc/util";
 import { jest } from "@jest/globals";
 import fs from "fs/promises";
 import { join } from "path";
@@ -26,8 +25,6 @@ jest.mock("@docsoc/util", () => {
     };
     return { createLogger: () => logger };
 });
-
-const logger = createLogger("docsoc.sidecar");
 
 describe("sidecarData", () => {
     const record = {

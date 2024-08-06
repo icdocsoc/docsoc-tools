@@ -81,7 +81,6 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
                 continue;
             }
             this.logger.debug("Remapping sidecar files metadata back to merge results...");
-            this.logger.debug(JSON.stringify(files));
             const previews: TemplatePreviews = await loadPreviewsFromSidecar(
                 files,
                 this.outputRoot,

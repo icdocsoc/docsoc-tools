@@ -2,6 +2,7 @@ import { InteractiveBrowserCredential } from "@azure/identity";
 import { createLogger } from "@docsoc/util";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
+import cliProgress from "cli-progress";
 import fs from "fs/promises";
 import { basename } from "path";
 
@@ -62,7 +63,9 @@ export class EmailUploader {
         try {
             const user = await this.client.api("/me").get();
             if (user.mail === desiredEmail || user.userPrincipalName === desiredEmail) {
-                this.logger.info(`Authenticated user email matches the provided email ${desiredEmail}.`);
+                this.logger.info(
+                    `Authenticated user email matches the provided email ${desiredEmail}.`,
+                );
             } else {
                 this.logger.error(
                     `Authenticated user email does not match the provided email ${desiredEmail}.`,
@@ -93,6 +96,10 @@ export class EmailUploader {
 
         // If above 3MB
         if (fileStats.size > 3 * 1024 * 1024) {
+            // Initialize progress bar
+            const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+            progressBar.start(fileStats.size, 0);
+
             // 1: Create upload session
             const uploadSession = await this.client
                 .api(`/me/messages/${messageID}/attachments/createUploadSession`)
@@ -128,12 +135,15 @@ export class EmailUploader {
                 });
 
                 if (!response.ok) {
+                    progressBar.stop();
+                    console.log("");
+                    console.log("");
+                    this.logger.error(`Failed to upload chunk: ${response.statusText}`);
                     throw new Error(`Failed to upload chunk: ${response.statusText}`);
                 }
 
                 if (response.status === 201) {
                     // Upload complete
-                    this.logger.info(`File ${path} uploaded successfully in chunks.`);
                     break;
                 }
 
@@ -149,8 +159,14 @@ export class EmailUploader {
                     start += UPLOAD_ATTACHMENT_CHUNK_SIZE;
                     end = Math.min(start + UPLOAD_ATTACHMENT_CHUNK_SIZE - 1, fileSize - 1);
                 }
+
+                // Update progress bar
+                progressBar.update(start);
             }
 
+            // Stop progress bar
+            progressBar.update(fileSize);
+            progressBar.stop();
             this.logger.info(`File ${path} uploaded successfully in chunks.`);
         } else {
             try {
@@ -229,9 +245,9 @@ export class EmailUploader {
 
             if (attachmentPaths.length > 0) {
                 this.logger.info("Uploading attachments...");
-                await Promise.all(
-                    attachmentPaths.map((path) => this.uploadFile(path, response.id)),
-                );
+                for (const path of attachmentPaths) {
+                    await this.uploadFile(path, response.id);
+                }
             }
         } catch (error) {
             console.error("Error uploading draft email: ", error);

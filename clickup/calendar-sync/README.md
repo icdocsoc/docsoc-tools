@@ -15,17 +15,70 @@ The application is setup to autorun migrations on boot, so that you don't need t
 
 ## Quick start
 
+### Published package
+
+1. Create a list in ClickUp for calendar events to be imported into
+2. Setup a postgres database
+3. Fill in this template and place it in `.env`, and run the tool from the dir with that file in (alternatively set them as environment variables):
+
+```bash
+# Template for the .env file to set up the environment variables for the sync tools
+
+# ========================
+# Application services
+# ========================
+# Postgres URL of the database
+# E.g. postgres://user:pass@localhost:5432/docsoc-tools
+# No need to set this if using the docker compose file
+DATABASE_URL=
+
+# ========================
+# Google Calendar
+# ========================
+# Secret URL of the calendar in ical format
+# To find it go:
+# 1. Go to calendar.google.com
+# 2. 3 vertical dots next to calendar > Settings and Sharing > copy secret address in ical format
+# For private calendars: DO NOT USE THE PUBLIC ICAL LINK! IT WILL NOT WORK!
+ICAL_SYNC_PRIVATE_ICAL=
+
+# First date you want to sync for your committee in YYYY-MM-DD format
+# (you probably don't want to pull the whole calendar)
+ICAL_SYNC_START_DATE=
+# Last date you want to sync for your committee in YYYY-MM-DD format
+ICAL_SYNC_END_DATE=
+
+# ========================
+# ClickUp
+# ========================
+# Access token for the ClickUp API
+# Use a personal access token - see https://clickup.com/api/developer-portal/authentication/
+CLICKUP_ACCESS_TOKEN=
+# Target list ID in ClickUp to place events
+# To find it go:
+# 1. Go to ClickUp
+# 2. Right click the list you want to sync and click "Copy link"
+# 3. The list ID is the number at the end of the URL
+# E.g. for https://app.clickup.com/9015711748/v/li/901505370673 the list ID is 901505370673
+CLICKUP_TARGET_LIST_ID=
+# Rate limit for the ClickUp API per minute
+# Currently as of 2024 this is 100 per minute by default
+# Note that the app will take 20 off this automatically as I don't quite trust my code
+# and want to be safe
+CLICKUP_RATE_LIMIT_PER_MIN=100
+```
+
 ### Docker Compose
 
 1. Create a list in ClickUp for calendar events to be imported into
-2. Make a copy of the `.env.example` file and rename it to `.env`, filling it in (it explains what each field is for)
+2. Make a copy of the `.env.template` file and rename it to `.env`, filling it in (it explains what each field is for)
 3. Run `docker compose up` in this directory
 
 ### Bare metal/VM
 
 1. Create a list in ClickUp for calendar events to be imported into
 2. Setup a postgres database
-3. Make a copy of the `.env.example` file and rename it to `.env`, filling it in (it explains what each field is for)
+3. Make a copy of the `.env.template` file and rename it to `.env`, filling it in (it explains what each field is for)
 4. Run the tool with `cargo run --release` at regular intervals (e.g. every hour) to keep the calendars in sync
 
 ### Building the docker image manually

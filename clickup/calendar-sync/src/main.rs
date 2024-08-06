@@ -1,14 +1,13 @@
+use std::error::Error;
 /// This is the main entry point for the DoCSoc ClickUp calendar sync tool.
 /// It fetches the iCal file from the DoCSoc calendar, parses it, and syncs the events to ClickUp.
 /// The mappings from iCal event IDs to ClickUp task IDs are stored in a postgres database to allow updates and deletions (e.g. when a calendar event changes, the clickup task corresponding to it is also updated)
 /// When a calendar event is deleted, we also detect this and remove the corresponding task from ClickUp & mapping in the database.
 /// Recurring events are not supported, as the author couldn't be bothered.
-/// 
-/// The tool is designed to be run as a cron job, and will only sync events that are within the range of DOCSOC_START_DATE and DOCSOC_END_DATE
-
+///
+/// The tool is designed to be run as a cron job, and will only sync events that are within the range of ICAL_SYNC_START_DATE and ICAL_SYNC_END_DATE
 // STD types we need
 use std::{collections::HashSet, env};
-use std::error::Error;
 
 // Dotenv to load env vars from a .env file
 use dotenvy::dotenv;
@@ -16,21 +15,21 @@ use log::{debug, info, warn}; // nice stdout logs
 use reqwest::blocking::get; // for fetching the iCal file
 
 // Database models (using diesel ORM)
-use models::*; // import all models
-use diesel::{dsl::insert_into, prelude::*}; // use diesel ORM for postgres queries
+use diesel::{dsl::insert_into, prelude::*};
+use models::*; // import all models // use diesel ORM for postgres queries
 
 // Local modules of our own code we need
+mod clickup;
+mod db;
 mod docsoc_ical;
 mod models;
 mod schema;
-mod clickup;
-mod db;
-use docsoc_ical::parse_ical;
-use db::{establish_connection, run_migrations};
 use clickup::ClickUpApiInstance;
+use db::{establish_connection, run_migrations};
+use docsoc_ical::parse_ical;
 
 // ==========
-// Helper functions specific to main 
+// Helper functions specific to main
 // ==========
 
 /// Fetches the iCal file from the given URL using the reqwest library.
@@ -66,8 +65,9 @@ fn map_event(event: docsoc_ical::ParsedEvent, clickup_api: &ClickUpApiInstance) 
         .first::<CalendarMapping>(connection)
         .optional()
         .expect("Error loading mapping!");
-    
-    if let Some(mapping) = existing_mapping { // patern matching!
+
+    if let Some(mapping) = existing_mapping {
+        // patern matching!
         // We already have a mapping for this event
         // So update the corresponding task in ClickUp with any changes to details in the calendar
         debug!("Event already mapped, updating task...");
@@ -76,33 +76,32 @@ fn map_event(event: docsoc_ical::ParsedEvent, clickup_api: &ClickUpApiInstance) 
         // We don't have a mapping for this event
         // So create a corresponding task, and store the mapping in the database
         let task_id = clickup_api.create_task(&event);
-        
+
         // Inesrt
         insert_into(clickup_ical_mapping)
-            .values((
-                calendar_id.eq(&event.uid),
-                clickup_id.eq(&task_id),
-            ))
+            .values((calendar_id.eq(&event.uid), clickup_id.eq(&task_id)))
             .execute(connection)
             .expect("Error saving new mapping!");
         debug!("Added event {:?} under ID {}", event, task_id);
     }
 
     // 1: DB lookup -> is it there
-
 }
 
 /// Ensures that the mappings between calendar events and ClickUp tasks are up to date.
 /// Specifically, it checks if any events have been deleted from the calendar, and if so, deletes the corresponding task from ClickUp and the mapping from the database.
-/// 
+///
 /// The idea of this function is to take in a set of all the event IDs in the calendar (event UIDs), generated from when we parsed the iCal file,
 /// and then for each mapping in the database, check if the event ID is in the set.
 /// If it is not, then the event has been deleted from the calendar, so we delete the corresponding task from ClickUp and the mapping from the database.
-/// 
+///
 /// ### Arguments
 /// * `clickup_api` - The instance of the ClickUp API to use for mapping (use once instance for the whole program to ensure consistent rate limiting)
 /// * `set_of_calendar_event_ids` - A set of all the event IDs in the calendar, generated from when we parsed the iCal file
-fn ensure_mappings_are_up_to_date(clickup_api: &ClickUpApiInstance, set_of_calendar_event_ids: &HashSet<String>) {
+fn ensure_mappings_are_up_to_date(
+    clickup_api: &ClickUpApiInstance,
+    set_of_calendar_event_ids: &HashSet<String>,
+) {
     use self::schema::clickup_ical_mapping::dsl::*;
 
     info!("Ensuring mappings are up to date between calendar and clickup...");
@@ -113,7 +112,7 @@ fn ensure_mappings_are_up_to_date(clickup_api: &ClickUpApiInstance, set_of_calen
     let all_mappings = clickup_ical_mapping
         .load::<CalendarMapping>(connection)
         .expect("Error loading mappings!");
-    
+
     // Maintain a set of mappings to delete
     let mut mappings_to_delete: HashSet<String> = HashSet::new();
 
@@ -122,7 +121,10 @@ fn ensure_mappings_are_up_to_date(clickup_api: &ClickUpApiInstance, set_of_calen
         // ... if the event ID is not in the set of calendar event IDs
         if !set_of_calendar_event_ids.contains(&mapping.calendar_id) {
             // ... then the event has been deleted from the calendar, and we should delete the corresponding task from ClickUp and the mapping from the database
-            warn!("Deleting mapping for event ID {} task {}", mapping.calendar_id, mapping.clickup_id);
+            warn!(
+                "Deleting mapping for event ID {} task {}",
+                mapping.calendar_id, mapping.clickup_id
+            );
             // The event is no longer in the calendar
             mappings_to_delete.insert(mapping.calendar_id.clone()); // mark for deletion in the DB
             clickup_api.delete_task(&mapping.clickup_id); // execute API request to delete the task from ClickUp
@@ -154,11 +156,11 @@ fn main() {
     info!("Updating DB...");
     run_migrations(&mut establish_connection()).expect("Failed to run migrations!");
 
-    // 1: Load ical fil from Google Calendar, using the URL in the env var DOCSOC_PRIVATE_ICAL
+    // 1: Load ical fil from Google Calendar, using the URL in the env var ICAL_SYNC_PRIVATE_ICAL
     info!("Downloading iCal...");
-    // get ical from env var DOCSOC_PRIVATE_ICAL
+    // get ical from env var ICAL_SYNC_PRIVATE_ICAL
     let ical_url =
-        env::var("DOCSOC_PRIVATE_ICAL").expect("DOCSOC_PRIVATE_ICAL env var must be set!");
+        env::var("ICAL_SYNC_PRIVATE_ICAL").expect("ICAL_SYNC_PRIVATE_ICAL env var must be set!");
 
     info!("Fetching iCal from: {}", ical_url);
     let ical_content = fetch_ical(&ical_url).expect("Failed to fetch iCal file");
@@ -173,7 +175,7 @@ fn main() {
         env::var("CLICKUP_TARGET_LIST_ID").expect("CLICKUP_TARGET_LIST_ID env var must be set!"),
     );
 
-    // 3: Parse ical from DOCSOC_START_DATE to DOCSOC_END_DATE (we don't want to include events from before the current committee!)
+    // 3: Parse ical from ICAL_SYNC_START_DATE to ICAL_SYNC_END_DATE (we don't want to include events from before the current committee!)
     let ical_parsed = parse_ical(&ical_content);
 
     // 4: For each event in the iCal, map it to ClickUp (or update the existing task if it's already mapped)

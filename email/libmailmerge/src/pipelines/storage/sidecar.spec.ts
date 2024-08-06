@@ -1,7 +1,6 @@
 import { createLogger, move } from "@docsoc/util";
 import fs from "fs/promises";
 import { mkdirp } from "mkdirp";
-import { join } from "path";
 
 import { ENGINES_MAP } from "../../engines/index.js";
 import {
@@ -10,11 +9,8 @@ import {
     writeSidecarFile,
     getRecordPreviewPrefixForIndividual,
     writeMetadata,
-    getSidecarMetadata,
 } from "../../previews/index.js";
-import { MappedRecord } from "../../util/index.js";
 import { JSONSidecarsBackend } from "./sidecar";
-import { MergeResultWithMetadata, MergeResult } from "./types";
 
 jest.mock("fs/promises");
 jest.mock("mkdirp");

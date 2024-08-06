@@ -1,5 +1,5 @@
 import { createLogger } from "@docsoc/util";
-import { Args, Command, Flags } from "@oclif/core";
+import { Args, Command } from "@oclif/core";
 import { join } from "path";
 import copy from "recursive-copy";
 

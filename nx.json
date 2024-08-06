@@ -53,7 +53,8 @@
         "projects": [
             "common/util",
             "email/libmailmerge",
-            "email/mailmerge-cli"
+            "email/mailmerge-cli",
+            "clickup/calendar-sync"
         ]
     }
 }

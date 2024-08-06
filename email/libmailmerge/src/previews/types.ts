@@ -1,4 +1,3 @@
-import { ENGINES_MAP } from "../engines/index.js";
 import { TemplateEngineOptions, TemplatePreview } from "../engines/types.js";
 import { MappedRecord, EmailString } from "../util/types.js";
 

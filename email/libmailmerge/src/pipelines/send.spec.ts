@@ -1,9 +1,7 @@
-import { logger } from "@azure/identity";
 import readlineSync from "readline-sync";
 
 import { TemplateEngineConstructor, TemplateEngine } from "../engines/types";
 import Mailer from "../mailer/mailer";
-import { FromEmail } from "../util/types";
 import { sendEmails } from "./send";
 import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
 

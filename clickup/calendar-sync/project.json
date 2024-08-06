@@ -7,9 +7,11 @@
     "targets": {
         "build": {
             "executor": "@monodon/rust:build",
-            "outputs": ["{options.target-dir}"],
+            "outputs": [
+                "{options.target-dir}"
+            ],
             "options": {
-                "target-dir": "dist/target/docsoc_clickup_calendar_sync"
+                "target-dir": "dist/target/clickup/calendar-sync"
             },
             "configurations": {
                 "production": {
@@ -19,9 +21,11 @@
         },
         "test": {
             "executor": "@monodon/rust:test",
-            "outputs": ["{options.target-dir}"],
+            "outputs": [
+                "{options.target-dir}"
+            ],
             "options": {
-                "target-dir": "dist/target/docsoc_clickup_calendar_sync"
+                "target-dir": "dist/target/clickup/calendar-sync"
             },
             "configurations": {
                 "production": {
@@ -31,16 +35,20 @@
         },
         "lint": {
             "executor": "@monodon/rust:lint",
-            "outputs": ["{options.target-dir}"],
+            "outputs": [
+                "{options.target-dir}"
+            ],
             "options": {
-                "target-dir": "dist/target/docsoc_clickup_calendar_sync"
+                "target-dir": "dist/target/clickup/calendar-sync"
             }
         },
         "run": {
             "executor": "@monodon/rust:run",
-            "outputs": ["{options.target-dir}"],
+            "outputs": [
+                "{options.target-dir}"
+            ],
             "options": {
-                "target-dir": "dist/target/docsoc_clickup_calendar_sync"
+                "target-dir": "dist/target/clickup/calendar-sync"
             },
             "configurations": {
                 "production": {
@@ -53,7 +61,9 @@
             "options": {
                 "engine": "docker",
                 "metadata": {
-                    "images": ["docsoc/docsoc_clickup_calendar_sync"],
+                    "images": [
+                        "docsoc/clickup-calendar-sync"
+                    ],
                     "load": true,
                     "tags": [
                         "type=schedule",

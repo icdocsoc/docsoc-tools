@@ -1,0 +1,56 @@
+{
+    "name": "Kishan",
+    "record": {
+        "name": "Kishan",
+        "to": "kss22@ic.ac.uk kishansambhi@hotmail.co.uk",
+        "subject": "DoCSoc x Kishan",
+        "attachment1": "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf",
+        "attachment2": "./attachments/munch.jpg",
+        "bcc": "kishansambhi@hotmail.co.uk",
+        "cc": "jaskishansaran@gmail.com kishansambhi@outlook.com"
+    },
+    "engine": "nunjucks",
+    "engineOptions": {
+        "templatePath": "templates/template.md.njk",
+        "rootHtmlTemplate": "templates/wrapper.html.njk"
+    },
+    "files": [
+        {
+            "filename": "Kishan__nunjucks__Preview-Markdown.md",
+            "engineData": {
+                "name": "Preview-Markdown.md",
+                "metadata": {
+                    "type": "markdown"
+                }
+            }
+        },
+        {
+            "filename": "Kishan__nunjucks__Preview-HTML.html",
+            "engineData": {
+                "name": "Preview-HTML.html",
+                "metadata": {
+                    "type": "html"
+                }
+            }
+        }
+    ],
+    "email": {
+        "to": [
+            "kss22@ic.ac.uk",
+            "kishansambhi@hotmail.co.uk"
+        ],
+        "cc": [
+            "jaskishansaran@gmail.com",
+            "kishansambhi@outlook.com"
+        ],
+        "bcc": [
+            "kishansambhi@hotmail.co.uk"
+        ],
+        "subject": "DoCSoc x Kishan"
+    },
+    "attachments": [
+        "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf",
+        "./attachments/munch.jpg"
+    ],
+    "$originalFilepath": "output/test/Kishan-metadata.json"
+}

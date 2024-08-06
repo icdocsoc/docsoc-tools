@@ -1,10 +1,9 @@
-import { createLogger } from "@docsoc/util";
 
 import { TemplateEngine, TemplateEngineOptions, TemplatePreviews } from "../engines/index.js";
 import { validateRecord, createEmailData } from "../previews/index.js";
 import { generatePreviews, GenerateOptions } from "./generate";
 import { DataSource } from "./loaders";
-import { StorageBackend, MergeResult } from "./storage/types";
+import { StorageBackend } from "./storage/types";
 
 jest.mock("@docsoc/util");
 jest.mock("@docsoc/util", () => ({
