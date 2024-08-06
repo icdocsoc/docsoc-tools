@@ -150,4 +150,37 @@ describe("generatePreviews", () => {
 
         await generatePreviews(options);
     });
+
+    it("should use the provided logger", async () => {
+        // Write the test
+        const mockLogger = {
+            info: jest.fn(),
+            debug: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+        };
+
+        const options = {
+            engineInfo: {
+                name: "testEngine",
+                options: {} as TemplateEngineOptions,
+                engine: mockEngine,
+            },
+            features: {},
+            dataSource: mockDataSource,
+            storageBackend: mockStorageBackend,
+            mappings: {
+                headersToTemplateMap: new Map([
+                    ["header1", "field1"],
+                    ["header2", "field2"],
+                ]),
+                keysForAttachments: [],
+            },
+        };
+
+        /// @ts-expect-error: Mocking
+        await generatePreviews(options, mockLogger);
+
+        expect(mockLogger.info).toHaveBeenCalled();
+    });
 });

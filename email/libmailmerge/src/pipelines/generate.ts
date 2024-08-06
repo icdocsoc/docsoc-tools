@@ -7,8 +7,6 @@ import { DEFAULT_FIELD_NAMES, MappedRecord } from "../util/index.js";
 import { DataSource } from "./loaders";
 import { StorageBackend, MergeResult } from "./storage/types";
 
-const logger = createLogger("docsoc");
-
 /** Options & required things when running a mailmerge */
 export interface GenerateOptions {
     /** The engine to use for mapping records to merged outputs */
@@ -79,8 +77,10 @@ const ADDITIONAL_FIELDS_TO_MAP: Array<string> = [
 
 /**
  * A generic way to generate previews for a mail merge.
+ * @param opts Options for the mail merge - see the type
+ * @param logger Winston logger to use for logging
  */
-export async function generatePreviews(opts: GenerateOptions) {
+export async function generatePreviews(opts: GenerateOptions, logger = createLogger("docsoc")) {
     // 1: Load data
     logger.info("Loading data...");
     const { headers, records } = await opts.dataSource.loadRecords();
