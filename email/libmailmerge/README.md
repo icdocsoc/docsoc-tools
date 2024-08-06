@@ -15,7 +15,33 @@ This is a library to help with all the core parts of doing a mailmerge for DoCSo
 This library was originally designed to be used in conjunction with the `mailmerge-cli` tool, but can be used by itself.
 The library has been made, with few exceptions, to work headlessly: so long as the right options are passed in the whole thing can be ran without user input to e.g. automate the sending of emails for events.
 
-# Core concepts
+# Building
+
+Make sure to run `npm install` before building.
+All commands assumed to be ran in this directory.
+
+## To build locally
+
+```bash
+npm run build-local
+```
+
+(this should also compile any monorepo dependencies)
+
+## To build for publishing
+
+```bash
+npx nx build
+```
+
+## Testing & linting
+
+```bash
+npx nx test
+npx nx lint
+```
+
+# Core library concepts
 
 Core concepts in this library are:
 
@@ -138,6 +164,7 @@ E.g to do a nunjucks markdown merge with a database:
 
 ```typescript
 import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/libmailmerge';
+import { mapFieldsInteractive } from '@docsoc/mailmerge-cli';
 
 class DatabaseDataSource implements DataSource {
     async loadRecords(): Promise<{ headers: Set<String>; records: RawRecord[] }[]> {
@@ -201,6 +228,7 @@ const pipelineOptions: GenerateOptions = {
     },
     mappings: {
         // Ask the user to do the mapping on the CLI using one of the built-in helpers
+        // imported from @docsoc/mailmerge-cli
         headersToTemplatMap: mapFieldsInteractive
         // We know our DB record has these keys
         keysForAttachments: ["attachment"],

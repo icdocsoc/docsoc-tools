@@ -16,6 +16,36 @@ The repo is structured as an Nx monorepo (I recommend you look at the [Nx docume
 
 Each tool's directory has a README with more information on how to use it.
 
+## Building
+
+### Build for development
+
+```
+npx nx run-many -t build build-local
+```
+
+`build` builds all tools (TypeScript and Rust) to `/dist/`, `build-local` builds the typescript tools to `dist/` folders in **each tool's directory**.
+
+You should use `build-local` when working on just the TypeScript code
+
+### Building for production
+
+```
+npx nx run-many -t build
+```
+
+### Linting
+
+```bash
+npx nx run-many -t lint
+```
+
+### Testing
+
+```bash
+npx nx run-many -t test
+```
+
 ## Nx Mono repo info
 
 The plugin `@monodon/rust` has been added to Nx to allow for Rust projects to be built and run in the monorepo. This is used by the `calendar-sync` tool.
