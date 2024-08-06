@@ -1,10 +1,10 @@
 # libmailmerge
 
 > [!NOTE]
-> Don't be fooled by the name - this library can be used to d general data merges, into any format, given the right config!
+> Don't be fooled by the name - this library can be used to do general data merges, into any format, given the right config!
 > See the note at the end
 
-This is a library to help with all the core parts of doing a mailmerge for docs:
+This is a library to help with all the core parts of doing a mailmerge for DoCSoc:
 
 1. Loading data to mailmerge on (`DataSource` interface)
 2. Loading and using the template to mail merge with, using something called an `Engine`
