@@ -97,6 +97,7 @@ They are designed to be generic, and accept instances of:
 1. A `DataSource` (`src/pipelines/loaders/`), to get records to merge on from.
     1. This library includes these data sources:
         1. `CSVBackend` - loads records from a CSV file
+    2. A DataSource should return an array of records, where each record is an object with keys that are strings, and values that are JSON serialisable (so no functions or circular references, but this does allow for nested objects and arrays)
 2. A `TemplateEngine` (`src/engines/`), to merge the records with a template
     1. This library includes these engines:
         1. `NunjucksMarkdownEngine` - uses Nunjucks to render markdown templates, which it then renders to HTML
@@ -272,3 +273,17 @@ const previews = await Promise.all(yourData.map(engine.generatePreview));
 ## Using it for non-mail
 
 Tip for using it for non-mail: if you provide dummy data for to & subject from your `DataSource`, and handle `attachments`, `bcc`, `cc` properly as well, all the pipelines should just work.
+
+# Recommended usage - custom mail merge for events (e.g. IC Hack)
+
+For events, here's my general advice:
+
+1. Use the pipelines flow as much as possible - it's designed to be flexible and allow for custom data sources, engines, and storage backends.
+2. For the Data Source: This is quite simple to write; I recommend you create one that loads from your database intead of a CSV
+    1. You may need to make multiple data sources if you have multiple types of records to merge on, e.g. volunteer schedules (likely a visual spreadsheet that needs to be translated to some JSON format) and attendee emails (likely a database query)
+3. For the Storage Backend: Reuse `JSONSidecarsBackend` as the storage backend - it's probably the hardest to write again, and it already supports everything you need. Note that you can extend it if you need to (e.g. to make a version that only loads emails marked for testing)
+    1. The only thing to watch for is that it was build to store paths relative to a workspace root that also happened to be the CWD - I'm not sure how it would behave if used outside of this context.
+    2. It might be a good idea to do mailmerge as a tool ran separately (e.g. on a server or dev's machine) rather than part of the main server apparatus
+4. Write your own engine that uses something like `react-email` or `vue-email` to allow for more complex emails to be generated. Remember that records just need to be JSON serialisable, which allow for nested objects and arrays.
+5. Pass this all the way through the pipeline, and you should be good to go!
+6. Remember to test, test, test!
