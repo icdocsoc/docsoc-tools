@@ -2,17 +2,17 @@
 
 > [!NOTE]
 > Don't be fooled by the name - this library can be used to do general data merges, into any format, given the right config!
-> See the note at the end
+> See the note at the end.
 
 This is a library to help with all the core parts of doing a mailmerge for DoCSoc:
 
 1. Loading data to mailmerge on (`DataSource` interface)
-2. Loading and using the template to mail merge with, using something called an `Engine`
+2. Loading and using the template to mail merge with, using something called a `TemplateEngine`
 3. Storing results of the mailmerge somewhere, so you can check them before sending
 4. Sending the mailmerged results via SMTP
 5. Uploading the mailmerged results to Outlook drafts
 
-This library is designed to be used in conjunction with the `mailmerge-cli` tool, but can be used by itself.
+This library was originally designed to be used in conjunction with the `mailmerge-cli` tool, but can be used by itself.
 The library has been made, with few exceptions, to work headlessly: so long as the right options are passed in the whole thing can be ran without user input to e.g. automate the sending of emails for events.
 
 # Core concepts
@@ -21,17 +21,18 @@ Core concepts in this library are:
 
 ## `TemplateEngine` (aka engine)
 
-Lives in `src/engines/`
+Code lives in `src/engines/`
 
-A `TemplateEngine` is a generic class that takes a template and data, and returns the result of merging the two. It also needs to be able to tell us what fields the template has, so we can map the data to the template before passing the mapped data to the template.
+A `TemplateEngine` is a generic class that takes a template and a list of records, and returns the result of merging the two. It also needs to be able to tell us what fields the template has, so we can map record fields to the template before passing the mapped data to the template for rendering.
 
-Engines return a list of `TemplatePreview`s, which contain the content of the merged template, and the fields that were used in the template. The idea is you can return multiple as you might have intermediate results you want users to be able to edit.
+Engines return a list of `TemplatePreview`s, which contain the content of the merged template, and the fields that were used in the template. The idea is that you can return multiple previews per record as you might have intermediate results you want users to be able to edit.
 
-Engines also need to be able to rerender their previews, to allow for the user to edit the results of the merge.
+Engines also need to be able to rerender their previews, to allow for the users to edit the results of the merge.
+For example, the `NunjucksMarkdownEngine` will return a markdown preview and an HTML preview, and will allow the user to edit the markdown preview and then rerender the HTML preview.
 
 Check the typedoc for more info.
 
-Relavent file: `src/engines/types.ts`. This contains the abstract class `TemplateEngine` that all engines must extend, the constructor for the engine, and what an engine should return.
+Relavent file: `src/engines/types.ts`. This contains the abstract class `TemplateEngine` that all engines must extend, the expected constructor for the engine, and what an engine should return.
 
 ### Included engines
 
@@ -40,6 +41,10 @@ Relavent file: `src/engines/types.ts`. This contains the abstract class `Templat
     -   It outputs two previews: an editable markdown preview, and a rendered HTML preview.
     -   The rendered HTML is then what is sent
     -   This is the default engine for the `mailmerge-cli` tool.
+
+## Ideas for future engines
+
+-   An engine that uses `react-email` or the equivalent for Vue, to allow for more complex emails to be generated
 
 ## `Mailer`
 
@@ -64,17 +69,17 @@ All pieplines are in `src/pipelines/`.
 They are designed to be generic, and accept instances of:
 
 1. A `DataSource` (`src/pipelines/loaders/`), to get records to merge on from.
-    1. Provided data sources:
+    1. This library includes these data sources:
         1. `CSVBackend` - loads records from a CSV file
-2. A `TemplateEngine` (`src/engines/`), to merge the records with
-    1. Provided engines:
-        1. `NunjucksMarkdownEngine` - uses Nunjucks to render markdown templates, which it then renders in HTML
+2. A `TemplateEngine` (`src/engines/`), to merge the records with a template
+    1. This library includes these engines:
+        1. `NunjucksMarkdownEngine` - uses Nunjucks to render markdown templates, which it then renders to HTML
     2. Future engines you might want to write might include e.g. one to use `react-email` or the equivalent for Vue.
 3. A `StorageBackend` (`src/pipelines/storage/`), to store the results of the merge somehow, and later load them back in and update them on disk after a regeneration.
-    1. Provided storage backends:
+    1. This library includes these storage backends:
         1. `JSONSidecarsBackend` - stores the results of a merge to the filesystem, with JSON sidecar files placed next to each record
 
-Each of these folders has a `types.ts` files, that you should checkout if you want to write your own.
+Each of these folders has a `types.ts` files, that you should check out if you want to write your own.
 
 Checks the typedoc for more info on how to make your own & instantiate the provided ones. You can also check the CLI tool `mailmerge-cli` for examples of how to use them.
 
@@ -96,7 +101,7 @@ This pipeline is designed to take a `TemplateEngine`, and `StorageBackend`, and 
 
 ### `send` (`src/pipelines/send.ts`)
 
-This pipeline is designed to take a `Mailer`, `StorageBackend` and `TemplateEngine`, and load the previouse merge results from the `StorageBackend`. It then asks the `TemplateEngine` for each merge result which sub-result is the HTML to send, and then send it using the `Mailer`.
+This pipeline is designed to take a `Mailer`, `StorageBackend` and `TemplateEngine`, and load the previouse merge results from the `StorageBackend`. It then asks the `TemplateEngine` for each merge result which sub-result (preview) is the HTML to send, and then sends it using the `Mailer`.
 
 ### `upload` (`src/pipelines/uploadDrafts.ts`)
 
@@ -104,15 +109,32 @@ This pipeline is designed to take a `StorageBackend` and `TemplateEngine`, and l
 
 Note that because this requires OAuth, it can't be done headlessly - the user will need to authenticate; the pipeline will prompt for this.
 
+### Final note
+
+All pipelines are exported from `src/index.ts` and can be imported directly from `@docsoc/libmailmerge`.
+
+## Other files
+
+By folder:
+
+-   `src/`: Contains the main library code
+    -   `src/engines/`: Contains the engines see above
+    -   `src/graph/`: Code for interacting with the Microsoft Graph API, specifically a `EmailUploader` class for uploading emails to Outlook drafts
+    -   `src/mailer/`: Contains the `Mailer` class, which is used to send emails via SMTP. See above.
+    -   `src/markdown/`: Helper libraries for rendering markdownt o HTML (in case we want to change how this is done later)
+    -   `src/pipelines/`: Contains the pipelines code - see above
+    -   `src/previews/`: Code that supports the `JSONSidecarsBackend` storage backend to SAVE AND load previewS from disk & handle their sidecar files
+    -   `src/util/`: Utilities & constants, including special types for email strings and `DEFAULT_FIELD_NAMES`, the keys of which we expect to be in records
+
 # Developing with the library
 
 ## Quick Start
 
 ### Using the pipelines (recommended)
 
-The beter option is to use the pipelines, writing your own data source, engine & storage backend if needed.
+The best option to do custom mail merge is to use the pipelines, writing your own data source, engine & storage backend if needed.
 
-E.g to do a simple nunjucks markdown merge with a database you might do:
+E.g to do a nunjucks markdown merge with a database:
 
 ```typescript
 import { generate, GenerateOptions, DataSource, StorageBackend, MergeResultWithMetadata, MergeResult, RawRecord, MappedRecord } from '@docsoc/libmailmerge';
