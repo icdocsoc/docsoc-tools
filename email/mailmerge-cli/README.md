@@ -1,26 +1,33 @@
 # mailmerge-cli
 
-## Quick start
+## Installation
 
 1. Run `npm install` from the root of the repo
 2. Run `npm run build` in this folder (`email/mailmerge-cli`)
 3. Run `npm link` in this folder - this adds `docsoc-mailmerge` to your path
-4. In a blank directory somewhere (known as the "mailmerge workspace"), create these folders & files:
+
+## Quick Start
+
+In a blank directory, run `docsoc-mailmerge init`, then read the output and follow the steps.
+
+## Detailed Steps
+
+1. In a blank directory somewhere (known as the "mailmerge workspace"), create these folders & files:
     1. `./data/names.csv` - CSV file with at the minimum `to` & `subject` columns
     2. `./templates/template.md.njk` - nunjucks markdown template for your emails (see `/email/workspace/templates/tempkate.md.njk` for an example, where `/` is the repo root)
     3. `./templates/wrapper.html.njk`, a HTML wrapper for the email (use the contents of `/email/workspace/templates/wrapper.html.njk`)
-5. Run `docsoc-mailmerge generate nunjucks --help` and read the help text
-6. Run `docsoc-mailmerge generate nunjucks ./data/names.csv -o ./output --htmlTemplate=./templates/wrapper.html.njk`. You'll be asked for a runname: generated emails will be placed at `./output/<runname>`
+2. Run `docsoc-mailmerge generate nunjucks --help` and read the help text
+3. Run `docsoc-mailmerge generate nunjucks ./data/names.csv -o ./output --htmlTemplate=./templates/wrapper.html.njk`. You'll be asked for a runname: generated emails will be placed at `./output/<runname>`
     1. Each record in the CSV will result in 3 files in `./output/<runname>`: an editable markdown file to allow you to modify the email, a HTML rendering of the markdown that you should not edit, and a `.json` metadata file
     2. The HTML files, which is what is actually sent, can be regenerated after edting the markdown files with `regenerate` command (see below)
     3. If you want to edit the to address or subject after this point you will need to edit the JSON files; csv edits are ignored. If you edit the CSV, delete all outputs and run generate again.
-7. Edit the generated markdown files - this allows you to edit the emails
-8. Run `docsoc-mailmerge regenerate ./output/<runname>` - this will re-render the markdown files into the HTML previews. These HTML previews are then what is sent to receipients. You can call `regenerate` as many times as you want.
-9. Once you've edited & checked all the email markdowns as needed & checked and regenerated if needed the HTMLs, run this command to send the emails: `docsoc-mailmerge send ./output/<runname>`.
+4. Edit the generated markdown files - this allows you to edit the emails
+5. Run `docsoc-mailmerge regenerate ./output/<runname>` - this will re-render the markdown files into the HTML previews. These HTML previews are then what is sent to receipients. You can call `regenerate` as many times as you want.
+6. Once you've edited & checked all the email markdowns as needed & checked and regenerated if needed the HTMLs, run this command to send the emails: `docsoc-mailmerge send ./output/<runname>`.
     1. NOTE: Send does not run `regenerate`, so if you edited any markdown files ensure you ran `regenerate` before running `send`
-10. Done! Sent email previews will be moved to `./output/<runname>/sent` to prevent double sending if the send is stopped halfway through.
+7. Done! Sent email previews will be moved to `./output/<runname>/sent` to prevent double sending if the send is stopped halfway through.
 
-### Attachments
+## Attachments
 
 I recommend placing attachments in an `attachments` folder.
 
@@ -33,7 +40,7 @@ I recommend placing attachments in an `attachments` folder.
 2. If you want the same attachment to all emails, use the `-a` flag of generate, e.g. `docsoc-mailmerge generate nunjucks ./data/names.csv -o ./output -a ./attachments/image.jpg -a ./attachments/image2.jpg`.
     1. Note that if you pass the CLI option, any info about attachments in the CSV is ignored.
 
-### BCC, CC & Multi to
+## BCC, CC & Multi to
 
 -   For multi-to: Separate the list of emails with a space in the CSV column
 -   For CC: Add a column called `cc` with space separated emails in, and make sure to pass `--cc` to the `generate` command
@@ -41,7 +48,7 @@ I recommend placing attachments in an `attachments` folder.
 
 This library was generated with [Nx](https://nx.dev).
 
-### Uploading to drafts
+## Uploading to drafts
 
 You can also upload the emails to drafts instead of sending them. To do this, run `docsoc-mailmerge upload-drafts ./output/<runname> `. This will upload the emails to drafts instead of sending them.
 
