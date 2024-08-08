@@ -50,3 +50,7 @@ legacy
 
 # docs
 docs
+
+# Next.js
+.next
+out
