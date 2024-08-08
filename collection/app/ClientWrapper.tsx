@@ -3,7 +3,7 @@
 /**
  * Wrap the page in everything needed for client-side rendering.
  */
-import { MantineProvider, createTheme, MantineColorsTuple } from "@mantine/core";
+import { MantineProvider, createTheme, MantineColorsTuple, ColorSchemeScript } from "@mantine/core";
 import React from "react";
 
 const docsoc: MantineColorsTuple = [
@@ -27,5 +27,12 @@ const theme = createTheme({
 });
 
 export const ClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    return <MantineProvider theme={theme}>{children}</MantineProvider>;
+    return (
+        <>
+            <ColorSchemeScript defaultColorScheme="auto" />
+            <MantineProvider theme={theme} defaultColorScheme="auto">
+                {children}
+            </MantineProvider>
+        </>
+    );
 };

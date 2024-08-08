@@ -1,8 +1,8 @@
+import "@/styles/global.scss";
 import { ColorSchemeScript } from "@mantine/core";
 import "@mantine/core/styles.css";
 
 import { ClientWrapper } from "./ClientWrapper";
-import "./global.css";
 
 export const metadata = {
     title: "DoCSoc Collction",
