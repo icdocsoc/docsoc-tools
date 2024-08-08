@@ -45,6 +45,9 @@
         "jest-environment-jsdom": "^29.4.1",
         "jest-environment-node": "^29.4.1",
         "nx": "19.4.3",
+        "postcss": "^8.4.41",
+        "postcss-preset-mantine": "^1.17.0",
+        "postcss-simple-vars": "^7.0.1",
         "prettier": "^2.6.2",
         "sass": "1.62.1",
         "ts-jest": "^29.1.0",
@@ -60,6 +63,8 @@
         "collection"
     ],
     "dependencies": {
+        "@mantine/core": "^7.12.0",
+        "@mantine/hooks": "^7.12.0",
         "axios": "^1.6.0",
         "mkdirp": "^3.0.1",
         "next": "14.2.3",
@@ -67,6 +72,7 @@
         "node-imap": "^0.9.6",
         "react": "18.3.1",
         "react-dom": "18.3.1",
+        "react-jss": "^10.10.0",
         "tslib": "^2.3.0"
     },
     "nx": {
