@@ -29,7 +29,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     providers,
     callbacks: {
         signIn({ profile }) {
-            return profile?.email?.includes("docsoc") ?? false;
+            //return profile?.email?.includes("docsoc") ?? false;
+            return true;
         },
     },
     pages: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { DoCSocBanner } from "@/components/DoCSocBanner";
-import { AppShell, Burger, Button, Group, NavLink } from "@mantine/core";
+import { AppShell, Burger, Button, Container, Group, NavLink } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import React from "react";
@@ -9,7 +9,7 @@ import React from "react";
 // From https://mantine.dev/app-shell/?e=MobileNavbar&s=code
 
 const LinkTo = ({ href, children }: { href: string; children: React.ReactNode }) => {
-    const checkActive = (href: string) => window.location.pathname === href;
+    // const checkActive = (href: string) => window.location.pathname === href;
     return (
         <Button component={Link} href={href} variant="subtle">
             {children}
@@ -42,9 +42,13 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
 
             <AppShell.Navbar py="md" px={4}>
                 <NavLink href="/" label="Home" />
+                <NavLink href="/user" label="User Management" />
+                <NavLink href="/products" label="Products" />
             </AppShell.Navbar>
 
-            <AppShell.Main>{children}</AppShell.Main>
+            <AppShell.Main>
+                <Container size="xl">{children}</Container>
+            </AppShell.Main>
         </AppShell>
     );
 }

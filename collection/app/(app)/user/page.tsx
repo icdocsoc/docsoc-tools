@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LogoutButton } from "@/components/auth/LogoutButton";
+import { Stack, Title, Text } from "@mantine/core";
 import { redirect } from "next/navigation";
 
 export default async function UserManagement() {
@@ -7,5 +7,12 @@ export default async function UserManagement() {
 
     if (!session) redirect("/auth/login");
 
-    return <LogoutButton />;
+    return (
+        <Stack>
+            <Stack gap="xs">
+                <Title order={1}>User Management</Title>
+                <Text>Manage your committee here</Text>
+            </Stack>
+        </Stack>
+    );
 }

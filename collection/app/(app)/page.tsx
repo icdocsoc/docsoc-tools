@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { Title } from "@mantine/core";
 import { redirect } from "next/navigation";
 
 import styles from "./page.module.scss";
@@ -11,7 +12,7 @@ export default async function Index() {
 
     return (
         <div className={styles.page}>
-            <LogoutButton />
+            <Title order={1}>DoCSoc</Title>
         </div>
     );
 }
