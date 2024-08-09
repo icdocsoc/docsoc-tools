@@ -33,7 +33,7 @@ const Login = () => {
                             // not existing, or the user not having the correct role.
                             // In some cases, you may want to redirect to a custom error
                             if (error instanceof AuthError) {
-                                return redirect(`/api/auth/errror?error=${error.type}`);
+                                return redirect(`/auth/errror?error=${error.type}`);
                             }
 
                             // Otherwise if a redirects happens NextJS can handle it
