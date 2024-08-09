@@ -1,6 +1,6 @@
 import { providerMap, signIn } from "@/auth";
 import { DoCSocBanner } from "@/components/DoCSocBanner";
-import { Button, Center } from "@mantine/core";
+import { Button, Center, Stack } from "@mantine/core";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { FaKey } from "react-icons/fa";
@@ -16,7 +16,7 @@ const namesMap = (name: string) => {
 
 const Login = () => {
     return (
-        <>
+        <Stack gap="xl" justify="centre" align="centre">
             <Center>
                 <DoCSocBanner style={{ maxWidth: "500px" }} />
             </Center>
@@ -49,7 +49,7 @@ const Login = () => {
                     </Button>
                 </form>
             ))}
-        </>
+        </Stack>
     );
 };
 
