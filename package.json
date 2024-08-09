@@ -66,9 +66,10 @@
         "collection"
     ],
     "dependencies": {
+        "@docsoc/eactivities": "^1.2.1",
         "@mantine/core": "^7.12.0",
         "@mantine/hooks": "^7.12.0",
-        "@prisma/client": "5.5.2",
+        "@prisma/client": "^5.18.0",
         "@tanstack/react-table": "^8.20.1",
         "axios": "^1.6.0",
         "mkdirp": "^3.0.1",

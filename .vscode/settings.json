@@ -9,6 +9,17 @@
             "database": "docsoc-tools",
             "username": "postgres",
             "password": "postgres"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "docsoc-tools-collection",
+            "group": "docsoc",
+            "database": "docsoc-tools-collection",
+            "username": "postgres",
+            "password": "postgres"
         }
     ],
     "files.watcherExclude": {

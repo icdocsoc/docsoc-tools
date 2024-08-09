@@ -1,1 +1,1 @@
-export * from "./lib/eactivities";
+export * from "./getAcademicYear.js";

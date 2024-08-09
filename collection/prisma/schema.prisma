@@ -13,8 +13,7 @@ datasource db {
 // Each row stores a config key and an associated JSON value (which can be a string, number, object, or array)
 // ==================
 model Config {
-    id          Int     @id @default(autoincrement())
-    key         String  @unique
+    key         String  @id @unique
     value       Json
     description String?
 }
