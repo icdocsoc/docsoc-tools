@@ -1,0 +1,54 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ImperialStudent {
+  id        Int     @id @default(autoincrement())
+  cid       String  @unique
+  shortcode String  @unique
+  firstName String
+  lastName  String
+  email     String
+  Order     Order[]
+}
+
+model Order {
+  id              Int             @id @default(autoincrement())
+  studentId       Int
+  orderDate       DateTime
+  orderNo         Int             @unique
+  ImperialStudent ImperialStudent @relation(fields: [studentId], references: [id])
+  OrderItem       OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  quantity  Int
+  variantId Int
+  collected Boolean
+  Order     Order   @relation(fields: [orderId], references: [id])
+  Variant   Variant @relation(fields: [variantId], references: [id])
+}
+
+model RootItem {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  Variant Variant[]
+}
+
+model Variant {
+  id          Int         @id @default(autoincrement())
+  variantName String
+  rootItemId  Int
+  OrderItem   OrderItem[]
+  RootItem    RootItem    @relation(fields: [rootItemId], references: [id])
+
+  @@unique([variantName, rootItemId])
+}
