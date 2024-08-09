@@ -4,6 +4,7 @@
  * Wrap the page in everything needed for client-side rendering.
  */
 import { MantineProvider, createTheme, MantineColorsTuple, ColorSchemeScript } from "@mantine/core";
+import { SessionProvider } from "next-auth/react";
 import React from "react";
 
 const docsoc: MantineColorsTuple = [
@@ -31,7 +32,7 @@ export const ClientWrapper: React.FC<{ children: React.ReactNode }> = ({ childre
         <>
             <ColorSchemeScript defaultColorScheme="auto" />
             <MantineProvider theme={theme} defaultColorScheme="auto">
-                {children}
+                <SessionProvider>{children}</SessionProvider>
             </MantineProvider>
         </>
     );

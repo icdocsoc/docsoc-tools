@@ -9,5 +9,10 @@ export const DoCSocBanner = (props: ComponentProps<typeof DoCSocBannerSvg>) => {
     const theme = useMantineTheme();
     const lightDark = useColorScheme();
 
-    return <DoCSocBannerSvg fill={lightDark === "dark" ? theme.white : theme.black} {...props} />;
+    return (
+        <DoCSocBannerSvg
+            fill={lightDark === "dark" ? theme.white : theme.colors["docsoc"][6]}
+            {...props}
+        />
+    );
 };
