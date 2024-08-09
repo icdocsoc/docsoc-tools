@@ -146,10 +146,8 @@ export default function TanstackTable<T>({
         );
     }
 
-    const FooterWrapper = isLowWidth ? Stack : Grid;
-
     return (
-        <Stack gap="xl">
+        <Stack gap="md">
             {enableSearch && (
                 <Group gap="md" className={styles.searchBarContainer}>
                     <TextInput
@@ -250,7 +248,7 @@ export default function TanstackTable<T>({
                     truncableText="..."
                 >
                     <nav className={styles.tablePagination}>
-                        <Group gap="xl" justify="centre" align="centre" wrap="wrap">
+                        <Group gap="xl" justify="center" wrap="wrap">
                             <ul>
                                 <ActionIcon
                                     variant="subtle"
@@ -282,7 +280,7 @@ export default function TanstackTable<T>({
                                     <RxDoubleArrowRight />
                                 </ActionIcon>
                             </ul>
-                            <Group gap={"md"}>
+                            <Group gap={"md"} align="center" justify="center">
                                 <Select
                                     data={["1", "5", "15", "25", "50"].map((i) => ({
                                         label: i,

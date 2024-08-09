@@ -8,7 +8,12 @@
 
   &:hover {
     cursor: pointer;
-    background-color: var(--mantine-color-dark-4);
+    html[data-mantine-color-scheme="dark"] & {
+        background-color: var(--mantine-color-dark-4);
+    }
+    html[data-mantine-color-scheme="light"] & {
+        background-color: var(--mantine-color-gray-2);
+    }
     .isSortableIndicator {
       visibility: visible;
     }

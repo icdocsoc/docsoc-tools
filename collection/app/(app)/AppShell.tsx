@@ -4,14 +4,15 @@ import { DoCSocBanner } from "@/components/DoCSocBanner";
 import { AppShell, Burger, Button, Container, Group, NavLink } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 // From https://mantine.dev/app-shell/?e=MobileNavbar&s=code
 
 const LinkTo = ({ href, children }: { href: string; children: React.ReactNode }) => {
-    // const checkActive = (href: string) => window.location.pathname === href;
+    const pathname = usePathname();
     return (
-        <Button component={Link} href={href} variant="subtle">
+        <Button component={Link} href={href} variant={pathname === href ? "light" : "subtle"}>
             {children}
         </Button>
     );

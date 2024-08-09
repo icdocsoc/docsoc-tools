@@ -1,3 +1,4 @@
+import { DEFAULT_COLOR_SCHEME } from "@/lib/constants";
 import "@/styles/global.scss";
 import { ColorSchemeScript } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <head>
-                <ColorSchemeScript />
+                <ColorSchemeScript defaultColorScheme={DEFAULT_COLOR_SCHEME} />
             </head>
             <body>
                 <ClientWrapper>{children}</ClientWrapper>
