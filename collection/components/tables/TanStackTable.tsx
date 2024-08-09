@@ -141,7 +141,7 @@ export default function TanstackTable<T>({
         return (
             <Group gap={"md"}>
                 <Text>Loading...</Text>
-                <Loader size="3" />
+                <Loader size="xs" />
             </Group>
         );
     }

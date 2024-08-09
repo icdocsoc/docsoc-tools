@@ -36,5 +36,5 @@ const data: UserRow[] = [
 ];
 
 export const UsersTable = () => {
-    return <TanstackTable columns={columns} data={data} />;
+    return <TanstackTable columns={columns} data={data} enablePagination={false} />;
 };
