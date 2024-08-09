@@ -10,7 +10,7 @@ export function isValidAcademicYear(academicYear: string): academicYear is Acade
         return false;
     }
 
-    const [start, end] = numbers.map(parseInt);
+    const [start, end] = numbers.map((n) => parseInt(n, 10));
     if (isNaN(start) || isNaN(end)) {
         return false;
     }

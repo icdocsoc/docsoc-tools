@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { Stack, Title, Text } from "@mantine/core";
 import { redirect } from "next/navigation";
 
-import { AcademicYearSelector } from "./AcademicYearSelector";
+import { AcademicYear } from "./AcademicYear";
 import { UsersTable } from "./UsersTable";
 
 export default async function Settings() {
@@ -18,7 +18,7 @@ export default async function Settings() {
                     <Title order={2}>Global Settings</Title>
                     <Text>Application wide settings that affect the data displayed & stored</Text>
                 </Stack>
-                <AcademicYearSelector />
+                <AcademicYear />
             </Stack>
             <Stack gap="lg">
                 <Stack gap="xs">

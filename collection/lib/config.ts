@@ -1,10 +1,11 @@
+"use server";
+
 /**
  * Handlers for the Config table in the database
  * @module
  */
 import { getAcademicYear as computeAcademicYear, isValidAcademicYear } from "@docsoc/eactivities";
 import { Prisma } from "@prisma/client";
-import { JsonValue } from "@prisma/client/runtime/library";
 
 import prisma from "./db";
 import { StatusReturn } from "./types";
@@ -40,7 +41,7 @@ async function setConfigValueFor(
 const ACADEMIC_YEAR_KEY = "academicYear";
 
 export async function getAcademicYear() {
-    return await getConfigValueFor(ACADEMIC_YEAR_KEY);
+    return (await getConfigValueFor(ACADEMIC_YEAR_KEY)) as string;
 }
 
 export async function setAcademicYear(academicYear: string): Promise<StatusReturn> {
@@ -56,6 +57,14 @@ export async function setAcademicYear(academicYear: string): Promise<StatusRetur
     return {
         status: "success",
     };
+}
+
+export const setAcademicYearForm = async (data: FormData) => {
+    "use server"
+    const academicYear = data.get("academicYear")?.toString();
+    if (academicYear && isValidAcademicYear(academicYear)) {
+        await setAcademicYear(academicYear)
+    }
 }
 
 export async function initConfig() {

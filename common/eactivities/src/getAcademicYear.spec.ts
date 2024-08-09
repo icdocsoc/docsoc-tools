@@ -1,4 +1,4 @@
-import { getAcademicYear } from "./getAcademicYear";
+import { getAcademicYear, isValidAcademicYear } from "./getAcademicYear";
 
 describe("getAcademicYear", () => {
     it("should return the academic year if set before August", async () => {
@@ -23,5 +23,34 @@ describe("getAcademicYear", () => {
 
         const result = getAcademicYear(aDate);
         expect(result).toBe(academicYearExpected);
+    });
+
+    describe("isValidAcademicYear", () => {
+        test("returns true for valid academic year", () => {
+            expect(isValidAcademicYear("21-22")).toBe(true);
+            expect(isValidAcademicYear("01-02")).toBe(true);
+        });
+
+        test("returns false for invalid format", () => {
+            expect(isValidAcademicYear("2122")).toBe(false);
+            expect(isValidAcademicYear("21/22")).toBe(false);
+            expect(isValidAcademicYear("21-22-23")).toBe(false);
+        });
+
+        test("returns false for non-numeric values", () => {
+            expect(isValidAcademicYear("ab-cd")).toBe(false);
+            expect(isValidAcademicYear("21-xx")).toBe(false);
+        });
+
+        test("returns false for numbers out of range", () => {
+            expect(isValidAcademicYear("100-101")).toBe(false);
+            expect(isValidAcademicYear("-1-0")).toBe(false);
+        });
+
+        test("returns false for non-consecutive years", () => {
+            expect(isValidAcademicYear("21-23")).toBe(false);
+            expect(isValidAcademicYear("22-21")).toBe(false);
+            expect(isValidAcademicYear("22-2")).toBe(false);
+        });
     });
 });

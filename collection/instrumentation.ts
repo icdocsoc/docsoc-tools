@@ -1,5 +1,5 @@
-import { initConfig } from "./lib/config";
-
 export async function register() {
-    await initConfig();
+    if (process.env.NEXT_RUNTIME === "nodejs") {
+        await (await import("./instrumentation-node")).register();
+    }
 }
