@@ -250,8 +250,7 @@ export default function TanstackTable<T>({
                     truncableText="..."
                 >
                     <nav className={styles.tablePagination}>
-                        <FooterWrapper columns={3} gap={"md"} align="center">
-                            <Space />
+                        <Group gap="xl" justify="centre" align="centre" wrap="wrap">
                             <ul>
                                 <ActionIcon
                                     variant="subtle"
@@ -262,28 +261,28 @@ export default function TanstackTable<T>({
                                 </ActionIcon>
                                 <Pagination.PrevButton
                                     className=""
-                                    as={<ActionIcon variant="suble" />}
+                                    as={<ActionIcon variant="subtle" />}
                                 >
                                     <RxChevronLeft />
                                 </Pagination.PrevButton>
                                 <Pagination.PageButton
-                                    as={<Button variant="outline" />}
+                                    as={<Button variant="subtle" size="compact-md" />}
                                     activeClassName={styles.activePage}
                                     inactiveClassName=""
                                     className=""
                                 />
-                                <Pagination.NextButton as={<ActionIcon variant="suble" />}>
+                                <Pagination.NextButton as={<ActionIcon variant="subtle" />}>
                                     <RxChevronRight />
                                 </Pagination.NextButton>
                                 <ActionIcon
-                                    variant="suble"
+                                    variant="subtle"
                                     disabled={!table.getCanNextPage()}
                                     onClick={table.lastPage}
                                 >
                                     <RxDoubleArrowRight />
                                 </ActionIcon>
                             </ul>
-                            <Flex justify="end" gap="3">
+                            <Group gap={"md"}>
                                 <Select
                                     data={["1", "5", "15", "25", "50"].map((i) => ({
                                         label: i,
@@ -293,10 +292,11 @@ export default function TanstackTable<T>({
                                     onChange={(newPageSize: string | null) =>
                                         table.setPageSize(parseInt(newPageSize ?? "15", 10))
                                     }
+                                    size="sm"
                                 />
                                 <Text className={styles.inlineFlexCenter}>records per page</Text>
-                            </Flex>
-                        </FooterWrapper>
+                            </Group>
+                        </Group>
                     </nav>
                 </Pagination>
             )}

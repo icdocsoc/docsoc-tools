@@ -26,7 +26,14 @@ const columns = [
     }),
 ];
 
-const data: UserRow[] = [{ id: 1, name: "Alice", email: "alice@docsoc.co.uk" }];
+const data: UserRow[] = [
+    { id: 1, name: "Alice", email: "alice@docsoc.co.uk" },
+    {
+        id: 2,
+        name: "Bob",
+        email: "bob@docsoc.ic.ac.uk",
+    },
+];
 
 export const UsersTable = () => {
     return <TanstackTable columns={columns} data={data} />;

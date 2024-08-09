@@ -1,14 +1,14 @@
-// @import "@/styling/breakpoints.scss";
+@import "@/styles/breakpoints.scss";
 
 .tableHeader {
   .isSortableIndicator {
-    color: var(--gray-9);
+    color: var(--mantine-color-gray-1);
     visibility: hidden;
   }
 
   &:hover {
     cursor: pointer;
-    background-color: var(--gray-3);
+    background-color: var(--mantine-color-dark-4);
     .isSortableIndicator {
       visibility: visible;
     }
@@ -30,15 +30,15 @@
     li {
       &:hover {
         cursor: pointer;
-        color: var(--blue-1);
+        color: var(--mantine-primary-color-1);
       }
     }
   }
 }
 
 .activePage {
-  background-color: var(--blue-9);
-  color: var(--gray-1);
+  background-color: var(--mantine-primary-color-9);
+  color: var(--mantine-color-gray-1);
 }
 
 .inlineFlexCenter {
@@ -53,13 +53,13 @@
     flex: 1 0 0;
   }
 
-//   @include phablet {
-//     flex-direction: column;
-//     padding: 0;
-//     .searchBar {
-//       min-height: 3em;
-//     }
-//   }
+  @include phablet {
+    flex-direction: column;
+    padding: 0;
+    .searchBar {
+      min-height: 3em;
+    }
+  }
 }
 
 .tanstackBody {
