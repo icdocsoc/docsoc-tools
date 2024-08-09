@@ -1,0 +1,32 @@
+{
+    "name": "eactivities",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "common/eactivities/src",
+    "projectType": "library",
+    "release": {
+        "version": {
+            "generatorOptions": {
+                "packageRoot": "dist/{projectRoot}",
+                "currentVersionResolver": "git-tag"
+            }
+        }
+    },
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/common/eactivities",
+                "main": "common/eactivities/src/index.ts",
+                "tsConfig": "common/eactivities/tsconfig.lib.json",
+                "assets": ["common/eactivities/*.md"]
+            }
+        },
+        "nx-release-publish": {
+            "options": {
+                "packageRoot": "dist/{projectRoot}"
+            }
+        }
+    }
+}

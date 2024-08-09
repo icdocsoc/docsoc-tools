@@ -57,7 +57,8 @@
             "common/util",
             "email/mailmerge",
             "email/mailmerge-cli",
-            "clickup/calendar-sync"
+            "clickup/calendar-sync",
+            "eactivities"
         ]
     },
     "generators": {
