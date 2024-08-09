@@ -66,7 +66,7 @@ export class EActivitiesAPI {
         method = "GET",
         body?: unknown,
     ): Promise<AxiosResponse<T>> {
-        return this.request<T>(`${centreNumber}/${endpoint}`, method, body);
+        return this.request<T>(`CSP/${centreNumber}/${endpoint}`, method, body);
     }
 
     /**
@@ -80,6 +80,8 @@ export class EActivitiesAPI {
 
     /**
      * Gets the basic details, such as Name, Website Name and Code, for the specified CSP.
+     *
+     * GET /CSP/{centre}
      */
     async getCSPDetails(cspCode = this.centreNumber) {
         return this.requestWithCentre<CSP>("", cspCode, "GET");
@@ -87,12 +89,14 @@ export class EActivitiesAPI {
 
     /**
      * Obtains the list of committee members for the specified CSP.
+     *
+     * GET /CSP/{centre}/reports/committee?year={year}
      * @param cspCode Code of the CSP to get committee members for
      * @param academicYear Academic year to get committee members for
      */
     async getCommitteeMembers(cspCode = this.centreNumber, academicYear = this.academicYear) {
         return this.requestWithCentre<CommitteeMember[]>(
-            `/reports/committee?year=${academicYear}`,
+            `reports/committee?year=${academicYear}`,
             cspCode,
         );
     }
@@ -103,10 +107,12 @@ export class EActivitiesAPI {
      * NOTE: This may not be all members for DepSocs; only those that brought their membership online.
      *
      * Download the CSV from the eActivities website for a full list.
+     *
+     * GET /CSP/{centre}/reports/members?year={year}
      */
     async getMembers(cspCode = this.centreNumber, academicYear = this.academicYear) {
         return this.requestWithCentre<RegularMember[]>(
-            `/reports/members?year=${academicYear}`,
+            `reports/members?year=${academicYear}`,
             cspCode,
         );
     }
