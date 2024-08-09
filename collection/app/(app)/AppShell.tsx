@@ -34,7 +34,7 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
                         <DoCSocBanner width="4em" />
                         <Group ml="xl" gap={5} visibleFrom="sm" wrap="nowrap">
                             <LinkTo href="/">Home</LinkTo>
-                            <LinkTo href="/user">User Management</LinkTo>
+                            <LinkTo href="/settings">Settings</LinkTo>
                             <LinkTo href="/products">Products</LinkTo>
                         </Group>
                     </Group>
@@ -43,7 +43,7 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
 
             <AppShell.Navbar py="md" px={4}>
                 <NavLink href="/" label="Home" />
-                <NavLink href="/user" label="User Management" />
+                <NavLink href="/settings" label="Settings" />
                 <NavLink href="/products" label="Products" />
             </AppShell.Navbar>
 

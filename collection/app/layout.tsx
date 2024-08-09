@@ -6,7 +6,7 @@ import "@mantine/core/styles.css";
 import { ClientWrapper } from "./ClientWrapper";
 
 export const metadata = {
-    title: "DoCSoc Collction",
+    title: "DoCSoc Collection",
     description: "App to track collections for DoCSoc",
 };
 
