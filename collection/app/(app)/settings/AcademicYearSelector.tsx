@@ -1,10 +1,10 @@
 "use client";
 
-import { setAcademicYear, setAcademicYearForm } from "@/lib/config";
-import { Button, Group, Modal, TextInput, Text, Stack, Title } from "@mantine/core";
+import { setAcademicYear } from "@/lib/config";
+import { getAcademicYears, isValidAcademicYear } from "@docsoc/eactivities";
+import { Button, Group, Modal, Text, Stack, Title, NativeSelect } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { isValidAcademicYear } from "common/eactivities/dist";
 import React, { useTransition } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
@@ -75,12 +75,12 @@ export const AcademicYearSelector = ({ currentYear }: { currentYear: string }) =
                 </Stack>
             </Modal>
             <form onSubmit={form.onSubmit(({ academicYear }) => open())}>
-                <TextInput
+                <NativeSelect
                     label="Academic Year"
                     name="academicYear"
                     key={form.key("academicYear")}
                     description="E.g. 23-24, 24-25"
-                    width="lg"
+                    data={getAcademicYears(new Date())}
                     inputContainer={(children) => (
                         <Group align="flex-start">
                             {children}

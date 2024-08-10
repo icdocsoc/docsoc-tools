@@ -1,8 +1,11 @@
 import { auth } from "@/auth";
-import { Stack, Title, Text } from "@mantine/core";
+import { getAcademicYear } from "@/lib/config";
+import { getCommitteeMembers } from "@/lib/crud/committee";
+import { Stack, Title, Text, Group, Button, Tooltip } from "@mantine/core";
 import { redirect } from "next/navigation";
 
 import { AcademicYear } from "./AcademicYear";
+import { UserActions } from "./UserActions";
 import { UsersTable } from "./UsersTable";
 
 export default async function Settings() {
@@ -21,11 +24,14 @@ export default async function Settings() {
                 <AcademicYear />
             </Stack>
             <Stack gap="lg">
-                <Stack gap="xs">
-                    <Title order={2}>User Management</Title>
-                    <Text>Manage your committee here</Text>
-                </Stack>
-                <UsersTable />
+                <Group justify="space-between">
+                    <Stack gap="xs">
+                        <Title order={2}>User Management</Title>
+                        <Text>Manage your committee here</Text>
+                    </Stack>
+                    <UserActions academicYear={await getAcademicYear()} />
+                </Group>
+                <UsersTable users={await getCommitteeMembers(await getAcademicYear())} />
             </Stack>
         </Stack>
     );

@@ -1,21 +1,13 @@
 "use client";
 
 import TanstackTable from "@/components/tables/TanStackTable";
+import type { CommitteeMember } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import React from "react";
 
-type UserRow = {
-    id: number;
-    firstName: string;
-    surname: string;
-    email: string;
-    shortcode: string;
-    position: string;
-};
-
-const columnHelper = createColumnHelper<UserRow>();
+const columnHelper = createColumnHelper<CommitteeMember>();
 const columns = [
-    columnHelper.accessor("firstName", {
+    columnHelper.accessor("firstname", {
         cell: (info) => info.getValue(),
         header: "First Name",
         id: "firstName",
@@ -41,17 +33,6 @@ const columns = [
     }),
 ];
 
-const data: UserRow[] = [
-    {
-        id: 1,
-        firstName: "Kishan",
-        surname: "Sambhi",
-        email: "kss22@ic.ac.uk",
-        shortcode: "kss22",
-        position: "Vice President",
-    },
-];
-
-export const UsersTable = () => {
-    return <TanstackTable columns={columns} data={data} enablePagination={false} />;
+export const UsersTable = ({ users }: { users: CommitteeMember[] }) => {
+    return <TanstackTable columns={columns} data={users} enablePagination={false} />;
 };

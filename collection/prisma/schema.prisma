@@ -18,6 +18,12 @@ model Config {
     description String?
 }
 
+model AcademicYear {
+    year String @id @unique // e.g. "21-22"
+
+    committeeMembers CommitteeMember[]
+}
+
 // ==================
 // Committee Management
 // ==================
@@ -26,13 +32,23 @@ model CommitteeMember {
     id        Int       @id @default(autoincrement())
     firstname String
     surname   String
-    cid       String    @unique
+    cid       String
     email     String
-    shortcode String    @unique // Login field from eActivities
+    shortcode String // Login field from eActivities
     position  String
     phone     String?
     startDate DateTime
     endDate   DateTime?
+
+    // And the academic year they're in
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+    // Make academic year indexed
+
+    // Make combo of academic year and cid unique
+    @@unique([academicYear, cid])
+    // Make combo of academic year and shortcode unique
+    @@unique([academicYear, shortcode])
 }
 
 // ==================
