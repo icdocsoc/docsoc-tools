@@ -65,3 +65,20 @@ export async function getCommitteeMembers(academicYear: AcademicYear) {
         },
     });
 }
+
+/**
+ * Get a single committee member by email
+ * Note that email must be full email, e.g. kishan.sambhi22@imperial.ac.uk
+ */
+export async function getCommitteeMember(email: string, academicYear?: AcademicYear) {
+    if (!academicYear) {
+        academicYear = await getAcademicYear();
+    }
+
+    return prisma.committeeMember.findFirst({
+        where: {
+            email,
+            academicYear,
+        },
+    });
+}

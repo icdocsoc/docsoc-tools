@@ -14,6 +14,7 @@ export default async function Index() {
     return (
         <div className={styles.page}>
             <Title order={1}>DoCSoc</Title>
+            <LogoutButton />
         </div>
     );
 }
