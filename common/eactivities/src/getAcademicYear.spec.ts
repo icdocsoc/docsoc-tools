@@ -1,4 +1,4 @@
-import { getAcademicYear, isValidAcademicYear } from "./getAcademicYear";
+import { getAcademicYear, getAcademicYears, isValidAcademicYear } from "./getAcademicYear";
 
 describe("getAcademicYear", () => {
     it("should return the academic year if set before August", async () => {
@@ -52,5 +52,45 @@ describe("getAcademicYear", () => {
             expect(isValidAcademicYear("22-21")).toBe(false);
             expect(isValidAcademicYear("22-2")).toBe(false);
         });
+    });
+
+    it("should return the correct academic years", () => {
+        expect(getAcademicYears(new Date("2020-08-01"))).toStrictEqual(["20-21"]);
+
+        expect(getAcademicYears(new Date("2021-08-01"))).toStrictEqual(["20-21", "21-22"]);
+
+        expect(getAcademicYears(new Date("2022-07-31"))).toStrictEqual(["20-21", "21-22"]);
+
+        expect(getAcademicYears(new Date("2022-08-01"))).toStrictEqual(["20-21", "21-22", "22-23"]);
+        expect(getAcademicYears(new Date("2024-08-10"))).toStrictEqual([
+            "20-21",
+            "21-22",
+            "22-23",
+            "23-24",
+            "24-25",
+        ]);
+
+        expect(getAcademicYears(new Date("2020-07-31"))).toStrictEqual([]);
+        expect(getAcademicYears(new Date("2024-08-04"), new Date("2019-07-01"))).toStrictEqual([
+            "18-19",
+            "19-20",
+            "20-21",
+            "21-22",
+            "22-23",
+            "23-24",
+            "24-25",
+        ]);
+        expect(getAcademicYears(new Date("1990-07-31"))).toStrictEqual([]);
+
+        expect(getAcademicYears(new Date("2024-08-01"), new Date("2022-07-31"))).toStrictEqual([
+            "21-22",
+            "22-23",
+            "23-24",
+            "24-25",
+        ]);
+
+        expect(getAcademicYears(new Date("2024-06-30"), new Date("2023-09-01"))).toStrictEqual([
+            "23-24",
+        ]);
     });
 });
