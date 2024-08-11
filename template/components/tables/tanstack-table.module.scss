@@ -1,0 +1,75 @@
+@import "@/styles/breakpoints.scss";
+
+.tableHeader {
+  .isSortableIndicator {
+    color: var(--mantine-color-gray-1);
+    visibility: hidden;
+  }
+
+  &:hover {
+    cursor: pointer;
+    html[data-mantine-color-scheme="dark"] & {
+        background-color: var(--mantine-color-dark-4);
+    }
+    html[data-mantine-color-scheme="light"] & {
+        background-color: var(--mantine-color-gray-2);
+    }
+    .isSortableIndicator {
+      visibility: visible;
+    }
+  }
+}
+
+.tablePagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.5em;
+    li {
+      &:hover {
+        cursor: pointer;
+        color: var(--mantine-primary-color-1);
+      }
+    }
+  }
+}
+
+.activePage {
+  background-color: var(--mantine-primary-color-9);
+  color: var(--mantine-color-gray-1);
+}
+
+.inlineFlexCenter {
+  display: inline-flex;
+  align-items: center;
+}
+
+.searchBarContainer {
+  flex: 1 0 0;
+  padding: 0 5em;
+  .searchBar {
+    flex: 1 0 0;
+  }
+
+  @include phablet {
+    flex-direction: column;
+    padding: 0;
+    .searchBar {
+      min-height: 3em;
+    }
+  }
+}
+
+.tanstackBody {
+  th,
+  td {
+    vertical-align: middle;
+  }
+}
