@@ -1,7 +1,8 @@
 "use client";
 
 import { DoCSocBanner } from "@/components/DoCSocBanner";
-import { AppShell, Burger, Button, Container, Group, NavLink } from "@mantine/core";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { AppShell, Box, Burger, Button, Container, Group, NavLink } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,6 +37,7 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
                             <LinkTo href="/">Home</LinkTo>
                             <LinkTo href="/settings">Settings</LinkTo>
                             <LinkTo href="/products">Products</LinkTo>
+                            <LogoutButton />
                         </Group>
                     </Group>
                 </Group>
@@ -45,6 +47,9 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
                 <NavLink href="/" label="Home" />
                 <NavLink href="/settings" label="Settings" />
                 <NavLink href="/products" label="Products" />
+                <Container mt="lg">
+                    <LogoutButton />
+                </Container>
             </AppShell.Navbar>
 
             <AppShell.Main>
