@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { LogoutButton } from "@/components/auth/LogoutButton";
-import { Title } from "@mantine/core";
+import { BuyerItemsTable } from "@/components/tables/BuyerItemsTable";
+import { Stack, Title } from "@mantine/core";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -12,8 +13,9 @@ export default async function Index() {
     if (!session) redirect("/auth/login");
 
     return (
-        <div className={styles.page}>
-            <Title order={1}>DoCSoc</Title>
-        </div>
+        <Stack gap="lg">
+            <Title order={1}>DoCSoc Collection System</Title>
+            <BuyerItemsTable purchases={[]} />
+        </Stack>
     );
 }

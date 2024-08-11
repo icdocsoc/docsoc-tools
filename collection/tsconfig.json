@@ -26,9 +26,10 @@
             "jest",
             "node"
         ],
+        "baseUrl": ".",
         "paths": {
             "@/*": [
-                "./collection/*"
+                "./*"
             ]
         }
     },
