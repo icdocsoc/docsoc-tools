@@ -1,3 +1,4 @@
+"use client"
 import { Modal, Stack, Group, Title, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useTransition } from "react";
@@ -39,7 +40,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                                 await onConfirm();
                                 close();
                             });
-                            close();
                         }}
                         color="red"
                     >
