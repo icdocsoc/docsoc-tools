@@ -5,6 +5,8 @@ import type { CommitteeMember } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import React from "react";
 
+import { UserRowActions } from "./UserRowActions";
+
 const columnHelper = createColumnHelper<CommitteeMember>();
 const columns = [
     columnHelper.accessor("firstname", {
@@ -30,6 +32,10 @@ const columns = [
         header: "Position",
         id: "position",
         sortingFn: "alphanumeric",
+    }),
+    columnHelper.display({
+        header: "Actions",
+        cell: (info) => <UserRowActions user={info.row.original} />,
     }),
 ];
 

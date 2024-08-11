@@ -24,7 +24,7 @@ model AcademicYear {
     committeeMembers CommitteeMember[]
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 }
 
 // ==================
@@ -35,12 +35,12 @@ model CommitteeMember {
     id        Int       @id @default(autoincrement())
     firstname String
     surname   String
-    cid       String
+    cid       String?
     email     String
     shortcode String // Login field from eActivities
     position  String
     phone     String?
-    startDate DateTime
+    startDate DateTime?
     endDate   DateTime?
 
     // And the academic year they're in
@@ -48,12 +48,9 @@ model CommitteeMember {
     academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt  @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
-    // Make combo of academic year and cid unique
-    @@unique([academicYear, cid])
-    // Make combo of academic year and shortcode unique
-    @@unique([academicYear, shortcode])
+    @@unique([academicYear, cid, email, position])
 }
 
 // ==================

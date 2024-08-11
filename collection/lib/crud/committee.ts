@@ -23,9 +23,11 @@ export async function loadCommitteeForCurrYear() {
     for (const user of await committee.data) {
         await prisma.committeeMember.upsert({
             where: {
-                academicYear_cid: {
-                    cid: user.CID,
+                academicYear_cid_email_position: {
                     academicYear: await getAcademicYear(),
+                    cid: user.CID,
+                    email: user.Email,
+                    position: user.PostName,
                 },
             },
             create: {
@@ -94,6 +96,40 @@ export async function clearUsersForAcademicYear(academicYear?: AcademicYear) {
         },
     });
 
+    // Revalidate
+    revalidatePath("/settings");
+}
+
+/** Add user */
+export async function addUser(user: {
+    firstname: string;
+    surname: string;
+    email: string;
+    shortcode: string;
+    position: string;
+    academicYear?: AcademicYear;
+}) {
+    await prisma.committeeMember.create({
+        data: {
+            ...user,
+            academicYear: user?.academicYear ?? (await getAcademicYear()),
+        },
+    });
+
+    // Revalidate
+    revalidatePath("/settings");
+}
+
+export async function deleteUser(id: number, academicYear?: AcademicYear) {
+    if (!academicYear) {
+        academicYear = await getAcademicYear();
+    }
+
+    await prisma.committeeMember.delete({
+        where: {
+            id: id,
+        },
+    });
     // Revalidate
     revalidatePath("/settings");
 }
