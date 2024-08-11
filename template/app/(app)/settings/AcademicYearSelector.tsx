@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { setAcademicYear } from "@/lib/config";
 import { getAcademicYears, isValidAcademicYear } from "@docsoc/eactivities";
 import { Button, Group, Modal, Text, Stack, Title, NativeSelect } from "@mantine/core";
@@ -31,49 +32,29 @@ export const AcademicYearSelector = ({ currentYear }: { currentYear: string }) =
     });
 
     const [opened, { open, close }] = useDisclosure(false);
-    const [isPending, startTransition] = useTransition();
 
     return (
         <Group>
-            <Modal opened={opened} onClose={close} withCloseButton={false}>
-                <Stack p="md">
-                    <Group c="yellow">
-                        <FaExclamationTriangle size={24} />
-                        <Title order={3}>Warning</Title>
-                    </Group>
-                    <Text>
-                        Changing to an academic year you are not a committee member in may{" "}
-                        <strong>prevent you from accessing this system.</strong>
-                    </Text>
-                    <Text>
-                        Only users who are committee members during the selected academic year will
-                        be allowed to login.
-                    </Text>
-                    <Text>
-                        In the event of a mistake, please login as docsoc@ic.ac.uk using SSO and
-                        change the setting back.
-                    </Text>
+            <ConfirmModal
+                onConfirm={async () => setAcademicYear(form.values.academicYear)}
+                confirmButtonText={`Change to ${form.values.academicYear}`}
+                opened={opened}
+                close={close}
+            >
+                <Text>
+                    Changing to an academic year you are not a committee member in may{" "}
+                    <strong>prevent you from accessing this system.</strong>
+                </Text>
+                <Text>
+                    Only users who are committee members during the selected academic year will be
+                    allowed to login.
+                </Text>
+                <Text>
+                    In the event of a mistake, please login as docsoc@ic.ac.uk using SSO and change
+                    the setting back.
+                </Text>
+            </ConfirmModal>
 
-                    <Group align="flex-end" justify="flex-end">
-                        <Button onClick={close} variant="light">
-                            Cancel
-                        </Button>
-                        <Button
-                            loading={isPending}
-                            onClick={async () => {
-                                startTransition(async () => {
-                                    await setAcademicYear(form.values.academicYear);
-                                    close();
-                                });
-                                close();
-                            }}
-                            color="red"
-                        >
-                            Change to {form.values.academicYear}
-                        </Button>
-                    </Group>
-                </Stack>
-            </Modal>
             <form onSubmit={form.onSubmit(({ academicYear }) => open())}>
                 <NativeSelect
                     label="Academic Year"

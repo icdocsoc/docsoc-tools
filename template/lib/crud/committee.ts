@@ -82,3 +82,18 @@ export async function getCommitteeMember(email: string, academicYear?: AcademicY
         },
     });
 }
+
+export async function clearUsersForAcademicYear(academicYear?: AcademicYear) {
+    if (!academicYear) {
+        academicYear = await getAcademicYear();
+    }
+
+    await prisma.committeeMember.deleteMany({
+        where: {
+            academicYear,
+        },
+    });
+
+    // Revalidate
+    revalidatePath("/settings");
+}
