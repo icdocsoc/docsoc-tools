@@ -39,7 +39,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { ComponentProps, useEffect, useMemo, useState } from "react";
 import { Pagination } from "react-headless-pagination";
 import { FaChevronDown, FaChevronUp, FaMagnifyingGlass, FaSort } from "react-icons/fa6";
 import {
@@ -59,6 +59,8 @@ interface TanstackTableProps<T> {
     columns: ColumnDef<T, any>[];
     enablePagination?: boolean;
     enableSearch?: boolean;
+    tableProps?: ComponentProps<typeof Table>;
+    differentHeaderColour?: boolean;
 }
 
 const getSortingIcon = (isSorted: false | SortDirection): React.ReactNode => {
@@ -86,6 +88,8 @@ export default function TanstackTable<T>({
     columns,
     enablePagination = true,
     enableSearch = true,
+    tableProps,
+    differentHeaderColour,
 }: TanstackTableProps<T>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -178,8 +182,8 @@ export default function TanstackTable<T>({
                 </Group>
             )}
 
-            <Table>
-                <Table.Thead>
+            <Table {...tableProps}>
+                <Table.Thead bg={differentHeaderColour ? "docsoc.9" : undefined}>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <Table.Tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (

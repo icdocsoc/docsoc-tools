@@ -2,11 +2,22 @@
 
 import { DoCSocBanner } from "@/components/DoCSocBanner";
 import { LogoutButton } from "@/components/auth/LogoutButton";
-import { AppShell, Box, Burger, Button, Container, Group, NavLink } from "@mantine/core";
+import {
+    AppShell,
+    Box,
+    Burger,
+    Button,
+    Container,
+    Group,
+    NavLink,
+    Switch,
+    useMantineColorScheme,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { FaMoon, FaSun } from "react-icons/fa6";
 
 // From https://mantine.dev/app-shell/?e=MobileNavbar&s=code
 
@@ -20,6 +31,7 @@ const LinkTo = ({ href, children }: { href: string; children: React.ReactNode })
 };
 
 export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
+    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
     const [opened, { toggle }] = useDisclosure();
 
     return (
@@ -38,6 +50,14 @@ export function DoCSocAppShell({ children }: { children: React.ReactNode }) {
                             <LinkTo href="/settings">Settings</LinkTo>
                             <LinkTo href="/products">Products</LinkTo>
                             <LogoutButton />
+                            <Group ml="lg">
+                                <FaSun />
+                                <Switch
+                                    checked={colorScheme === "dark"}
+                                    onChange={() => toggleColorScheme()}
+                                />
+                                <FaMoon />
+                            </Group>
                         </Group>
                     </Group>
                 </Group>

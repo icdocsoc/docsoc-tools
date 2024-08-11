@@ -3,6 +3,7 @@
 /**
  * Table with the items of a buyer
  */
+import { markCollection, type OrderResponse } from "@/lib/crud/purchase";
 import { formatDateDDMMYYYY } from "@/lib/util";
 import { Checkbox } from "@mantine/core";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -10,16 +11,17 @@ import React from "react";
 
 import TanstackTable from "./TanStackTable";
 
-interface PurchaseRow {
+interface OrderUI {
     orderNo: number;
     date: Date;
-    itemName: string;
+    item: string;
     variant: string;
-    quantity: number;
     collected: boolean;
+    itemID: number;
+    quantity: number;
 }
 
-const columnHelper = createColumnHelper<PurchaseRow>();
+const columnHelper = createColumnHelper<OrderUI>();
 
 const columns = [
     columnHelper.accessor("orderNo", {
@@ -32,7 +34,7 @@ const columns = [
         header: "Date",
         cell: (info) => formatDateDDMMYYYY(info.getValue()),
     }),
-    columnHelper.accessor("itemName", {
+    columnHelper.accessor("item", {
         id: "itemName",
         header: "Item Name",
         cell: (info) => info.getValue(),
@@ -52,21 +54,45 @@ const columns = [
         cell: (info) => (
             <Checkbox
                 checked={info.getValue()}
-                onChange={() => {
-                    // Add your onChange action here
+                onChange={async (e) => {
+                    await markCollection(
+                        info.row.original.orderNo,
+                        info.row.original.itemID,
+                        e.target.checked,
+                    );
                 }}
             />
         ),
     }),
 ];
 
-export const BuyerItemsTable = ({ purchases }: { purchases: PurchaseRow[] }) => {
+export const BuyerItemsTable = ({ purchases }: { purchases: OrderResponse[] }) => {
+    const flatItems: OrderUI[] = purchases.flatMap((order) =>
+        order.items.map((item) => ({
+            orderNo: order.orderNoShop,
+            date: order.date,
+            item: item.name,
+            variant: item.variant,
+            collected: item.collected,
+            itemID: item.id,
+            quantity: item.quantity,
+        })),
+    );
+
     return (
         <TanstackTable
             enableSearch={false}
             enablePagination={false}
             columns={columns}
-            data={purchases}
+            data={flatItems}
+            tableProps={{
+                striped: true,
+                withTableBorder: true,
+                withColumnBorders: true,
+                verticalSpacing: "sm",
+                highlightOnHover: true,
+            }}
+            differentHeaderColour
         />
     );
 };
