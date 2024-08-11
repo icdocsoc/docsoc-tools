@@ -5,13 +5,14 @@
  */
 import { markCollection, type OrderResponse } from "@/lib/crud/purchase";
 import { formatDateDDMMYYYY } from "@/lib/util";
-import { Checkbox } from "@mantine/core";
+import { Checkbox, Loader } from "@mantine/core";
 import { createColumnHelper } from "@tanstack/react-table";
-import React from "react";
+import React, { useTransition } from "react";
 
 import TanstackTable from "./TanStackTable";
 
 interface OrderUI {
+    id: number;
     orderNo: number;
     date: Date;
     item: string;
@@ -24,6 +25,11 @@ interface OrderUI {
 const columnHelper = createColumnHelper<OrderUI>();
 
 const columns = [
+    columnHelper.accessor("id", {
+        id: "id",
+        header: "DB Id",
+        cell: (info) => info.getValue(),
+    }),
     columnHelper.accessor("orderNo", {
         id: "orderNo",
         header: "Order No",
@@ -52,23 +58,44 @@ const columns = [
     columnHelper.accessor("collected", {
         header: "Collected",
         cell: (info) => (
-            <Checkbox
-                checked={info.getValue()}
-                onChange={async (e) => {
-                    await markCollection(
-                        info.row.original.orderNo,
-                        info.row.original.itemID,
-                        e.target.checked,
-                    );
-                }}
+            <CollectionsCheckbox
+                collected={info.getValue()}
+                orderNo={info.row.original.orderNo}
+                itemID={info.row.original.itemID}
             />
         ),
     }),
 ];
 
+const CollectionsCheckbox = ({
+    collected,
+    orderNo,
+    itemID,
+}: {
+    collected: boolean;
+    orderNo: number;
+    itemID: number;
+}) => {
+    const [isPending, startTransition] = useTransition();
+
+    return isPending ? (
+        <Loader size="xs" />
+    ) : (
+        <Checkbox
+            checked={collected}
+            onChange={(e) => {
+                startTransition(
+                    async () => await markCollection(orderNo, itemID, e.target.checked),
+                );
+            }}
+        />
+    );
+};
+
 export const BuyerItemsTable = ({ purchases }: { purchases: OrderResponse[] }) => {
     const flatItems: OrderUI[] = purchases.flatMap((order) =>
         order.items.map((item) => ({
+            id: item.id,
             orderNo: order.orderNoShop,
             date: order.date,
             item: item.name,
@@ -93,6 +120,13 @@ export const BuyerItemsTable = ({ purchases }: { purchases: OrderResponse[] }) =
                 highlightOnHover: true,
             }}
             differentHeaderColour
+            initialSort={[
+                {
+                    id: "id",
+                    desc: false,
+                },
+            ]}
+            invisibleColumns={["id"]}
         />
     );
 };

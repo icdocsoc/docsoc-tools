@@ -26,6 +26,8 @@ import {
     Table,
     Text,
     TextInput,
+    useComputedColorScheme,
+    useMantineTheme,
 } from "@mantine/core";
 import {
     ColumnDef,
@@ -61,6 +63,8 @@ interface TanstackTableProps<T> {
     enableSearch?: boolean;
     tableProps?: ComponentProps<typeof Table>;
     differentHeaderColour?: boolean;
+    initialSort?: SortingState;
+    invisibleColumns?: string[];
 }
 
 const getSortingIcon = (isSorted: false | SortDirection): React.ReactNode => {
@@ -90,8 +94,10 @@ export default function TanstackTable<T>({
     enableSearch = true,
     tableProps,
     differentHeaderColour,
+    initialSort = [],
+    invisibleColumns = [],
 }: TanstackTableProps<T>) {
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>(initialSort);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
     const [pagination, setPagination] = useState({
@@ -110,6 +116,11 @@ export default function TanstackTable<T>({
         onPaginationChange: enablePagination ? setPagination : undefined,
         onColumnFiltersChange: setColumnFilters,
         enableColumnFilters: enableSearch,
+        initialState: {
+            columnVisibility: Object.fromEntries(
+                invisibleColumns.map((id) => [id, false] as const),
+            ),
+        },
     });
 
     // Under 900px, wrap the pagination
@@ -136,6 +147,8 @@ export default function TanstackTable<T>({
     const [currentFilteredColumn, setCurrentFilteredColumn] = useState(
         filterableColumns[0]?.id ?? "",
     );
+
+    const theme = useComputedColorScheme();
 
     useEffect(() => {
         table.setColumnFilters([{ id: currentFilteredColumn, value: searchQuery }]);
@@ -183,7 +196,10 @@ export default function TanstackTable<T>({
             )}
 
             <Table {...tableProps}>
-                <Table.Thead bg={differentHeaderColour ? "docsoc.9" : undefined}>
+                <Table.Thead
+                    bg={differentHeaderColour ? "docsoc.9" : undefined}
+                    c={differentHeaderColour && theme === "light" ? "white" : undefined}
+                >
                     {table.getHeaderGroups().map((headerGroup) => (
                         <Table.Tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
