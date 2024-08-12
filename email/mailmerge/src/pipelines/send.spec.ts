@@ -123,6 +123,45 @@ describe("sendEmails", () => {
         expect(mockMailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
+    it("should send no emails if only send 0", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+            {
+                record: { field1: "value2" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example2.com"], subject: "Test Subject 2", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            {
+                onlySend: 0,
+            },
+        );
+
+        expect(mockMailer.sendMail).toHaveBeenCalledTimes(0);
+    });
+
     it("should skip records with invalid engine", async () => {
         const mergeResults: MergeResultWithMetadata<unknown>[] = [
             {

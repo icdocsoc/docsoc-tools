@@ -44,6 +44,11 @@ export async function sendEmails(
 ) {
     logger.info(`Sending mail merge results...`);
 
+    if (options?.onlySend === 0) {
+        logger.warn(`onlySend is set to 0, so no emails will be sent.`);
+        return;
+    }
+
     // 1: Load data
     logger.info("Loading merge results...");
     const results = storageBackend.loadMergeResults();

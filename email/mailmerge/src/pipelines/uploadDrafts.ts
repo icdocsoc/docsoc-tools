@@ -9,6 +9,13 @@ import { EmailUploader } from "../graph/index.js";
 import { EmailString } from "../util/index.js";
 import { StorageBackend, MergeResultWithMetadata } from "./storage";
 
+interface UploadDraftsOptions {
+    /** Time to sleep between sending emails to prevent hitting rate limits */
+    sleepBetween?: number;
+    /** Only send this many emails (i.e. the first X emails) */
+    onlySend?: number;
+}
+
 /**
  * Upload mail merge results to drafts of an inbox using the Microsoft graph API
  *
@@ -28,12 +35,21 @@ export async function uploadDrafts(
     storageBackend: StorageBackend,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
-    sleepBetween = 0,
+    options: UploadDraftsOptions = {
+        sleepBetween: 0,
+    },
     entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
     entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
     expectedEmail = "docsoc@ic.ac.uk",
     logger = createLogger("docsoc"),
 ) {
+    const { sleepBetween = 0, onlySend } = options;
+
+    if (onlySend === 0) {
+        logger.warn(`onlySend is set to 0, so no emails will be sent.`);
+        return;
+    }
+
     logger.info(`Uploading previews to drafts...`);
     // 1: Load data
     logger.info("Loading merge results...");
@@ -138,6 +154,12 @@ export async function uploadDrafts(
             },
             options,
         );
+
+        // Only send check
+        if (onlySend && sent >= onlySend) {
+            logger.warn(`Only sending ${onlySend} emails as requested.`);
+            break;
+        }
 
         if (sleepBetween > 0) {
             logger.warn(`Sleeping for ${sleepBetween} seconds to prevent hitting rate limits...`);
