@@ -81,7 +81,7 @@ describe("sendEmails", () => {
             [],
             { cc: [], bcc: [] },
         );
-        expect(mockStorageBackend.postSendAction).toHaveBeenCalledWith(mergeResults[0]);
+        expect(mockStorageBackend.postSendAction).toHaveBeenCalledWith(mergeResults[0], "sent");
     });
 
     it("should send only the number emails we want if only specified", async () => {

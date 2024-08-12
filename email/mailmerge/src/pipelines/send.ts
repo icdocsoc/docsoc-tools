@@ -8,7 +8,7 @@ import { ENGINES_MAP } from "../engines/index.js";
 import { TemplateEngineConstructor } from "../engines/types.js";
 import Mailer from "../mailer/mailer.js";
 import { EmailString, FromEmail } from "../util/types.js";
-import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
+import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/types.js";
 
 interface SendEmailsOptions {
     /** Time to sleep between sending emails to prevent hitting rate limits */
@@ -143,7 +143,7 @@ You are about to send ${pendingEmails.length} emails. The esitmated time for thi
 
         if (storageBackend.postSendAction) {
             logger.debug("Calling post-send hook...");
-            await storageBackend.postSendAction(originalResult);
+            await storageBackend.postSendAction(originalResult, PostSendActionMode.SMTP_SEND);
         }
 
         logger.info("Email sent!");

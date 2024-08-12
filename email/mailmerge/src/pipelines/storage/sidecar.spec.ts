@@ -138,10 +138,30 @@ describe("JSONSidecarsBackend", () => {
                 namer: jest.fn(),
             });
             /// @ts-expect-error: Mocking things
-            await backend.postSendAction(resultSent);
+            await backend.postSendAction(resultSent, "sent");
 
             expect(mkdirp).toHaveBeenCalledWith("output/root/sent");
             expect(move).toHaveBeenCalledWith("output/root/file1", "output/root/sent");
+        });
+
+        it("should move sent emails to drafts folder when in drafts mode", async () => {
+            const sidecar = {
+                name: "test",
+                files: [{ filename: "file1" }],
+            };
+            const resultSent = {
+                storageBackendMetadata: { sideCar: sidecar },
+            };
+
+            const backend = new JSONSidecarsBackend("output/root", {
+                type: "fixed",
+                namer: jest.fn(),
+            });
+            /// @ts-expect-error: Mocking things
+            await backend.postSendAction(resultSent, "drafts");
+
+            expect(mkdirp).toHaveBeenCalledWith("output/root/drafts");
+            expect(move).toHaveBeenCalledWith("output/root/file1", "output/root/drafts");
         });
     });
 

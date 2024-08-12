@@ -7,7 +7,7 @@ import readlineSync from "readline-sync";
 import { TemplateEngineConstructor, ENGINES_MAP } from "../engines/index.js";
 import { EmailUploader } from "../graph/index.js";
 import { EmailString } from "../util/index.js";
-import { StorageBackend, MergeResultWithMetadata } from "./storage";
+import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/index.js";
 
 interface UploadDraftsOptions {
     /** Time to sleep between sending emails to prevent hitting rate limits */
@@ -101,10 +101,6 @@ export async function uploadDrafts(
     You are about to upload ${pendingEmails.length} emails.
     This action is IRREVERSIBLE.
 
-    If the system crashes, you will need to manually upload the emails.
-    Re-running this after a partial upload will end up uploading duplicate emails.
-    Unlike with send, emails will not be moved to a different folder after upload.
-
     Check that:
     1. The template was correct
     1. You are satisfied with ALL previews, including the HTML previews
@@ -134,7 +130,7 @@ export async function uploadDrafts(
     let sent = 0;
     const uploader = new EmailUploader(logger);
     await uploader.authenticate(expectedEmail, entraTenantId, entraClientId);
-    for (const { to, subject, html, attachments, cc, bcc } of pendingEmails) {
+    for (const { to, subject, html, attachments, cc, bcc, originalResult } of pendingEmails) {
         logger.info(
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
@@ -154,6 +150,12 @@ export async function uploadDrafts(
             },
             options,
         );
+
+        // Execute post-send action
+        if (storageBackend.postSendAction) {
+            logger.debug("Calling post-send hook...");
+            await storageBackend.postSendAction(originalResult, PostSendActionMode.DRAFTS_UPLOAD);
+        }
 
         // Only send check
         if (onlySend && sent >= onlySend) {

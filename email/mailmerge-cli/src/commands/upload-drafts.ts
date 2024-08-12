@@ -30,6 +30,10 @@ export default class UploadDrafts extends Command {
             description: "Skip confirmation prompt",
             default: false,
         }),
+        only: Flags.integer({
+            char: "n",
+            description: "Only send this many emails (i.e. the first X emails)",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -42,6 +46,9 @@ export default class UploadDrafts extends Command {
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
 
-        await uploadDrafts(storageBackend, ENGINES_MAP, flags.yes, flags.sleepBetween);
+        await uploadDrafts(storageBackend, ENGINES_MAP, flags.yes, {
+            sleepBetween: flags.sleepBetween,
+            onlySend: flags.only,
+        });
     }
 }

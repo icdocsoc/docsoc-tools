@@ -23,12 +23,15 @@ export default class Send extends Command {
         sleepBetween: Flags.integer({
             char: "s",
             description: "Time to sleep between sending emails to prevent hitting rate limits",
-            default: 0,
         }),
         yes: Flags.boolean({
             char: "y",
             description: "Skip confirmation prompt",
             default: false,
+        }),
+        only: Flags.integer({
+            char: "n",
+            description: "Only send this many emails (i.e. the first X emails)",
         }),
     };
 
@@ -48,7 +51,10 @@ export default class Send extends Command {
             getDefaultDoCSocFromLine(),
             ENGINES_MAP,
             flags.yes,
-            flags.sleepBetween,
+            {
+                sleepBetween: flags.sleepBetween,
+                onlySend: flags.only,
+            },
         );
     }
 }
