@@ -1,3 +1,14 @@
+## 1.3.0 (2024-08-12)
+
+
+### 🩹 Fixes
+
+- ignore collection dirs ([d26eb66](https://github.com/icdocsoc/docsoc-tools/commit/d26eb66))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.2.1 (2024-08-06)
 
 This was a version bump only, there were no code changes.
