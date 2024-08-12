@@ -1,4 +1,4 @@
-import { Alert, Box, Group, List, Loader, Paper, Stack, Title } from "@mantine/core";
+import { Alert, Anchor, Box, Group, List, Loader, Paper, Stack, Title } from "@mantine/core";
 import { useEffect, useState, useTransition } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 import { FaUser } from "react-icons/fa6";
@@ -49,7 +49,7 @@ export const UserInfo = ({ shortcode }: { shortcode: string }) => {
                     <FaUser size={96} />
                 </Box>
                 <Stack>
-                    <Title order={4}>User Info</Title>
+                    <Title order={4}>Buyer Info</Title>
                     {isLoading ? (
                         <Loader />
                     ) : (
@@ -58,7 +58,8 @@ export const UserInfo = ({ shortcode }: { shortcode: string }) => {
                                 <strong>Name:</strong> {user?.firstName} {user?.lastName}
                             </List.Item>
                             <List.Item>
-                                <strong>Email:</strong> {user?.email}
+                                <strong>Email:</strong>{" "}
+                                <Anchor href={`mailto:${user?.email}`}>{user?.email}</Anchor>
                             </List.Item>
                             <List.Item>
                                 <strong>CID:</strong> {user?.cid}
