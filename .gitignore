@@ -50,3 +50,11 @@ legacy
 
 # docs
 docs
+
+# collection
+collection/.next
+collection/dumps
+collection/.env.local
+template/.next
+template/.env.local
+template/dumps
