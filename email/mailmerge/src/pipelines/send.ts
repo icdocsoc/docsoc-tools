@@ -10,6 +10,15 @@ import Mailer from "../mailer/mailer.js";
 import { EmailString, FromEmail } from "../util/types.js";
 import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
 
+interface SendEmailsOptions {
+    /** Time to sleep between sending emails to prevent hitting rate limits */
+    sleepBetween?: number;
+    /** Only send this many emails (i.e. the first X emails) */
+    onlySend?: number;
+}
+
+const DEFAULT_SLEEP_BETWEEN = 0;
+
 /**
  * Generic way to send emails, given a storage backend to get mail merge results from to send and a mailer to send them with.
  *
@@ -20,7 +29,7 @@ import { StorageBackend, MergeResultWithMetadata } from "./storage/types";
  * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
  * @param disablePrompt If true, will not prompt the user before sending emails. Defaults to false (will prompt)
  * @param logger Logger to use for logging
- * @param sleepBetween Time to sleep between sending emails to prevent hitting rate limits
+ * @param options
  */
 export async function sendEmails(
     storageBackend: StorageBackend,
@@ -28,7 +37,9 @@ export async function sendEmails(
     fromAddress: FromEmail,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
-    sleepBetween = 0,
+    options: SendEmailsOptions = {
+        sleepBetween: DEFAULT_SLEEP_BETWEEN,
+    },
     logger = createLogger("docsoc"),
 ) {
     logger.info(`Sending mail merge results...`);
@@ -93,7 +104,7 @@ Check that:
 4. All indications this is a test have been removed
 
 You are about to send ${pendingEmails.length} emails. The esitmated time for this is ${
-            ((3 + sleepBetween) * pendingEmails.length) / 60 / 60
+            ((3 + (options.sleepBetween ?? DEFAULT_SLEEP_BETWEEN)) * pendingEmails.length) / 60 / 60
         } hours.
 
     If you are happy to proceed, please type "Yes, send emails" below.`),
@@ -132,9 +143,21 @@ You are about to send ${pendingEmails.length} emails. The esitmated time for thi
 
         logger.info("Email sent!");
 
-        if (sleepBetween > 0) {
-            logger.info(`Sleeping for ${sleepBetween}s before the next email...`);
-            await new Promise((resolve) => setTimeout(resolve, sleepBetween * 1000));
+        // Stop if we're only sending a certain number of emails
+        if (options.onlySend && sent >= options.onlySend) {
+            logger.info(`Only sending ${options.onlySend} emails - stopping.`);
+            break;
+        }
+
+        if (!options.sleepBetween) {
+            options.sleepBetween = DEFAULT_SLEEP_BETWEEN;
+        }
+
+        if (options.sleepBetween > 0) {
+            logger.info(`Sleeping for ${options.sleepBetween}s before the next email...`);
+            await new Promise((resolve) =>
+                setTimeout(resolve, (options.sleepBetween ?? DEFAULT_SLEEP_BETWEEN) * 1000),
+            );
         }
     }
 }
