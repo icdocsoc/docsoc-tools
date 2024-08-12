@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import prisma from "../db";
 
@@ -77,7 +77,12 @@ export const getPurchasesByShortcode = async (shortcode: string): Promise<GetPur
     };
 };
 
-export const markCollection = async (orderNo: number, itemID: number, collected: boolean) => {
+export const markCollection = async (
+    orderNo: number,
+    itemID: number,
+    collected: boolean,
+    shortcode: string,
+) => {
     await prisma.orderItem.update({
         where: {
             id: itemID,
@@ -90,5 +95,5 @@ export const markCollection = async (orderNo: number, itemID: number, collected:
         },
     });
 
-    revalidatePath("/");
+    revalidateTag(`purchases:${shortcode}`);
 };
