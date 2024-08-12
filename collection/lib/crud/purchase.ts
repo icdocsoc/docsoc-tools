@@ -53,8 +53,6 @@ export const getPurchasesByShortcode = async (shortcode: string): Promise<GetPur
         };
     }
 
-    console.log(JSON.stringify(student));
-
     // Map to interface
     const flatOrderedItems: OrderResponse[] = student.Order.flatMap((order) => {
         return {
