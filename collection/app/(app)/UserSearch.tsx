@@ -1,23 +1,24 @@
 "use client";
 
+import { UserInfo } from "@/components/UserInfo";
 import { BuyerItemsTable } from "@/components/tables/BuyerItemsTable";
 import { OrderResponse } from "@/lib/crud/purchase";
 import { Group, TextInput, Button, Alert, Container, Center, Stack } from "@mantine/core";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState, useTransition } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { FaSearch, FaTimesCircle } from "react-icons/fa";
 
 export const UserSearch = () => {
     const [error, setError] = useState<string | null>(null);
     const [purchases, setPurchases] = useState<OrderResponse[]>([]);
     const [isPending, startTransition] = useTransition();
-    const searchParams = useSearchParams();
-    const router = useRouter();
 
     // Need to allow clearing on route change to home
     const [shortcodeFormState, setSetshortcodeFormState] = useState("");
 
-    const shortcode = searchParams.get("shortcode") || "";
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const shortcode = useMemo(() => searchParams.get("shortcode") || "", [searchParams]);
 
     const fetchPurchases = useCallback(async (shortcode: string) => {
         const res = await fetch(`/api/purchases/${shortcode}`, {
@@ -91,7 +92,6 @@ export const UserSearch = () => {
                                 required
                                 name="shortcode"
                                 id="shortcode"
-                                defaultValue={shortcode}
                                 onChange={(e) => setSetshortcodeFormState(e.currentTarget.value)}
                                 value={shortcodeFormState}
                             />
@@ -106,6 +106,9 @@ export const UserSearch = () => {
                         </Alert>
                     )}
                 </Stack>
+            </Center>
+            <Center>
+                <UserInfo shortcode={shortcode} />
             </Center>
             <Container w="70%">
                 {!error ? (
