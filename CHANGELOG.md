@@ -1,3 +1,19 @@
+## 1.4.0 (2024-08-13)
+
+
+### 🚀 Features
+
+- Add new test mode to mail merge ([1372a8d](https://github.com/icdocsoc/docsoc-tools/commit/1372a8d))
+
+### 🩹 Fixes
+
+- issue where test send didn't override CC & BCC ([8b5c350](https://github.com/icdocsoc/docsoc-tools/commit/8b5c350))
+- remove unused import in send.ts in cli commands ([dd03b99](https://github.com/icdocsoc/docsoc-tools/commit/dd03b99))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.3.0 (2024-08-12)
 
 ### 🩹 Fixes
