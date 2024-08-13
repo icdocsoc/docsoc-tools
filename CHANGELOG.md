@@ -1,3 +1,14 @@
+## 1.5.0 (2024-08-13)
+
+
+### 🩹 Fixes
+
+- issue where attachments columns in CSVs could only start with attachment ([181353f](https://github.com/icdocsoc/docsoc-tools/commit/181353f))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.4.1 (2024-08-13)
 
 
