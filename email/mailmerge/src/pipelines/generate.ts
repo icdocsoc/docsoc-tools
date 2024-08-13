@@ -3,7 +3,7 @@ import "dotenv/config";
 
 import { TemplateEngineOptions, TemplateEngine, TemplatePreviews } from "../engines/index.js";
 import { validateRecord, createEmailData } from "../previews/index.js";
-import { DEFAULT_FIELD_NAMES, MappedRecord } from "../util/index.js";
+import { DEFAULT_FIELD_NAMES, MappedRecord, RawRecord } from "../util/index.js";
 import { DataSource } from "./loaders";
 import { StorageBackend, MergeResult } from "./storage/types";
 
@@ -119,10 +119,12 @@ export async function generatePreviews(
 
     // 6.5: handle attachments
     logger.debug("Handling attachments...");
-    let getAttachmentsFromRecord: (record: MappedRecord) => string[];
+    // NOTE: This is designed to operate on the original record
+    let getAttachmentsFromRecord: (record: RawRecord) => string[];
+    let attachmentHeaders: string[] = [];
     if (typeof opts.attachments === "undefined" || opts.attachments.length <= 0) {
         logger.info("Using attachments from records");
-        const attachmentHeaders = Array.isArray(opts.mappings.keysForAttachments)
+        attachmentHeaders = Array.isArray(opts.mappings.keysForAttachments)
             ? opts.mappings.keysForAttachments
             : await opts.mappings.keysForAttachments(headers);
         getAttachmentsFromRecord = (record) =>
@@ -135,21 +137,22 @@ export async function generatePreviews(
     // 8: Render intermediate results
     logger.info("Rendering template previews/intermediates...");
     // NOTE: MappedRecord here is the record with its fields mapped to the template fields, rather than with the raw template fields
-    const previews: [TemplatePreviews, MappedRecord][] = await Promise.all(
+    const previews: [TemplatePreviews, MappedRecord, RawRecord][] = await Promise.all(
         records
-            .map((record) =>
+            .map((originalRecord) =>
                 // Only include fields that are mapped
-                Object.fromEntries(
-                    Object.entries(record)
-                        .filter(
-                            ([key]) => fieldsMaptoTemplate.has(key) || key.startsWith("attachment"),
-                        )
-                        .map(([key, value]) => {
-                            return [fieldsMaptoTemplate.get(key) ?? key, value];
-                        }),
-                ),
+                [
+                    Object.fromEntries(
+                        Object.entries(originalRecord)
+                            .filter(([key]) => fieldsMaptoTemplate.has(key))
+                            .map(([key, value]) => {
+                                return [fieldsMaptoTemplate.get(key) ?? key, value];
+                            }),
+                    ),
+                    originalRecord,
+                ],
             )
-            .filter((preparedRecord) => {
+            .filter(([preparedRecord]) => {
                 const validState = validateRecord(preparedRecord);
                 if (!validState.valid) {
                     logger.warn(
@@ -161,22 +164,23 @@ export async function generatePreviews(
                 }
                 return true;
             })
-            .map(async (preparedRecord) => [
+            .map(async ([preparedRecord, originalRecord]) => [
                 await engine.renderPreview(preparedRecord),
                 preparedRecord,
+                originalRecord,
             ]),
     );
 
     // 9: Write to file
     logger.info("Writing results...");
-    const results: MergeResult[] = previews.map(([previews, record]) => ({
+    const results: MergeResult[] = previews.map(([previews, record, originalRecord]) => ({
         record,
         previews,
         engineInfo: {
             name: opts.engineInfo.name,
             options: opts.engineInfo.options,
         },
-        attachmentPaths: getAttachmentsFromRecord(record),
+        attachmentPaths: getAttachmentsFromRecord(originalRecord),
         email: createEmailData(record),
     }));
 
