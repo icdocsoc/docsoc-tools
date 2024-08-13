@@ -4,8 +4,11 @@ import {
     getDefaultMailer,
     getDefaultDoCSocFromLine,
     ENGINES_MAP,
+    EmailString,
+    Mailer,
 } from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
+import test from "node:test";
 
 export default class Send extends Command {
     static override args = {
@@ -33,6 +36,10 @@ export default class Send extends Command {
             char: "n",
             description: "Only send this many emails (i.e. the first X emails)",
         }),
+        testSendTo: Flags.string({
+            char: "t",
+            description: "Send the top X emails to this email as a test. Requires --only to be set",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -44,6 +51,21 @@ export default class Send extends Command {
             /// @ts-expect-error: Required for fileNamer
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
+
+        if (flags.testSendTo && !flags.only) {
+            this.error("You must set --only to use --testSendTo");
+        }
+
+        let testSendTo: EmailString | undefined;
+
+        if (flags.testSendTo) {
+            if (Mailer.validateEmail(flags.testSendTo)) {
+                testSendTo = flags.testSendTo;
+            } else {
+                throw new Error("Invalid email address provided for --testSendTo");
+            }
+        }
+
         // Rerender previews
         await sendEmails(
             storageBackend,
@@ -54,6 +76,7 @@ export default class Send extends Command {
             {
                 sleepBetween: flags.sleepBetween,
                 onlySend: flags.only,
+                testSendTo,
             },
         );
     }

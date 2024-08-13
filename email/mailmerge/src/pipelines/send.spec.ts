@@ -123,22 +123,19 @@ describe("sendEmails", () => {
         expect(mockMailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
-    it("should send to test email if given", async () => {
+    it("should send to test email if given and not cc or bcc anyone in", async () => {
         const mergeResults: MergeResultWithMetadata<unknown>[] = [
             {
                 record: { field1: "value1" },
                 /// @ts-expect-error: Mocking previews
                 previews: ["preview"],
                 engineInfo: { name: "testEngine", options: {} },
-                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
-                attachmentPaths: [],
-            },
-            {
-                record: { field1: "value2" },
-                /// @ts-expect-error: Mocking previews
-                previews: ["preview"],
-                engineInfo: { name: "testEngine", options: {} },
-                email: { to: ["test@example2.com"], subject: "Test Subject 2", cc: [], bcc: [] },
+                email: {
+                    to: ["test@example.com"],
+                    subject: "Test Subject",
+                    cc: ["cc@cc.com"],
+                    bcc: ["bcc@bcc.com"],
+                },
                 attachmentPaths: [],
             },
         ];
@@ -163,10 +160,13 @@ describe("sendEmails", () => {
         expect(mockMailer.sendMail).toHaveBeenCalledWith(
             '"From" <from@example.com>',
             ["test@example.com"],
-            expect.any(String),
+            "(TEST) Test Subject",
             expect.any(String),
             [],
-            expect.anything(),
+            {
+                cc: [],
+                bcc: [],
+            },
         );
     });
 
