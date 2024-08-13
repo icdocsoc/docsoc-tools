@@ -123,7 +123,7 @@ describe("sendEmails", () => {
         expect(mockMailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
-    it("should send to test email if given and not cc or bcc anyone in", async () => {
+    it("should send to test email if given, not cc or bcc anyone in and not call post send hooks", async () => {
         const mergeResults: MergeResultWithMetadata<unknown>[] = [
             {
                 record: { field1: "value1" },
@@ -168,6 +168,7 @@ describe("sendEmails", () => {
                 bcc: [],
             },
         );
+        expect(mockStorageBackend.postSendAction).not.toHaveBeenCalled();
     });
 
     it("should refuse test send if onlySend is not set", async () => {

@@ -66,6 +66,7 @@ export async function sendEmails(
         }
         logger.warn("");
         logger.warn(`Will send ${options.onlySend} emails to ${options.testSendTo} as a test.`);
+        logger.warn("Note that post send hooks will not be called in test mode.");
         logger.warn("");
     }
 
@@ -167,7 +168,7 @@ You are about to send ${emailsNumberDisplay} emails. The esitmated time for this
             },
         );
 
-        if (storageBackend.postSendAction) {
+        if (storageBackend.postSendAction && !options.testSendTo) {
             logger.debug("Calling post-send hook...");
             await storageBackend.postSendAction(originalResult, PostSendActionMode.SMTP_SEND);
         }
