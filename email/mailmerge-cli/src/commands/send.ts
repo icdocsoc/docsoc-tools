@@ -8,7 +8,6 @@ import {
     Mailer,
 } from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
-import test from "node:test";
 
 export default class Send extends Command {
     static override args = {
