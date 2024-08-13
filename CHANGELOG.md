@@ -1,3 +1,14 @@
+## 1.4.1 (2024-08-13)
+
+
+### 🩹 Fixes
+
+- don't call post send hook in test mode ([bf97bf1](https://github.com/icdocsoc/docsoc-tools/commit/bf97bf1))
+
+### ❤️  Thank You
+
+- Kishan Sambhi @Gum-Joe
+
 ## 1.4.0 (2024-08-13)
 
 
