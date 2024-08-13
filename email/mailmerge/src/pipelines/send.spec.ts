@@ -123,6 +123,84 @@ describe("sendEmails", () => {
         expect(mockMailer.sendMail).toHaveBeenCalledTimes(1);
     });
 
+    it("should send to test email if given and not cc or bcc anyone in", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: {
+                    to: ["test@example.com"],
+                    subject: "Test Subject",
+                    cc: ["cc@cc.com"],
+                    bcc: ["bcc@bcc.com"],
+                },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            {
+                onlySend: 1,
+                testSendTo: "test@example.com",
+            },
+        );
+
+        expect(mockMailer.sendMail).toHaveBeenCalledWith(
+            '"From" <from@example.com>',
+            ["test@example.com"],
+            "(TEST) Test Subject",
+            expect.any(String),
+            [],
+            {
+                cc: [],
+                bcc: [],
+            },
+        );
+    });
+
+    it("should refuse test send if onlySend is not set", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await expect(
+            sendEmails(
+                mockStorageBackend,
+                mockMailer,
+                '"From" <from@example.com>',
+                enginesMap,
+                true,
+                {
+                    testSendTo: "test@example.com",
+                },
+            ),
+        ).rejects.toThrow("You must set onlySend to a number to use test mode.");
+    });
+
     it("should send no emails if only send 0", async () => {
         const mergeResults: MergeResultWithMetadata<unknown>[] = [
             {

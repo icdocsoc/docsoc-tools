@@ -15,6 +15,8 @@ interface SendEmailsOptions {
     sleepBetween?: number;
     /** Only send this many emails (i.e. the first X emails) */
     onlySend?: number;
+    /** Send the top {@link onlySend} emails to this email as a test */
+    testSendTo?: EmailString;
 }
 
 const DEFAULT_SLEEP_BETWEEN = 0;
@@ -53,6 +55,20 @@ export async function sendEmails(
     logger.info("Loading merge results...");
     const results = storageBackend.loadMergeResults();
 
+    if (options.testSendTo) {
+        logger.warn("");
+        logger.warn("=======================");
+        logger.warn("TEST MODE ACTIVATED.");
+        logger.warn("=======================");
+        if (!options.onlySend) {
+            logger.error("You must set onlySend to a number to use test mode.");
+            throw new Error("You must set onlySend to a number to use test mode.");
+        }
+        logger.warn("");
+        logger.warn(`Will send ${options.onlySend} emails to ${options.testSendTo} as a test.`);
+        logger.warn("");
+    }
+
     // For each sidecar, send the previews
     const pendingEmails: {
         to: EmailString[];
@@ -83,21 +99,26 @@ export async function sendEmails(
 
         // Add to pending emails
         pendingEmails.push({
-            to: email.to,
-            subject: email.subject,
+            to: options.testSendTo ? [options.testSendTo] : email.to,
+            subject: options.testSendTo ? "(TEST) " + email.subject : email.subject,
             html,
             attachments: attachmentPaths,
-            cc: email.cc,
-            bcc: email.bcc,
+            cc: options.testSendTo ? [] : email.cc,
+            bcc: options.testSendTo ? [] : email.bcc,
             originalResult: result,
         });
     }
 
     // Print the warning
 
+    const emailsNumberDisplay = Math.min(
+        pendingEmails.length,
+        options.onlySend ?? Number.MAX_SAFE_INTEGER,
+    );
+
     console.log(
         chalk.yellow(`⚠️   --- WARNING --- ⚠️
-You are about to send ${pendingEmails.length} emails.
+You are about to send ${emailsNumberDisplay} emails.
 This action is IRREVERSIBLE.
                 
 If the system crashes, restarting will NOT necessarily send already-sent emails again.
@@ -108,8 +129,8 @@ Check that:
 3. You have tested the system beforehand
 4. All indications this is a test have been removed
 
-You are about to send ${pendingEmails.length} emails. The esitmated time for this is ${
-            ((3 + (options.sleepBetween ?? DEFAULT_SLEEP_BETWEEN)) * pendingEmails.length) / 60 / 60
+You are about to send ${emailsNumberDisplay} emails. The esitmated time for this is ${
+            ((3 + (options.sleepBetween ?? DEFAULT_SLEEP_BETWEEN)) * emailsNumberDisplay) / 60 / 60
         } hours.
 
     If you are happy to proceed, please type "Yes, send emails" below.`),
@@ -123,10 +144,15 @@ You are about to send ${pendingEmails.length} emails. The esitmated time for thi
 
     // Send the emails
     logger.info("Sending emails...");
-    const total = pendingEmails.length;
+    const total = emailsNumberDisplay;
     let sent = 0;
     for (const { to, subject, html, attachments, cc, bcc, originalResult } of pendingEmails) {
         logger.info(`(${++sent} / ${total}) Sending email to ${to} with subject ${subject}...`);
+        if (options.testSendTo && to[0] !== options.testSendTo) {
+            throw new Error(
+                "Test mode is on, but the email is not the test email! This is a bug in the code, crashing to prevent sending emails to the wrong person.",
+            );
+        }
         await mailer.sendMail(
             fromAddress,
             to,
