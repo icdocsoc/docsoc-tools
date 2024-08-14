@@ -24,7 +24,10 @@ export type GetPurchasesReturn =
           orders: OrderResponse[];
       }
     | { status: "error"; message: string };
-export const getPurchasesByShortcode = async (shortcode: string): Promise<GetPurchasesReturn> => {
+export const getPurchasesByShortcode = async (
+    shortcode: string,
+    academicYears: string[],
+): Promise<GetPurchasesReturn> => {
     const student = await prisma.imperialStudent.findFirst({
         where: {
             shortcode: shortcode,
@@ -40,6 +43,11 @@ export const getPurchasesByShortcode = async (shortcode: string): Promise<GetPur
                                 },
                             },
                         },
+                    },
+                },
+                where: {
+                    academicYear: {
+                        in: academicYears,
                     },
                 },
             },

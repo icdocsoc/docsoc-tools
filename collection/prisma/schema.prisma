@@ -25,6 +25,8 @@ model AcademicYear {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
+
+    Order Order[]
 }
 
 // ==================
@@ -78,6 +80,10 @@ model Order {
     orderNo         Int             @unique
     ImperialStudent ImperialStudent @relation(fields: [studentId], references: [id])
     OrderItem       OrderItem[]
+
+    // An order is placed in some academic year
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
 }
 
 // OrderItems are the items that make up an order

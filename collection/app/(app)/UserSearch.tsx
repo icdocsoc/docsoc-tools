@@ -29,24 +29,6 @@ export const UserSearch: React.FC<UserSearchProps> = ({
     const router = useRouter();
     const shortcodeURLParam = useMemo(() => searchParams.get("shortcode") || "", [searchParams]);
 
-    const fetchPurchases = useCallback(async (shortcode: string) => {
-        const res = await fetch(`/api/purchases/${shortcode}`, {
-            next: { tags: [`purchases:${shortcode}`] },
-        });
-        if (!res.ok) {
-            setError("An error occurred");
-            return;
-        }
-
-        const purchases = await res.json();
-        if (purchases.status === "error") {
-            setError(purchases.message);
-            setPurchases([]);
-        } else {
-            setPurchases(purchases.orders);
-        }
-    }, []);
-
     // Form
     // 2 fields: shortcode & academic year purcahses.
     // Default value of shortcode is from the URL if possible
@@ -60,26 +42,67 @@ export const UserSearch: React.FC<UserSearchProps> = ({
             },
         },
     });
+
+    const fetchPurchases = useCallback(
+        async (shortcode: string) => {
+            const res = await fetch(
+                `/api/purchases/${shortcode}?` +
+                    new URLSearchParams({
+                        academicYears: form.getValues().academicYears.join(","),
+                    }),
+                {
+                    next: { tags: [`purchases:${shortcode}`] },
+                },
+            );
+            if (!res.ok) {
+                setError("An error occurred");
+                return;
+            }
+
+            const purchases = await res.json();
+            if (purchases.status === "error") {
+                setError(purchases.message);
+                setPurchases([]);
+            } else {
+                setPurchases(purchases.orders);
+            }
+        },
+        [form],
+    );
+
+    // This looks a bit weird, but effectively prevent an infinite loop of fetching purchases
+    const [prevURLParam, setPrevURLParam] = useState(shortcodeURLParam);
     useEffect(() => {
-        if (shortcodeURLParam) {
-            fetchPurchases(shortcodeURLParam);
-        } else {
-            setPurchases([]);
-            form.setFieldValue("shortcode", "");
+        if (!shortcodeURLParam) {
+            // only allow one rerender when the shortcode is clear
+            // by tracking the previous value
+            if (prevURLParam) {
+                setPurchases([]);
+                form.setFieldValue("shortcode", "");
+                setPrevURLParam("");
+            }
         }
-        // can't add form as would cause infinite loop
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [shortcodeURLParam, fetchPurchases]);
+    }, [shortcodeURLParam, prevURLParam, form]);
+
+    // Fetch purchases if academic year changes
+    form.watch("academicYears", (academicYears) => {
+        if (form.getValues().shortcode) {
+            startTransition(async () => {
+                setError(null);
+                await fetchPurchases(form.getValues().shortcode);
+            });
+        }
+    });
 
     const submitAction = useCallback(
         ({ shortcode }: { shortcode: string }) => {
-            startTransition(() => {
+            startTransition(async () => {
                 setError(null);
-
+                await fetchPurchases(shortcode);
                 router.push("/?shortcode=" + shortcode);
             });
         },
-        [router],
+        [router, fetchPurchases],
     );
 
     return (
@@ -96,6 +119,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
                                 alignItems: "center",
                             }}
                             onSubmit={form.onSubmit(submitAction)}
+                            // eslint-disable-next-line @typescript-eslint/no-empty-function
                             action={() => {}}
                         >
                             <Group w="100%">
@@ -115,6 +139,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
                                 <Button
                                     color="pink"
                                     onClick={() => {
+                                        setPurchases([]);
                                         router.push("/");
                                     }}
                                 >
