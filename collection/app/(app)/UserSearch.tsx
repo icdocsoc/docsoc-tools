@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { FaSearch, FaTimesCircle } from "react-icons/fa";
 
+import { PageActions } from "./PageActions";
+
 export const UserSearch = () => {
     const [error, setError] = useState<string | null>(null);
     const [purchases, setPurchases] = useState<OrderResponse[]>([]);
@@ -71,46 +73,50 @@ export const UserSearch = () => {
     );
 
     return (
-        <Stack>
-            <Center>
-                <Stack w="60%" justify="centre" align="centre">
-                    <form
-                        style={{
-                            width: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                        action={submitActionWithTransition}
-                    >
-                        <Group w="100%">
-                            <TextInput
-                                placeholder="Enter shortcode"
-                                leftSection={<FaSearch />}
-                                w="60%"
-                                flex={1}
-                                required
-                                name="shortcode"
-                                id="shortcode"
-                                onChange={(e) => setSetshortcodeFormState(e.currentTarget.value)}
-                                value={shortcodeFormState}
-                            />
-                            <Button loading={isPending} type="submit">
-                                Submit
-                            </Button>
-                        </Group>
-                    </form>
-                    {error && (
-                        <Alert title="Error" color="red" mt="md" icon={<FaTimesCircle />}>
-                            {error}
-                        </Alert>
-                    )}
-                </Stack>
-            </Center>
-            <Center>
-                <UserInfo shortcode={shortcode} />
-            </Center>
-            <Container w="70%">
+        <Container w="70%">
+            <Stack gap="lg">
+                <PageActions />
+                <Center>
+                    <Stack w="90%" justify="centre" align="centre">
+                        <form
+                            style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                            action={submitActionWithTransition}
+                        >
+                            <Group w="100%">
+                                <TextInput
+                                    placeholder="Enter shortcode"
+                                    leftSection={<FaSearch />}
+                                    w="60%"
+                                    flex={1}
+                                    required
+                                    name="shortcode"
+                                    id="shortcode"
+                                    onChange={(e) =>
+                                        setSetshortcodeFormState(e.currentTarget.value)
+                                    }
+                                    value={shortcodeFormState}
+                                />
+                                <Button loading={isPending} type="submit">
+                                    Submit
+                                </Button>
+                            </Group>
+                        </form>
+                        {error && (
+                            <Alert title="Error" color="red" mt="md" icon={<FaTimesCircle />}>
+                                {error}
+                            </Alert>
+                        )}
+                    </Stack>
+                </Center>
+                <Center>
+                    <UserInfo shortcode={shortcode} />
+                </Center>
+
                 {!error ? (
                     <BuyerItemsTable
                         shortcode={shortcode}
@@ -120,7 +126,7 @@ export const UserSearch = () => {
                 ) : (
                     <></>
                 )}
-            </Container>
-        </Stack>
+            </Stack>
+        </Container>
     );
 };
