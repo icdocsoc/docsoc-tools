@@ -1,7 +1,9 @@
 import { AcademicYear } from "@docsoc/eactivities";
-import { Paper, MultiSelect, Group, Button } from "@mantine/core";
+import { Paper, MultiSelect, Group } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
 import React from "react";
+
+import { CSVImport } from "./CSVImport";
 
 export const PageActions = ({
     formHook,
@@ -20,7 +22,7 @@ export const PageActions = ({
                     data={academicYears}
                     {...formHook.getInputProps("academicYears")}
                 />
-                <Button>Import data from eActivities</Button>{" "}
+                <CSVImport />
             </Group>
         </Paper>
     );
