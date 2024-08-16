@@ -1,7 +1,7 @@
 import { AcademicYear } from "@docsoc/eactivities";
 import { Paper, MultiSelect, Group } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
-import React from "react";
+import React, { Suspense } from "react";
 
 import { CSVImport } from "./CSVImport";
 

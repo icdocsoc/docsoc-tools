@@ -26,7 +26,8 @@ model AcademicYear {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
 
-    Order Order[]
+    Order    Order[]
+    RootItem RootItem[]
 }
 
 // ==================
@@ -102,6 +103,10 @@ model RootItem {
     id      Int       @id @default(autoincrement())
     name    String    @unique
     Variant Variant[]
+
+    // Items are added in some academic year
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
 }
 
 model Variant {
