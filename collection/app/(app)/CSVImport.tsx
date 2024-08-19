@@ -1,5 +1,8 @@
 "use client";
 
+import { CSVFormValues, importCsv } from "@/lib/crud/importCsv";
+import { StatusReturn } from "@/lib/types";
+import { isValidAcademicYear } from "@docsoc/eactivities";
 import {
     Alert,
     Badge,
@@ -19,8 +22,9 @@ import "@mantine/dropzone/styles.css";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { RootItem } from "@prisma/client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import {
+    FaCircleCheck,
     FaCircleXmark,
     FaDownload,
     FaTable,
@@ -29,22 +33,21 @@ import {
 } from "react-icons/fa6";
 import useSWR from "swr";
 
-interface FormValues {
-    csv: File[];
-    productId: string;
-    academicYear: string;
-}
-
 interface CSVImportFormProp {
     /** Undefiend treated as loading UI */
     productsByAcademicYear: Record<string, RootItem[]>;
 }
 
 const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) => {
-    const form = useForm<FormValues>({
+    const [isPending, startTransition] = useTransition();
+    const [formState, setFormState] = useState<StatusReturn>({
+        status: "pending",
+    });
+    const form = useForm<CSVFormValues>({
         mode: "controlled",
         initialValues: {
-            productId: "",
+            productId:
+                productsByAcademicYear[Object.keys(productsByAcademicYear)[0]][0].id.toString(10),
             csv: [],
             academicYear: Object.keys(productsByAcademicYear)[0],
         },
@@ -76,9 +79,42 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) 
         </Badge>
     ));
 
+    const formHandler = (values: CSVFormValues) => {
+        const productId = parseInt(values.productId, 10);
+        const academicYear = values.academicYear;
+        if (!productId || !academicYear) {
+            return;
+        }
+
+        if (values.csv.length === 0) {
+            form.setFieldError("csv", "Please select a CSV file to import.");
+            return;
+        }
+
+        if (!isValidAcademicYear(academicYear)) {
+            form.setFieldError("academicYear", "Invalid academic year.");
+            return;
+        }
+
+        startTransition(async () => {
+            const csvString = await values.csv[0].text();
+            const res = await importCsv(csvString, productId, academicYear);
+            setFormState(res);
+        });
+    };
+
     return (
-        <form>
+        <form onSubmit={form.onSubmit(formHandler)}>
             <Stack gap="md">
+                {formState.status === "success" ? (
+                    <Alert color="green" icon={<FaCircleCheck />} title="Success">
+                        {formState.message ?? "Data imported successfully"}
+                    </Alert>
+                ) : formState.status === "error" ? (
+                    <Alert color="red" icon={<FaCircleXmark />} title="Error">
+                        {formState.error}
+                    </Alert>
+                ) : null}
                 <NativeSelect
                     label="Academic year"
                     name="academicYear"
@@ -165,7 +201,12 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) 
                         {selectedFiles}
                     </Stack>
                 )}
-                <Button type="submit" color="green" leftSection={<FaDownload />}>
+                <Button
+                    type="submit"
+                    color="green"
+                    leftSection={<FaDownload />}
+                    loading={isPending}
+                >
                     Import data
                 </Button>
             </Stack>
