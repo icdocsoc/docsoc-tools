@@ -14,7 +14,12 @@ import {
     getSidecarMetadata,
 } from "../../previews/index.js";
 import { MappedRecord } from "../../util/index.js";
-import { StorageBackend, MergeResultWithMetadata, MergeResult } from "./types";
+import {
+    StorageBackend,
+    MergeResultWithMetadata,
+    MergeResult,
+    PostSendActionMode,
+} from "./types.js";
 
 /** Metadata the JSON backend passes on {@link MergeResultWithMetadata.storageBackendMetadata} - bsically the original sidecar file with the path it came from */
 export interface JSONSidecarsBackendMetadata {
@@ -141,9 +146,21 @@ export class JSONSidecarsBackend implements StorageBackend<JSONSidecarsBackendMe
      */
     public async postSendAction(
         resultSent: MergeResultWithMetadata<JSONSidecarsBackendMetadata>,
+        mode: PostSendActionMode,
     ): Promise<void> {
         const sidecar = resultSent.storageBackendMetadata.sideCar;
-        const sentRoot = join(this.outputRoot, "sent");
+        let directoryName;
+        switch (mode) {
+            case PostSendActionMode.DRAFTS_UPLOAD:
+                directoryName = "drafts";
+                break;
+            case PostSendActionMode.SMTP_SEND:
+                directoryName = "sent";
+                break;
+            default:
+                throw new Error(`Invalid post-send action mode: ${mode}`);
+        }
+        const sentRoot = join(this.outputRoot, directoryName);
         this.logger.info(`Moving sent emails for ${sidecar.name} to ${sentRoot}...`);
         await mkdirp(sentRoot);
         await Promise.all(

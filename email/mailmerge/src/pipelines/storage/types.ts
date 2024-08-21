@@ -43,6 +43,16 @@ export type MergeResultWithMetadata<Metadata = unknown> = MergeResult & {
 };
 
 /**
+ * Modes for a post-send action
+ */
+export enum PostSendActionMode {
+    /** The email was sent */
+    SMTP_SEND = "sent",
+    /** The email was uploaded to drafts intead */
+    DRAFTS_UPLOAD = "drafts",
+}
+
+/**
  * Interface for a storage backend, which is responsible for loading and storing merge results.
  *
  * This is the interface you need to implement to store merge results in your own way.
@@ -69,9 +79,14 @@ export interface StorageBackend<Metadata = unknown> {
      */
     storeUpdatedMergeResults(results: MergeResultWithMetadata<Metadata>[]): PromiseLike<void>;
     /**
-     * Called after a merge result has been sent, so that you can do any post processing.
+     * Called after a merge result has been sent or uploaded to drafts, so that you can do any post processing.
+     *
+     * Note that you must handle both cases of sending and uploading to drafts, as the mode is passed to you.
      *
      * E.g. Move file around, mark as sent in database
      */
-    postSendAction?(resultSent: MergeResultWithMetadata<Metadata>): PromiseLike<void>;
+    postSendAction?(
+        resultSent: MergeResultWithMetadata<Metadata>,
+        mode: PostSendActionMode,
+    ): PromiseLike<void>;
 }

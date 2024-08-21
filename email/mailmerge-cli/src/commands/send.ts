@@ -4,6 +4,8 @@ import {
     getDefaultMailer,
     getDefaultDoCSocFromLine,
     ENGINES_MAP,
+    EmailString,
+    Mailer,
 } from "@docsoc/mailmerge";
 import { Args, Command, Flags } from "@oclif/core";
 
@@ -23,12 +25,19 @@ export default class Send extends Command {
         sleepBetween: Flags.integer({
             char: "s",
             description: "Time to sleep between sending emails to prevent hitting rate limits",
-            default: 0,
         }),
         yes: Flags.boolean({
             char: "y",
             description: "Skip confirmation prompt",
             default: false,
+        }),
+        only: Flags.integer({
+            char: "n",
+            description: "Only send this many emails (i.e. the first X emails)",
+        }),
+        testSendTo: Flags.string({
+            char: "t",
+            description: "Send the top X emails to this email as a test. Requires --only to be set",
         }),
     };
 
@@ -41,6 +50,21 @@ export default class Send extends Command {
             /// @ts-expect-error: Required for fileNamer
             namer: (record) => record[DEFAULT_FIELD_NAMES.to],
         });
+
+        if (flags.testSendTo && !flags.only) {
+            this.error("You must set --only to use --testSendTo");
+        }
+
+        let testSendTo: EmailString | undefined;
+
+        if (flags.testSendTo) {
+            if (Mailer.validateEmail(flags.testSendTo)) {
+                testSendTo = flags.testSendTo;
+            } else {
+                throw new Error("Invalid email address provided for --testSendTo");
+            }
+        }
+
         // Rerender previews
         await sendEmails(
             storageBackend,
@@ -48,7 +72,11 @@ export default class Send extends Command {
             getDefaultDoCSocFromLine(),
             ENGINES_MAP,
             flags.yes,
-            flags.sleepBetween,
+            {
+                sleepBetween: flags.sleepBetween,
+                onlySend: flags.only,
+                testSendTo,
+            },
         );
     }
 }

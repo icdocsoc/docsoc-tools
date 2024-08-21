@@ -7,7 +7,14 @@ import readlineSync from "readline-sync";
 import { TemplateEngineConstructor, ENGINES_MAP } from "../engines/index.js";
 import { EmailUploader } from "../graph/index.js";
 import { EmailString } from "../util/index.js";
-import { StorageBackend, MergeResultWithMetadata } from "./storage";
+import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/index.js";
+
+interface UploadDraftsOptions {
+    /** Time to sleep between sending emails to prevent hitting rate limits */
+    sleepBetween?: number;
+    /** Only send this many emails (i.e. the first X emails) */
+    onlySend?: number;
+}
 
 /**
  * Upload mail merge results to drafts of an inbox using the Microsoft graph API
@@ -28,12 +35,21 @@ export async function uploadDrafts(
     storageBackend: StorageBackend,
     enginesMap: Record<string, TemplateEngineConstructor> = ENGINES_MAP,
     disablePrompt = false,
-    sleepBetween = 0,
+    options: UploadDraftsOptions = {
+        sleepBetween: 0,
+    },
     entraTenantId = process.env["MS_ENTRA_TENANT_ID"],
     entraClientId = process.env["MS_ENTRA_CLIENT_ID"],
     expectedEmail = "docsoc@ic.ac.uk",
     logger = createLogger("docsoc"),
 ) {
+    const { sleepBetween = 0, onlySend } = options;
+
+    if (onlySend === 0) {
+        logger.warn(`onlySend is set to 0, so no emails will be sent.`);
+        return;
+    }
+
     logger.info(`Uploading previews to drafts...`);
     // 1: Load data
     logger.info("Loading merge results...");
@@ -85,10 +101,6 @@ export async function uploadDrafts(
     You are about to upload ${pendingEmails.length} emails.
     This action is IRREVERSIBLE.
 
-    If the system crashes, you will need to manually upload the emails.
-    Re-running this after a partial upload will end up uploading duplicate emails.
-    Unlike with send, emails will not be moved to a different folder after upload.
-
     Check that:
     1. The template was correct
     1. You are satisfied with ALL previews, including the HTML previews
@@ -118,7 +130,7 @@ export async function uploadDrafts(
     let sent = 0;
     const uploader = new EmailUploader(logger);
     await uploader.authenticate(expectedEmail, entraTenantId, entraClientId);
-    for (const { to, subject, html, attachments, cc, bcc } of pendingEmails) {
+    for (const { to, subject, html, attachments, cc, bcc, originalResult } of pendingEmails) {
         logger.info(
             `(${++sent} / ${total}) Uploading email to ${to} with subject ${subject} to Drafts...`,
         );
@@ -138,6 +150,18 @@ export async function uploadDrafts(
             },
             options,
         );
+
+        // Execute post-send action
+        if (storageBackend.postSendAction) {
+            logger.debug("Calling post-send hook...");
+            await storageBackend.postSendAction(originalResult, PostSendActionMode.DRAFTS_UPLOAD);
+        }
+
+        // Only send check
+        if (onlySend && sent >= onlySend) {
+            logger.warn(`Only sending ${onlySend} emails as requested.`);
+            break;
+        }
 
         if (sleepBetween > 0) {
             logger.warn(`Sleeping for ${sleepBetween} seconds to prevent hitting rate limits...`);

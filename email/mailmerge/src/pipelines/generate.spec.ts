@@ -28,7 +28,7 @@ describe("generatePreviews", () => {
         mockDataSource = {
             loadRecords: jest.fn().mockResolvedValue({
                 headers: new Set(["header1", "header2"]),
-                records: [{ header1: "value1", header2: "value2" }],
+                records: [{ header1: "value1", header2: "value2", addThis: "./test.txt" }],
             }),
         };
 
@@ -64,7 +64,7 @@ describe("generatePreviews", () => {
                     ["header1", "field1"],
                     ["header2", "field2"],
                 ]),
-                keysForAttachments: [],
+                keysForAttachments: ["addThis"],
             },
         };
 
@@ -74,7 +74,27 @@ describe("generatePreviews", () => {
         expect(mockEngine.loadTemplate).toHaveBeenCalled();
         expect(mockEngine.extractFields).toHaveBeenCalled();
         expect(mockEngine.renderPreview).toHaveBeenCalled();
-        expect(mockStorageBackend.storeOriginalMergeResults).toHaveBeenCalled();
+        expect(mockStorageBackend.storeOriginalMergeResults).toHaveBeenCalledWith(
+            [
+                {
+                    record: {
+                        field1: "value1",
+                        field2: "value2",
+                    },
+                    previews: { preview: "preview" },
+                    engineInfo: {
+                        name: "testEngine",
+                        options: {},
+                    },
+                    attachmentPaths: ["./test.txt"],
+                    email: { email: "emailData" },
+                },
+            ],
+            {
+                headers: new Set(["header1", "header2"]),
+                records: [{ header1: "value1", header2: "value2", addThis: "./test.txt" }],
+            },
+        );
     });
 
     it("should handle attachments provided in options", async () => {

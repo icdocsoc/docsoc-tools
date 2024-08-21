@@ -51,6 +51,15 @@ legacy
 # docs
 docs
 
+
 # Next.js
 .next
 out
+
+# collection
+collection/.next
+collection/dumps
+collection/.env.local
+template/.next
+template/.env.local
+template/dumps

@@ -81,7 +81,164 @@ describe("sendEmails", () => {
             [],
             { cc: [], bcc: [] },
         );
-        expect(mockStorageBackend.postSendAction).toHaveBeenCalledWith(mergeResults[0]);
+        expect(mockStorageBackend.postSendAction).toHaveBeenCalledWith(mergeResults[0], "sent");
+    });
+
+    it("should send only the number emails we want if only specified", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+            {
+                record: { field1: "value2" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example2.com"], subject: "Test Subject 2", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            {
+                onlySend: 1,
+            },
+        );
+
+        expect(mockMailer.sendMail).toHaveBeenCalledTimes(1);
+    });
+
+    it("should send to test email if given, not cc or bcc anyone in and not call post send hooks", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: {
+                    to: ["test@example.com"],
+                    subject: "Test Subject",
+                    cc: ["cc@cc.com"],
+                    bcc: ["bcc@bcc.com"],
+                },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            {
+                onlySend: 1,
+                testSendTo: "test@example.com",
+            },
+        );
+
+        expect(mockMailer.sendMail).toHaveBeenCalledWith(
+            '"From" <from@example.com>',
+            ["test@example.com"],
+            "(TEST) Test Subject",
+            expect.any(String),
+            [],
+            {
+                cc: [],
+                bcc: [],
+            },
+        );
+        expect(mockStorageBackend.postSendAction).not.toHaveBeenCalled();
+    });
+
+    it("should refuse test send if onlySend is not set", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await expect(
+            sendEmails(
+                mockStorageBackend,
+                mockMailer,
+                '"From" <from@example.com>',
+                enginesMap,
+                true,
+                {
+                    testSendTo: "test@example.com",
+                },
+            ),
+        ).rejects.toThrow("You must set onlySend to a number to use test mode.");
+    });
+
+    it("should send no emails if only send 0", async () => {
+        const mergeResults: MergeResultWithMetadata<unknown>[] = [
+            {
+                record: { field1: "value1" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example.com"], subject: "Test Subject", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+            {
+                record: { field1: "value2" },
+                /// @ts-expect-error: Mocking previews
+                previews: ["preview"],
+                engineInfo: { name: "testEngine", options: {} },
+                email: { to: ["test@example2.com"], subject: "Test Subject 2", cc: [], bcc: [] },
+                attachmentPaths: [],
+            },
+        ];
+        (mockStorageBackend.loadMergeResults as jest.Mock).mockReturnValue(mergeResults);
+
+        const enginesMap = {
+            testEngine: mockEngineConstructor,
+        };
+
+        await sendEmails(
+            mockStorageBackend,
+            mockMailer,
+            '"From" <from@example.com>',
+            enginesMap,
+            true,
+            {
+                onlySend: 0,
+            },
+        );
+
+        expect(mockMailer.sendMail).toHaveBeenCalledTimes(0);
     });
 
     it("should skip records with invalid engine", async () => {
@@ -219,7 +376,7 @@ describe("sendEmails", () => {
             '"From" <from@example.com>',
             enginesMap,
             true,
-            0,
+            { sleepBetween: 0 },
             /// @ts-expect-error: Mocking
             mockLogger,
         );
@@ -270,7 +427,7 @@ describe("sendEmails", () => {
             '"From" <from@example.com>',
             enginesMap,
             true,
-            20,
+            { sleepBetween: 20 },
             /// @ts-expect-error: Mocking
             mockLogger,
         );
