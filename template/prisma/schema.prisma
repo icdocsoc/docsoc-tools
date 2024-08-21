@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    url      = env("COLLECTION_DATABASE_URL")
+    url      = env("COLLECTION_DATABASE_URLSSSS")
 }
 
 // ==================
@@ -24,7 +24,7 @@ model AcademicYear {
     committeeMembers CommitteeMember[]
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 }
 
 // ==================
@@ -48,7 +48,7 @@ model CommitteeMember {
     academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt  @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     // Make combo of academic year and cid unique
     @@unique([academicYear, cid])

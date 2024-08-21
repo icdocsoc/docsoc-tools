@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import TanstackTable from "@/components/tables/TanStackTable";
 import { getAcademicYear } from "@/lib/config";
 import { getAcademicYearsInDB } from "@/lib/crud/academic-year";
@@ -7,6 +8,7 @@ import {
 } from "@/lib/crud/products";
 import { Alert, Grid, GridCol, Group, Stack, Title } from "@mantine/core";
 import { createColumnHelper } from "@tanstack/react-table";
+import { redirect } from "next/navigation";
 import React from "react";
 import { FaInfoCircle } from "react-icons/fa";
 
@@ -38,6 +40,10 @@ const columns = [
 ];
 
 const ProductsPage = async () => {
+    const session = await auth();
+
+    if (!session) redirect("/auth/login");
+
     const data = await getProductsAndVariantByAcademicYearWithCounts();
     const academicYears = await getAcademicYearsInDB();
     const currentYear = await getAcademicYear();
@@ -61,3 +67,4 @@ const ProductsPage = async () => {
 };
 
 export default ProductsPage;
+export const dynamic = "force-dynamic";
