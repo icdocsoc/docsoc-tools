@@ -24,3 +24,48 @@ export const getProductsByAcademicYear = async (): Promise<Record<string, RootIt
 
     return output;
 };
+
+export async function getProductsAndVariantByAcademicYearWithCounts(): Promise<
+    ProductsAndVariantsByAcademicYear[]
+> {
+    return await prisma.academicYear.findMany({
+        select: {
+            year: true,
+            RootItem: {
+                select: {
+                    id: true,
+                    name: true,
+                    Variant: {
+                        select: {
+                            id: true,
+                            variantName: true,
+                            _count: {
+                                select: {
+                                    OrderItem: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+}
+
+export interface ProductsAndVariantsByAcademicYear {
+    year: string;
+    RootItem: {
+        id: number;
+        name: string;
+        Variant: {
+            id: number;
+            variantName: string;
+            _count: {
+                OrderItem: number;
+            };
+        }[];
+    }[];
+}
