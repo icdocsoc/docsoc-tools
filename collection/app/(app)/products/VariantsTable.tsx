@@ -1,7 +1,7 @@
 "use client";
 
 import TanstackTable from "@/components/tables/TanStackTable";
-import { Group, Text } from "@mantine/core";
+import { Group, Text, Stack } from "@mantine/core";
 import { createColumnHelper } from "@tanstack/react-table";
 import React from "react";
 
@@ -45,21 +45,31 @@ export const VariantsTable: React.FC<VariantsTableProps> = ({ variants, productI
         );
     }
 
+    const allVariantsHaveCountZero = variants.every((variant) => variant.count === 0);
+
     return (
-        <TanstackTable
-            columns={columns}
-            data={variants}
-            enablePagination={false}
-            enableSearch={false}
-            tableProps={{
-                striped: true,
-                withTableBorder: true,
-                withColumnBorders: true,
-                verticalSpacing: "sm",
-                highlightOnHover: true,
-            }}
-            differentHeaderColour
-            initialSort={[{ id: "name", desc: false }]}
-        />
+        <Stack gap="sm">
+            <Group>
+                {(!variants || variants.length === 0) && <Text>No variants added yet</Text>}
+                {(!variants || variants.length === 0 || allVariantsHaveCountZero) && (
+                    <DeleteProduct productId={productId} />
+                )}
+            </Group>
+            <TanstackTable
+                columns={columns}
+                data={variants}
+                enablePagination={false}
+                enableSearch={false}
+                tableProps={{
+                    striped: true,
+                    withTableBorder: true,
+                    withColumnBorders: true,
+                    verticalSpacing: "sm",
+                    highlightOnHover: true,
+                }}
+                differentHeaderColour
+                initialSort={[{ id: "name", desc: false }]}
+            />
+        </Stack>
     );
 };

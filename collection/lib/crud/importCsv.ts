@@ -227,6 +227,7 @@ export async function getItemsInImport(importId: string) {
                                     shortcode: true,
                                 },
                             },
+                            academicYear: true,
                         },
                     },
                 },
@@ -250,6 +251,7 @@ export interface ImportItemList extends OrderItemImport {
             ImperialStudent: {
                 shortcode: string;
             };
+            academicYear: string;
         };
     }[];
 }

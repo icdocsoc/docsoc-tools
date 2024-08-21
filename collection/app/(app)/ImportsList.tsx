@@ -17,7 +17,7 @@ const ImportItem: React.FC<{ importItem: ImportList[0] }> = ({ importItem }) => 
 
     return (
         <Stack gap="xl">
-            <Paper p="md" withBorder>
+            <Paper p="md" withBorder mt="md">
                 <ConfirmModal
                     onConfirm={async () => {
                         await rollbackImport(importItem.id);

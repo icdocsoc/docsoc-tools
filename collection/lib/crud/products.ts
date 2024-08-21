@@ -122,20 +122,6 @@ export async function addProducts(academicYear: string, products: string[]): Pro
 
 export async function deleteProduct(productId: number): Promise<StatusReturn> {
     try {
-        // Validate it has no variants
-        const variants = await prisma.variant.findMany({
-            where: {
-                rootItemId: productId,
-            },
-        });
-
-        if (variants.length > 0) {
-            return {
-                status: "error",
-                error: "Product has variants",
-            };
-        }
-
         await prisma.rootItem.delete({
             where: {
                 id: productId,

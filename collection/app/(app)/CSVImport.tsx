@@ -57,7 +57,7 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
         mode: "controlled",
         initialValues: {
             productId:
-                productsByAcademicYear[Object.keys(productsByAcademicYear)[0]][0].id.toString(10),
+                productsByAcademicYear[academicYear][0].id.toString(10),
             csv: [],
             academicYear: academicYear,
         },
@@ -106,6 +106,8 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
             return;
         }
 
+        console.log(academicYear);
+
         startTransition(async () => {
             const csvString = await values.csv[0].text();
             const filename = values.csv[0].name;
@@ -130,7 +132,7 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
                     label="Academic year"
                     name="academicYear"
                     key={form.key("academicYear")}
-                    description="Import into this academic year"
+                    description="Import into this academic year (note: applies to new order IDs only)"
                     data={validAcademicYears}
                     required
                     {...form.getInputProps("academicYear")}

@@ -16,6 +16,12 @@ const columns = [
         id: "orderNo",
         sortingFn: "alphanumeric",
     }),
+    // columnHelper.accessor("Order.academicYear", {
+    //     cell: (info) => info.getValue(),
+    //     header: "Academic Year",
+    //     id: "academicYear",
+    //     sortingFn: "alphanumeric",
+    // }),
     // Shortcode
     columnHelper.accessor("Order.ImperialStudent.shortcode", {
         cell: (info) => info.getValue(),

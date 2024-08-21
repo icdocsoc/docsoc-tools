@@ -127,7 +127,7 @@ model Variant {
     variantName String
     rootItemId  Int
     OrderItem   OrderItem[]
-    RootItem    RootItem    @relation(fields: [rootItemId], references: [id])
+    RootItem    RootItem    @relation(fields: [rootItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     @@unique([variantName, rootItemId])
 }

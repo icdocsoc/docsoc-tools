@@ -105,6 +105,15 @@ export const UserSearch: React.FC<UserSearchProps> = ({
         [router, fetchPurchases],
     );
 
+    // Run fetchPurchases on initial render
+    useEffect(() => {
+        if (shortcodeURLParam) {
+            startTransition(async () => {
+                await fetchPurchases(shortcodeURLParam);
+            });
+        }
+    }, []);
+
     return (
         <Container w="70%">
             <Stack gap="lg">
