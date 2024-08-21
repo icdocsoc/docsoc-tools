@@ -10,7 +10,12 @@ import { StatusReturn } from "../types";
 
 const logger = createLogger("collection.importCsv");
 
-async function importFile(fileContents: string, itemId: number, academicYear: AcademicYear) {
+async function importFile(
+    fileContents: string,
+    fileName: string,
+    itemId: number,
+    academicYear: AcademicYear,
+) {
     logger.info("Importing file for: ", itemId);
 
     const iter = parse(fileContents, {
@@ -29,6 +34,15 @@ async function importFile(fileContents: string, itemId: number, academicYear: Ac
     });
 
     const academicYearReference = academicYearDB.year;
+
+    // 0.1: Create import
+    // Name: <csv file name> DD/MM/YYYY HH:MM
+    const importName = `${fileName} @ ${new Date().toLocaleString("en-GB")}`;
+    const importItem = await prisma.orderItemImport.create({
+        data: {
+            name: importName,
+        },
+    });
 
     for await (const record of iter) {
         logger.debug(`Record: ${JSON.stringify(record)}`);
@@ -123,6 +137,7 @@ async function importFile(fileContents: string, itemId: number, academicYear: Ac
                 variantId: varientDB.id,
                 quantity: quantity,
                 collected: false,
+                importId: importItem.id,
             },
         });
     }
@@ -135,6 +150,7 @@ export interface CSVFormValues {
 
 export async function importCsv(
     fileContents: string,
+    fileName: string,
     productId: number,
     academicYear: AcademicYear,
 ): Promise<StatusReturn> {
@@ -145,7 +161,7 @@ export async function importCsv(
     });
 
     try {
-        await importFile(fileContents, productId, academicYear);
+        await importFile(fileContents, fileName, productId, academicYear);
     } catch (e: any) {
         return {
             status: "error",
@@ -160,4 +176,12 @@ export async function importCsv(
         status: "success",
         message: `Data imported for ${product?.name} in ${academicYear}`,
     };
+}
+
+export async function getImportList() {
+    return prisma.orderItemImport.findMany({
+        orderBy: {
+            date: "asc",
+        },
+    });
 }

@@ -106,7 +106,8 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
 
         startTransition(async () => {
             const csvString = await values.csv[0].text();
-            const res = await importCsv(csvString, productId, academicYear);
+            const filename = values.csv[0].name;
+            const res = await importCsv(csvString, filename, productId, academicYear);
             setFormState(res);
         });
     };
