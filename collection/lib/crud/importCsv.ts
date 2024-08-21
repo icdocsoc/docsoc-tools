@@ -2,6 +2,7 @@
 
 import { AcademicYear } from "@docsoc/eactivities";
 import { createLogger } from "@docsoc/util";
+import { OrderItemImport } from "@prisma/client";
 import { parse } from "csv-parse";
 import { revalidatePath, revalidateTag } from "next/cache";
 
@@ -183,5 +184,72 @@ export async function getImportList() {
         orderBy: {
             date: "asc",
         },
+        select: {
+            id: true,
+            name: true,
+            date: true,
+            _count: {
+                select: {
+                    OrderItem: true,
+                },
+            },
+        },
     });
+}
+
+export type ImportList = Awaited<ReturnType<typeof getImportList>>;
+
+export async function getItemsInImport(importId: string) {
+    return prisma.orderItemImport.findUnique({
+        where: {
+            id: importId,
+        },
+        include: {
+            OrderItem: {
+                select: {
+                    quantity: true,
+                    Variant: {
+                        select: {
+                            variantName: true,
+                            RootItem: {
+                                select: {
+                                    name: true,
+                                },
+                            },
+                        },
+                    },
+                    Order: {
+                        select: {
+                            orderNo: true,
+                            orderDate: true,
+                            ImperialStudent: {
+                                select: {
+                                    shortcode: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+}
+
+export interface ImportItemList extends OrderItemImport {
+    OrderItem: {
+        quantity: number;
+        Variant: {
+            variantName: string;
+            RootItem: {
+                name: string;
+            };
+        };
+        Order: {
+            orderNo: number;
+            orderDate: Date;
+            ImperialStudent: {
+                shortcode: string;
+            };
+        };
+    }[];
 }

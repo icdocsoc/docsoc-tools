@@ -21,7 +21,7 @@ import { Dropzone } from "@mantine/dropzone";
 import "@mantine/dropzone/styles.css";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { AcademicYear, RootItem } from "@prisma/client";
+import { RootItem } from "@prisma/client";
 import React, { useState, useTransition } from "react";
 import {
     FaCircleCheck,
@@ -32,6 +32,8 @@ import {
     FaUpload,
 } from "react-icons/fa6";
 import useSWR from "swr";
+
+import { fetcher } from "../../lib/fetcher";
 
 interface CSVImportFormProp {
     productsByAcademicYear: Record<string, RootItem[]>;
@@ -221,11 +223,6 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
             </Stack>
         </form>
     );
-};
-
-const fetcher = async (...args: Parameters<typeof fetch>) => {
-    const res = await fetch(...args);
-    return res.json();
 };
 
 export const CSVImport = ({
