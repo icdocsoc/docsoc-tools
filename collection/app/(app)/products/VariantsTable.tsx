@@ -1,9 +1,11 @@
 "use client";
 
 import TanstackTable from "@/components/tables/TanStackTable";
-import { Text } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
 import { createColumnHelper } from "@tanstack/react-table";
 import React from "react";
+
+import { DeleteProduct } from "./DeleteProduct";
 
 interface Variant {
     id: number;
@@ -30,11 +32,17 @@ const columns = [
 
 interface VariantsTableProps {
     variants: Variant[];
+    productId: number;
 }
 
-export const VariantsTable: React.FC<VariantsTableProps> = ({ variants }) => {
+export const VariantsTable: React.FC<VariantsTableProps> = ({ variants, productId }) => {
     if (!variants || variants.length === 0) {
-        return <Text>No variants added yet</Text>;
+        return (
+            <Group>
+                <Text>No variants added yet</Text>
+                <DeleteProduct productId={productId} />
+            </Group>
+        );
     }
 
     return (

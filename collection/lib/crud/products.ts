@@ -1,8 +1,11 @@
 "use server";
 
+import { isValidAcademicYear } from "@docsoc/eactivities";
 import { RootItem } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 import prisma from "../db";
+import { StatusReturn } from "../types";
 
 export const getProductsByAcademicYear = async (): Promise<Record<string, RootItem[]>> => {
     // group by res.academic year, just need name and id
@@ -68,4 +71,87 @@ export interface ProductsAndVariantsByAcademicYear {
             };
         }[];
     }[];
+}
+
+export async function addProducts(academicYear: string, products: string[]): Promise<StatusReturn> {
+    if (products.length === 0) {
+        return {
+            status: "error",
+            error: "No products provided",
+        };
+    }
+
+    if (!isValidAcademicYear(academicYear)) {
+        return {
+            status: "error",
+            error: "Invalid academic year",
+        };
+    }
+
+    try {
+        await prisma.rootItem.createMany({
+            data: products
+                .map((product) => product.trim())
+                .filter((product) => product !== "")
+                .map((product) => ({
+                    academicYear,
+                    name: product,
+                })),
+        });
+    } catch (e: any) {
+        if (e?.code === "P2002" && e?.meta?.target?.includes("name")) {
+            return {
+                status: "error",
+                error: "Product already exists",
+            };
+        } else {
+            return {
+                status: "error",
+                error: e.message ?? e.toString(),
+            };
+        }
+    }
+
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return {
+        status: "success",
+    };
+}
+
+export async function deleteProduct(productId: number): Promise<StatusReturn> {
+    try {
+        // Validate it has no variants
+        const variants = await prisma.variant.findMany({
+            where: {
+                rootItemId: productId,
+            },
+        });
+
+        if (variants.length > 0) {
+            return {
+                status: "error",
+                error: "Product has variants",
+            };
+        }
+
+        await prisma.rootItem.delete({
+            where: {
+                id: productId,
+            },
+        });
+    } catch (e: any) {
+        return {
+            status: "error",
+            error: e.message ?? e.toString(),
+        };
+    }
+
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return {
+        status: "success",
+    };
 }

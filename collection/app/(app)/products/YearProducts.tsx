@@ -26,6 +26,7 @@ export const YearProducts: React.FC<YearProductsProps> = ({ products }) => {
                                 name: variant.variantName,
                                 count: variant._count.OrderItem,
                             }))}
+                            productId={product.id}
                         />
                     </Stack>
                 </Grid.Col>
