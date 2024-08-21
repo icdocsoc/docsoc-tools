@@ -19,31 +19,34 @@
             "options": {
                 "targetName": "test"
             },
-            "exclude": [
-                "packages/email/docsoc-mail-merge-node-e2e/**/*"
-            ]
+            "exclude": ["packages/email/docsoc-mail-merge-node-e2e/**/*"]
+        },
+        {
+            "plugin": "@nx/next/plugin",
+            "options": {
+                "startTargetName": "start",
+                "buildTargetName": "build",
+                "devTargetName": "dev",
+                "serveStaticTargetName": "serve-static"
+            }
+        },
+        {
+            "plugin": "@nx/playwright/plugin",
+            "options": {
+                "targetName": "e2e"
+            }
         }
     ],
     "targetDefaults": {
         "@nx/esbuild:esbuild": {
             "cache": true,
-            "dependsOn": [
-                "^build"
-            ],
-            "inputs": [
-                "default",
-                "^default"
-            ]
+            "dependsOn": ["^build"],
+            "inputs": ["default", "^default"]
         },
         "@nx/js:tsc": {
             "cache": true,
-            "dependsOn": [
-                "^build"
-            ],
-            "inputs": [
-                "default",
-                "^default"
-            ]
+            "dependsOn": ["^build"],
+            "inputs": ["default", "^default"]
         }
     },
     "release": {
@@ -54,7 +57,16 @@
             "common/util",
             "email/mailmerge",
             "email/mailmerge-cli",
-            "clickup/calendar-sync"
+            "clickup/calendar-sync",
+            "eactivities"
         ]
+    },
+    "generators": {
+        "@nx/next": {
+            "application": {
+                "style": "scss",
+                "linter": "eslint"
+            }
+        }
     }
 }

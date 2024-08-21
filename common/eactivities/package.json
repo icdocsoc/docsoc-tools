@@ -1,0 +1,15 @@
+{
+    "name": "@docsoc/eactivities",
+    "version": "1.2.1",
+    "dependencies": {
+        "@types/axios": "^0.14.0",
+        "axios": "^1.7.3",
+        "tslib": "^2.3.0"
+    },
+    "scripts": {
+        "build-local": "tsc --build --verbose"
+    },
+    "type": "module",
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+}

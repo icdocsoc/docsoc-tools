@@ -2,8 +2,6 @@ name: CI
 
 on:
     push:
-        branches:
-            - main
     pull_request:
 
 permissions:
@@ -33,6 +31,9 @@ jobs:
 
             # Build util
             - run: npx nx run-many -t build-local
+
+            # Generate prisma
+            - run: npx nx run-many -t prisma-generate
 
             # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
             # - run: npx nx-cloud record -- echo Hello World

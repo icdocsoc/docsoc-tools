@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "AcademicYear" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "CommitteeMember" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;

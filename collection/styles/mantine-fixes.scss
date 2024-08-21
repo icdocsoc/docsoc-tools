@@ -1,0 +1,4 @@
+// Fix weird issues in mantine where overrides are not working
+.mantine-NavLink-body {
+    display: flex;
+}

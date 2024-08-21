@@ -1,0 +1,9 @@
+{
+    "name": "collection-e2e",
+    "$schema": "../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "collection-e2e/src",
+    "tags": [],
+    "implicitDependencies": ["collection"],
+    "// targets": "to see all targets run: nx show project collection-e2e --web",
+    "targets": {}
+}

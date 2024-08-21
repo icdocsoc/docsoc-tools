@@ -1,0 +1,133 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("COLLECTION_DATABASE_URL")
+}
+
+// ==================
+// Application config
+// Each row stores a config key and an associated JSON value (which can be a string, number, object, or array)
+// ==================
+model Config {
+    key         String  @id @unique
+    value       Json
+    description String?
+}
+
+model AcademicYear {
+    year String @id @unique // e.g. "21-22"
+
+    committeeMembers CommitteeMember[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    Order    Order[]
+    RootItem RootItem[]
+}
+
+// ==================
+// Committee Management
+// ==================
+model CommitteeMember {
+    // Pulled from the API
+    id        Int       @id @default(autoincrement())
+    firstname String
+    surname   String
+    cid       String?
+    email     String
+    shortcode String // Login field from eActivities
+    position  String
+    phone     String?
+    startDate DateTime?
+    endDate   DateTime?
+
+    // And the academic year they're in
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    @@unique([academicYear, cid, email, position])
+}
+
+// ==================
+// eActivities Schema
+// ==================
+
+// Our customers: Imperial Students
+model ImperialStudent {
+    id        Int     @id @default(autoincrement())
+    cid       String  @unique
+    shortcode String  @unique
+    firstName String
+    lastName  String
+    email     String
+    Order     Order[]
+}
+
+// Students place Orders, which we infer from the orderNo column in the CSV
+// The orderNo field is present in all eActivities CSVs, and is not unique to a CSV but unique to a whole order
+// Which therefore becomes split up amongst CSVs
+model Order {
+    id              Int             @id @default(autoincrement())
+    studentId       Int
+    orderDate       DateTime
+    orderNo         Int             @unique
+    ImperialStudent ImperialStudent @relation(fields: [studentId], references: [id])
+    OrderItem       OrderItem[]
+
+    // An order is placed in some academic year
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+}
+
+// Imports of data, to allow rollback
+model OrderItemImport {
+    id   String   @id @default(uuid()) @db.Uuid
+    date DateTime @default(now())
+    name String
+
+    OrderItem OrderItem[]
+}
+
+// OrderItems are the items that make up an order
+model OrderItem {
+    id        Int     @id @default(autoincrement())
+    orderId   Int
+    quantity  Int
+    variantId Int
+    collected Boolean
+    // tag the import this came from
+    importId  String  @db.Uuid
+
+    Import  OrderItemImport @relation(fields: [importId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    Order   Order           @relation(fields: [orderId], references: [id])
+    Variant Variant         @relation(fields: [variantId], references: [id])
+}
+
+// RootItems are what we sell, and have Variants
+model RootItem {
+    id      Int       @id @default(autoincrement())
+    name    String    @unique
+    Variant Variant[]
+
+    // Items are added in some academic year
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+}
+
+model Variant {
+    id          Int         @id @default(autoincrement())
+    variantName String
+    rootItemId  Int
+    OrderItem   OrderItem[]
+    RootItem    RootItem    @relation(fields: [rootItemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([variantName, rootItemId])
+}

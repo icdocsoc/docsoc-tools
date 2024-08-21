@@ -22,17 +22,19 @@ export default class Mailer {
         private smtpPort: number,
         private username: string,
         private password: string,
-    ) {}
+    ) {
+        this.transporter = nodemailer.createTransport({
+            host: this.smtpHost,
+            port: this.smtpPort,
+            secure: false, // Use `true` for port 465, `false` for all other ports
+            auth: {
+                user: this.username,
+                pass: this.password,
+            },
+        });
+    }
 
-    private transporter = nodemailer.createTransport({
-        host: this.smtpHost,
-        port: this.smtpPort,
-        secure: false, // Use `true` for port 465, `false` for all other ports
-        auth: {
-            user: this.username,
-            pass: this.password,
-        },
-    });
+    private transporter: ReturnType<typeof nodemailer.createTransport>;
 
     async sendMail(
         from: FromEmail,

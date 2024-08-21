@@ -1,0 +1,57 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("COLLECTION_DATABASE_URLSSSS")
+}
+
+// ==================
+// Application config
+// Each row stores a config key and an associated JSON value (which can be a string, number, object, or array)
+// ==================
+model Config {
+    key         String  @id @unique
+    value       Json
+    description String?
+}
+
+model AcademicYear {
+    year String @id @unique // e.g. "21-22"
+
+    committeeMembers CommitteeMember[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ==================
+// Committee Management
+// ==================
+model CommitteeMember {
+    // Pulled from the API
+    id        Int       @id @default(autoincrement())
+    firstname String
+    surname   String
+    cid       String
+    email     String
+    shortcode String // Login field from eActivities
+    position  String
+    phone     String?
+    startDate DateTime
+    endDate   DateTime?
+
+    // And the academic year they're in
+    academicYear          String
+    academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // Make combo of academic year and cid unique
+    @@unique([academicYear, cid])
+    // Make combo of academic year and shortcode unique
+    @@unique([academicYear, shortcode])
+}
