@@ -108,7 +108,11 @@ export const UserSearch: React.FC<UserSearchProps> = ({
     return (
         <Container w="70%">
             <Stack gap="lg">
-                <PageActions academicYears={validAcaemicYears} formHook={form} />
+                <PageActions
+                    currentAcademicYear={currentAcademicYear}
+                    academicYears={validAcaemicYears}
+                    formHook={form}
+                />
                 <Center>
                     <Stack w="90%" justify="centre" align="centre">
                         <form

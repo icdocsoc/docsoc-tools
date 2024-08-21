@@ -1,16 +1,17 @@
 import { AcademicYear } from "@docsoc/eactivities";
 import { Paper, MultiSelect, Group } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
-import React, { Suspense } from "react";
 
 import { CSVImport } from "./CSVImport";
 
 export const PageActions = ({
     formHook,
     academicYears,
+    currentAcademicYear,
 }: {
     formHook: UseFormReturnType<{ academicYears: AcademicYear[]; shortcode: string }>;
     academicYears: string[];
+    currentAcademicYear: string;
 }) => {
     return (
         <Paper p="lg" withBorder>
@@ -22,7 +23,10 @@ export const PageActions = ({
                     data={academicYears}
                     {...formHook.getInputProps("academicYears")}
                 />
-                <CSVImport />
+                <CSVImport
+                    academicYears={academicYears}
+                    currentAcademicYear={currentAcademicYear}
+                />
             </Group>
         </Paper>
     );

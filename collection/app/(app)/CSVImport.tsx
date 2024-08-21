@@ -21,7 +21,7 @@ import { Dropzone } from "@mantine/dropzone";
 import "@mantine/dropzone/styles.css";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { RootItem } from "@prisma/client";
+import { AcademicYear, RootItem } from "@prisma/client";
 import React, { useState, useTransition } from "react";
 import {
     FaCircleCheck,
@@ -34,11 +34,19 @@ import {
 import useSWR from "swr";
 
 interface CSVImportFormProp {
-    /** Undefiend treated as loading UI */
     productsByAcademicYear: Record<string, RootItem[]>;
+    /** Current academic year */
+    academicYear: string;
+    /** Valid academic years */
+    validAcademicYears: string[];
 }
 
-const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) => {
+// TODO: Pass in academic years explicitly, default to current year
+const CSVImportForm: React.FC<CSVImportFormProp> = ({
+    productsByAcademicYear,
+    academicYear,
+    validAcademicYears,
+}) => {
     const [isPending, startTransition] = useTransition();
     const [formState, setFormState] = useState<StatusReturn>({
         status: "pending",
@@ -49,7 +57,7 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) 
             productId:
                 productsByAcademicYear[Object.keys(productsByAcademicYear)[0]][0].id.toString(10),
             csv: [],
-            academicYear: Object.keys(productsByAcademicYear)[0],
+            academicYear: academicYear,
         },
         validate: {
             productId: (value: string) => {
@@ -120,7 +128,7 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({ productsByAcademicYear }) 
                     name="academicYear"
                     key={form.key("academicYear")}
                     description="Import into this academic year"
-                    data={Object.keys(productsByAcademicYear)}
+                    data={validAcademicYears}
                     required
                     {...form.getInputProps("academicYear")}
                 />
@@ -219,7 +227,13 @@ const fetcher = async (...args: Parameters<typeof fetch>) => {
     return res.json();
 };
 
-export const CSVImport = () => {
+export const CSVImport = ({
+    academicYears,
+    currentAcademicYear,
+}: {
+    academicYears: string[];
+    currentAcademicYear: string;
+}) => {
     const [opened, { open, close }] = useDisclosure(false);
 
     const { data } = useSWR<Record<string, RootItem[]>>("/api/products", fetcher);
@@ -244,7 +258,11 @@ export const CSVImport = () => {
                             </Center>
                         </Stack>
                     ) : (
-                        <CSVImportForm productsByAcademicYear={data} />
+                        <CSVImportForm
+                            academicYear={currentAcademicYear}
+                            validAcademicYears={academicYears}
+                            productsByAcademicYear={data}
+                        />
                     )}
                 </Stack>
             </Modal>
