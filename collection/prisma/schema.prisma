@@ -106,7 +106,7 @@ model OrderItem {
     // tag the import this came from
     importId  String  @db.Uuid
 
-    Import  OrderItemImport @relation(fields: [importId], references: [id])
+    Import  OrderItemImport @relation(fields: [importId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     Order   Order           @relation(fields: [orderId], references: [id])
     Variant Variant         @relation(fields: [variantId], references: [id])
 }

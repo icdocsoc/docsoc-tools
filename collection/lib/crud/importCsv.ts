@@ -253,3 +253,21 @@ export interface ImportItemList extends OrderItemImport {
         };
     }[];
 }
+
+export async function rollbackImport(importId: string) {
+    if (!importId || typeof importId !== "string") {
+        return {
+            status: "error",
+            error: "No import ID provided",
+        };
+    }
+
+    await prisma.orderItemImport.delete({
+        where: {
+            id: importId,
+        },
+    });
+
+    revalidatePath("/");
+    revalidateTag("purchases:*");
+}
