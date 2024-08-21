@@ -37,7 +37,7 @@ const columns = [
     }),
 ];
 
-export const ProductsPage = async () => {
+const ProductsPage = async () => {
     const data = await getProductsAndVariantByAcademicYearWithCounts();
     const academicYears = await getAcademicYearsInDB();
     const currentYear = await getAcademicYear();

@@ -3,9 +3,9 @@
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { useEnv } from "@/hooks/useEnv";
 import { clearUsersForAcademicYear, loadCommitteeForCurrYear } from "@/lib/crud/committee";
+import { AcademicYear } from "@docsoc/eactivities";
 import { Group, Tooltip, Button, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { AcademicYear } from "common/eactivities/dist";
 import { useSession } from "next-auth/react";
 import React, { useTransition } from "react";
 import { FaSync, FaTrash } from "react-icons/fa";

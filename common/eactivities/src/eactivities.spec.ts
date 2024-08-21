@@ -22,11 +22,13 @@ describe("EActivitiesAPI", () => {
         endpoint: string,
         expectedMethod: string,
         response: T,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...args: any[]
     ) => {
         /// @ts-expect-error: Mocking the response
         mockedAxios.mockResolvedValueOnce({ data: response });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await (api[method] as any)(...args);
 
         expect(mockedAxios).toHaveBeenCalledWith({

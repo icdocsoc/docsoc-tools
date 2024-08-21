@@ -30,7 +30,7 @@ const errorMap = {
                 </Anchor>
                 .<br />
             </Text>
-            <Image src={youShallNotPass} alt="You shall not pass" height={100} />
+            <Image unoptimized src={youShallNotPass} alt="You shall not pass" height={100} />
         </Group>
     ),
     [Error.Verification]: (

@@ -1,5 +1,5 @@
 {
-    "name": "templat",
+    "name": "template",
     "$schema": "../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "template",
     "projectType": "application",
