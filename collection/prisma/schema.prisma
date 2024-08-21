@@ -87,6 +87,15 @@ model Order {
     academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
 }
 
+// Imports of data, to allow rollback
+model OrderItemImport {
+    id   String   @id @default(cuid()) @db.Uuid
+    date DateTime @default(now())
+    name String
+
+    OrderItem OrderItem[]
+}
+
 // OrderItems are the items that make up an order
 model OrderItem {
     id        Int     @id @default(autoincrement())
@@ -94,8 +103,12 @@ model OrderItem {
     quantity  Int
     variantId Int
     collected Boolean
-    Order     Order   @relation(fields: [orderId], references: [id])
-    Variant   Variant @relation(fields: [variantId], references: [id])
+    // tag the import this came from
+    importId  String  @db.Uuid
+
+    Import  OrderItemImport @relation(fields: [importId], references: [id])
+    Order   Order           @relation(fields: [orderId], references: [id])
+    Variant Variant         @relation(fields: [variantId], references: [id])
 }
 
 // RootItems are what we sell, and have Variants
