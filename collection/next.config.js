@@ -41,6 +41,7 @@ const nextConfig = {
     experimental: {
         instrumentationHook: true,
     },
+    output: "standalone",
 };
 
 const plugins = [

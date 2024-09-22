@@ -12,7 +12,7 @@
         "@babel/preset-react": "^7.24.7",
         "@monodon/rust": "^1.4.0",
         "@nx-tools/container-metadata": "^6.0.1",
-        "@nx-tools/nx-container": "^6.0.1",
+        "@nx-tools/nx-container": "^6.0.2",
         "@nx-tools/nx-prisma": "^6.1.0",
         "@nx/devkit": "19.4.3",
         "@nx/esbuild": "19.4.3",

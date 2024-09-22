@@ -40,6 +40,26 @@
         },
         "prisma-validate": {
             "executor": "@nx-tools/nx-prisma:validate"
+        },
+        "container": {
+            "executor": "@nx-tools/nx-container:build",
+            "dependsOn": [],
+            "options": {
+                "engine": "docker",
+                "metadata": {
+                    "images": [
+                        "docsoc/collection"
+                    ],
+                    "load": true,
+                    "tags": [
+                        "type=schedule",
+                        "type=ref,event=branch",
+                        "type=ref,event=tag",
+                        "type=ref,event=pr",
+                        "type=sha,prefix=sha-"
+                    ]
+                }
+            }
         }
     }
 }
