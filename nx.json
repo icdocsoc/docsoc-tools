@@ -80,5 +80,6 @@
                 "linter": "eslint"
             }
         }
-    }
+    },
+    "defaultBase": "origin/main"
 }
