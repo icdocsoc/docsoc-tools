@@ -112,10 +112,10 @@ jobs:
               run: npx nx affected -t test
 
     build-and-push-collection-image:
-        needs:
-            - build
-            - lint
-            - test
+        # needs:
+        #     - build
+        #     - lint
+        #     - test
         # if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         permissions:

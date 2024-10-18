@@ -17,6 +17,7 @@ COPY jest* .
 COPY tsconfig.base.json tsconfig.base.json
 COPY collection collection
 COPY common common
+RUN npx nx run-many -t build-local
 RUN npx nx run collection:prisma-generate
 RUN npx nx run collection:build
 

@@ -17,7 +17,8 @@ Other tools have their own package.jsons as that was how they were originally se
 1. From the root of the repo run `npm install`
 2. Copy `.env.local.template` to `.env.local` and fill in the details
 3. Run from this dir `npx nx prisma-push` to create the database
-4. Run from this dir `npx nx dev` to start the dev server
+4. Run `npx nx run-many -t build-local` to build required monorepo libraries
+5. Run from this dir `npx nx dev` to start the dev server
 
 ## Docker
 
