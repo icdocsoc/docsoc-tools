@@ -42,7 +42,6 @@ jobs:
                   key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
             - name: Install dependencies
               run: npm ci
-            - uses: nrwl/nx-set-shas@v4
 
     build:
         runs-on: ubuntu-latest
@@ -63,6 +62,8 @@ jobs:
               run: npx nx run-many -t build-local
             - name: Prisma generate
               run: npx nx run-many -t prisma-generate
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
             - name: Build all
               run: npx nx affected -t build build-local
 
@@ -81,6 +82,8 @@ jobs:
               with:
                   path: node_modules
                   key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
             - name: Run Linting
               run: npx nx affected -t lint
 
@@ -103,6 +106,8 @@ jobs:
               run: npx nx run-many -t build-local
             - name: Prisma generate
               run: npx nx run-many -t prisma-generate
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
             - name: Test
               run: npx nx affected -t test
 
