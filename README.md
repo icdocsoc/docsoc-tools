@@ -9,10 +9,11 @@ The repo is structured as an Nx monorepo (I recommend you look at the [Nx docume
 
 ## Tools
 
--   `clickup/calendar-sync`: A rust tool that syncs the DoCSoc ClickUp calendar with the DoCSoc Google Calendar. It is designed to be run as a cron job on a server.
--   `common/util`: A set of common utilities used by other tools written in TypeScript
--   `email/mailmerge`: A TypeScript library that can be used to generate emails from templates and send them. It is designed to be used in conjunction with the `email/mailmerge-cli` tool, but can be used by itself
--   `email/mailmerge-cli`: A TypeScript CLI tool that can be used to generate emails from templates, regenerate them after modifying the results, upload them to Outlook drafts and send them.
+-   `clickup/calendar-sync`: A rust tool that syncs the DoCSoc ClickUp calendar with the DoCSoc Google Calendar. It is designed to be run as a cron job on a server. (application)
+-   `common/util`: A set of common utilities used by other tools written in TypeScript (library)
+-   `email/mailmerge`: A TypeScript library that can be used to generate emails from templates and send them. It is designed to be used in conjunction with the `email/mailmerge-cli` tool, but can be used by itself (library)
+-   `email/mailmerge-cli`: A TypeScript CLI tool that can be used to generate emails from templates, regenerate them after modifying the results, upload them to Outlook drafts and send them. (library & application)
+-   `collection/`: A Next.js Application that allows us to manage merchandise collections securely. Designed to be ran as a docker container with a Postgres DB. (application)
 
 Each tool's directory has a README with more information on how to use it.
 
@@ -20,13 +21,30 @@ Each tool's directory has a README with more information on how to use it.
 
 ### Build for development
 
+> [!NOTE]
+> You should use `build-local` when working on just the TypeScript code, as `build` will build all tools (TypeScript and Rust) to `/dist/`, including Next.js production builds, whereas `build-local` only compiles TypeScript libraries like those in `common` and `mailmerge`, and does so in-place (instead of copying even libraries over to `/dist/`).
+
 ```
-npx nx run-many -t build build-local
+npx nx run-many -t build-local
+npx nx run-many -t build
 ```
 
 `build` builds all tools (TypeScript and Rust) to `/dist/`, `build-local` builds the typescript tools to `dist/` folders in **each tool's directory**.
 
-You should use `build-local` when working on just the TypeScript code
+You should use `build-local` when working on just the TypeScript code.
+
+You can run tasks for a specific tool by running, for example:
+
+```bash
+npx nx build collection
+npx nx test mailmerge
+npx nx run eactivities:test # alternate syntax for running tasks
+# etc.
+```
+
+Where `build` is the task and `collection` is the tool.
+
+It may help to install the NX Console plugin to view all available tasks.
 
 ### Building for production
 
@@ -34,9 +52,21 @@ You should use `build-local` when working on just the TypeScript code
 npx nx run-many -t build
 ```
 
+## Making a release
+
+NOTE: See Nuclino for cargo & npm registry login details.
+
+It is assumed you have already logged into the npm and cargo registries.
+
+```
+npx nx release
+```
+
+This will build & release all libraries (so everything bar `collection`)
+
 ### Documentation
 
-You can get API documentation for everything in the repo by running:
+You can get API documentation for all TypeScript libraries in the repo by running:
 
 ```
 npm run docs
@@ -58,10 +88,46 @@ npx nx run-many -t test
 
 ## Nx Mono repo info
 
+### Rust
+
 The plugin `@monodon/rust` has been added to Nx to allow for Rust projects to be built and run in the monorepo. This is used by the `calendar-sync` tool.
+
 The plugin has create a Cargo workspace in the root of the monorepo as such, and all builds for all packages are done in the root of the monorepo and sent to `dist` in the repo root.
 
-# Original Nx README
+### Docker
+
+The NX plugin `@nx-tools/nx-container` has been added to allow for Docker images to be built and run in the monorepo. This is used by the `collection` tool.
+
+E.g. to build `collection` as a Docker image `docsoc/collection`:
+
+```bash
+npx nx container collection
+```
+
+### Prisma
+
+The NX plugin `@nx-tools/nx-prisma` has been added to allow the use of prisma.
+
+Prisma command can be run following this pattern:
+
+If the original command is, for example `prisma studio`, then the command to run it in the monorepo is `npx nx prisma-studio <project>`.
+E.g. to run `prisma studio` for the `collection` project:
+
+```bash
+npx nx prisma-studio collection
+
+# this also works:
+cd collection
+npx nx prisma-studio # autodetets the project
+```
+
+# Weird Bits
+
+### Q: Why does `collection` and `template` not have a `package.json`
+
+This i because they pull their deps in from the root `package.json`: this way, we only need to maintain one dependency list for common deps like React, etc.
+
+# Original Nx README (rad this to know how NX works)
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 

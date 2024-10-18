@@ -1,6 +1,9 @@
 {
     "name": "@docsoc/eactivities",
     "version": "1.2.1",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "@types/axios": "^0.14.0",
         "axios": "^1.7.3",
@@ -11,5 +14,9 @@
     },
     "type": "module",
     "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts"
+    "typings": "./dist/index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": "./dist/index.js"
+    }
 }

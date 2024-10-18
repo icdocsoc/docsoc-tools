@@ -1,0 +1,4 @@
+# Dockerfile for docker compose
+FROM node:lts
+
+RUN npm i -g nx

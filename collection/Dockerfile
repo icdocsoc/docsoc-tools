@@ -1,7 +1,7 @@
 # This template uses Automatically Copying Traced Files feature
 # so you need to setup your Next Config file to use `output: 'standalone'`
 # Please read this for more information https://nextjs.org/docs/pages/api-reference/next-config-js/output
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /build
@@ -17,7 +17,11 @@ COPY jest* .
 COPY tsconfig.base.json tsconfig.base.json
 COPY collection collection
 COPY common common
+# Build libraries we need (will not be auto built)
+RUN npx nx run-many -t build-local
+# Generate Prisma Client (needed to be included in build)
 RUN npx nx run collection:prisma-generate
+# Build the collection code
 RUN npx nx run collection:build
 
 # Production image, copy all the files and run next
