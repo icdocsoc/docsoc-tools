@@ -1,0 +1,36 @@
+services:
+    docsoc-collection:
+        image: docsoc/collection-dev
+        pull_policy: never
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        depends_on:
+            - docsoc-database
+        environment:
+            - NODE_ENV=development
+            - COLLECTION_DATABASE_URL=postgres://user:pass@docsoc-database:5432/docsoc
+        env_file: .env.local
+        ports:
+            - "3000:3000"
+        volumes:
+            - ..:/app
+        working_dir: /app
+        command:
+            - bash
+            - -c
+            - ./collection/scripts/compose-entry.sh
+
+    docsoc-database:
+        image: postgres:16
+        environment:
+            - POSTGRES_USER=user
+            - POSTGRES_PASSWORD=pass
+            - POSTGRES_DB=docsoc
+        ports:
+            - "5432:5432"
+        volumes:
+            - database-data:/var/lib/postgresql/data
+
+volumes:
+    database-data:
