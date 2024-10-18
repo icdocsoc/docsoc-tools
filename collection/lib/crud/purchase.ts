@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import prisma from "../db";
@@ -91,6 +92,13 @@ export const markCollection = async (
     collected: boolean,
     shortcode: string,
 ) => {
+    // Action so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     await prisma.orderItem.update({
         where: {
             id: itemID,

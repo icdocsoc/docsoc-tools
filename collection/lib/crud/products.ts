@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { isValidAcademicYear } from "@docsoc/eactivities";
 import { RootItem } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -74,6 +75,16 @@ export interface ProductsAndVariantsByAcademicYear {
 }
 
 export async function addProducts(academicYear: string, products: string[]): Promise<StatusReturn> {
+    // Action so auth needed
+    const session = await auth();
+
+    if (!session) {
+        return {
+            status: "error",
+            error: "Unauthorized",
+        };
+    }
+
     if (products.length === 0) {
         return {
             status: "error",

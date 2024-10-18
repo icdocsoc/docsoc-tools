@@ -1,7 +1,19 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { shortcode: string } }) {
+export const GET = auth(async function GET(req, { params }: { params?: { shortcode?: string } }) {
+    if (!req.auth) {
+        return NextResponse.json({ status: "error", message: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!params?.shortcode) {
+        return NextResponse.json(
+            { status: "error", message: "shortcode is required" },
+            { status: 400 },
+        );
+    }
+
     const { shortcode } = params;
 
     if (!shortcode) {
@@ -39,4 +51,4 @@ export async function GET(req: NextRequest, { params }: { params: { shortcode: s
             { status: 500 },
         );
     }
-}
+});

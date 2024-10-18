@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { AcademicYear } from "@docsoc/eactivities";
 import { revalidatePath } from "next/cache";
 
@@ -12,6 +13,13 @@ import prisma from "../db";
 import getEactivities from "../eactivites";
 
 export async function loadCommitteeForCurrYear() {
+    // ACTION so must auth
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     const eactivites = await getEactivities();
     const committee = await eactivites.getCommitteeMembers();
 
@@ -86,6 +94,13 @@ export async function getCommitteeMember(email: string, academicYear?: AcademicY
 }
 
 export async function clearUsersForAcademicYear(academicYear?: AcademicYear) {
+    // ACTION so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     if (!academicYear) {
         academicYear = await getAcademicYear();
     }
@@ -109,6 +124,13 @@ export async function addUser(user: {
     position: string;
     academicYear?: AcademicYear;
 }) {
+    // ACTION so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     await prisma.committeeMember.create({
         data: {
             ...user,
@@ -121,6 +143,13 @@ export async function addUser(user: {
 }
 
 export async function deleteUser(id: number, academicYear?: AcademicYear) {
+    // ACTION so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     if (!academicYear) {
         academicYear = await getAcademicYear();
     }
