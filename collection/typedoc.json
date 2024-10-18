@@ -1,0 +1,14 @@
+{
+    "extends": [
+        "../typedoc.base.jsonc"
+    ],
+    "entryPoints": [
+        "app/**/*.ts",
+        "app/**/*.tsx",
+        "components/**/*.ts",
+        "components/**/*.tsx",
+        "hooks/*.ts",
+        "lib/**/*.ts",
+        "./*.ts"
+    ]
+}
