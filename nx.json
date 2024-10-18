@@ -19,7 +19,9 @@
             "options": {
                 "targetName": "test"
             },
-            "exclude": ["packages/email/docsoc-mail-merge-node-e2e/**/*"]
+            "exclude": [
+                "packages/email/docsoc-mail-merge-node-e2e/**/*"
+            ]
         },
         {
             "plugin": "@nx/next/plugin",
@@ -40,13 +42,23 @@
     "targetDefaults": {
         "@nx/esbuild:esbuild": {
             "cache": true,
-            "dependsOn": ["^build"],
-            "inputs": ["default", "^default"]
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "default",
+                "^default"
+            ]
         },
         "@nx/js:tsc": {
             "cache": true,
-            "dependsOn": ["^build"],
-            "inputs": ["default", "^default"]
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "default",
+                "^default"
+            ]
         }
     },
     "release": {
@@ -68,5 +80,6 @@
                 "linter": "eslint"
             }
         }
-    }
+    },
+    "defaultBase": "origin/main"
 }
