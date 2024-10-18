@@ -1,5 +1,9 @@
 name: CI
 
+env:
+    REGISTRY: ghcr.io
+    COLLECTION_IMAGE_NAME: icdocsoc/collection
+
 on:
     push:
     pull_request:
@@ -9,32 +13,146 @@ permissions:
     contents: read
 
 jobs:
-    main:
+    changes:
+        runs-on: ubuntu-latest
+        outputs:
+            migrations: ${{ steps.filter.outputs.migrations }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dorny/paths-filter@v3
+              id: filter
+              with:
+                  filters: |
+                      migrations:
+                      - 'collection/prisma/migrations/**'
+
+    install-dependencies:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
-                  fetch-depth: 0
-
-            # Connect your workspace on nx.app and uncomment this to enable task distribution.
-            # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "build" targets have been requested
-            # - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="build"
-
-            # Cache node_modules
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 20
+                  node-version-file: ".nvmrc"
                   cache: "npm"
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              id: cache-primes
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
+            - name: Install dependencies
+              run: npm ci
 
-            - run: npm ci
-            - uses: nrwl/nx-set-shas@v4
+    build:
+        runs-on: ubuntu-latest
+        needs: install-dependencies
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+            - name: Load cached node_modules
+              uses: actions/cache@v4
+              id: cache-primes
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
+            - name: Build libs
+              run: npx nx run-many -t build-local
+            - name: Prisma generate
+              run: npx nx run-many -t prisma-generate
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
+            - name: Build all
+              run: npx nx affected -t build build-local
 
-            # Build util
-            - run: npx nx run-many -t build-local
+    lint:
+        runs-on: ubuntu-latest
+        needs: install-dependencies
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+            - name: Load cached node_modules
+              uses: actions/cache@v4
+              id: cache-primes
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
+            - name: Run Linting
+              run: npx nx affected -t lint
 
-            # Generate prisma
-            - run: npx nx run-many -t prisma-generate
+    test:
+        runs-on: ubuntu-latest
+        needs: install-dependencies
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+            - name: Load cached node_modules
+              uses: actions/cache@v4
+              id: cache-primes
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-nx-${{ hashFiles('package-lock.json') }}
+            - name: Build libs
+              run: npx nx run-many -t build-local
+            - name: Prisma generate
+              run: npx nx run-many -t prisma-generate
+            - name: Derive appropriate SHAs for base and head for `nx affected` commands
+              uses: nrwl/nx-set-shas@v4
+            - name: Test
+              run: npx nx affected -t test
 
-            # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-            # - run: npx nx-cloud record -- echo Hello World
-            - run: npx nx affected -t lint test build build-local
+    build-and-push-collection-image:
+        # Note that build is not a dependency of this job, as this will build the same stuff as the build job anyway
+        # However no point in building if lint or test fails!
+        needs:
+            - lint
+            - test
+        # if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+            attestations: write
+            id-token: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+            - name: Log in to the Container registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.COLLECTION_IMAGE_NAME }}
+                  tags: |
+                      type=ref,event=branch
+                      type=ref,event=tag
+                      type=ref,event=pr
+                      type=sha
+                      type=raw,value=latest,enable={{is_default_branch}}
+            - name: Build and push Docker image
+              id: push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: ./collection/Dockerfile
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  no-cache: true

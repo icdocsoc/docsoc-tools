@@ -22,10 +22,11 @@ Each tool's directory has a README with more information on how to use it.
 ### Build for development
 
 > [!NOTE]
-> You should use `build-local` when working on just the TypeScript code, as `build` will build all tools (TypeScript and Rust) to `/dist/`, including Next.js production builds, whereas `build-local` only compiles TypeScript libraries like those in `common` and `mailmerge`.
+> You should use `build-local` when working on just the TypeScript code, as `build` will build all tools (TypeScript and Rust) to `/dist/`, including Next.js production builds, whereas `build-local` only compiles TypeScript libraries like those in `common` and `mailmerge`, and does so in-place (instead of copying even libraries over to `/dist/`).
 
 ```
-npx nx run-many -t build build-local
+npx nx run-many -t build-local
+npx nx run-many -t build
 ```
 
 `build` builds all tools (TypeScript and Rust) to `/dist/`, `build-local` builds the typescript tools to `dist/` folders in **each tool's directory**.

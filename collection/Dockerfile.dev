@@ -1,4 +1,4 @@
 # Dockerfile for docker compose
-FROM node:18
+FROM node:lts
 
 RUN npm i -g nx
