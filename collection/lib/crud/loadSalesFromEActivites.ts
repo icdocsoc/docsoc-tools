@@ -2,6 +2,8 @@
 
 import { auth } from "@/auth";
 import { createLogger } from "@docsoc/util";
+import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 
 import prisma from "../db";
 import getEactivities from "../eactivites";
@@ -11,6 +13,8 @@ const logger = createLogger("collection.syncEActivities");
 
 /**
  * Sync all sales from eActivities that we can find
+ *
+ * TODO: Reduce requests to the API.
  */
 export async function loadSalesFromEActivites(): Promise<StatusReturn> {
     // Action so auth needed
@@ -43,16 +47,28 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
         },
     });
 
+    revalidatePath("/");
+
     // 2: For each product, fetch the sales from eActivities & insert
     for (const product of products) {
         // 2.1: Fetch the sales from eActivities
         if (typeof product.eActivitiesId !== "number") {
             logger.warn(`Product ${product.id} has an invalid eActivities ID, so skipping!`);
         }
-        const salesReq = await eActivities.getProductSales(
-            undefined,
-            product.eActivitiesId as number,
-        );
+        let salesReq: Awaited<ReturnType<typeof eActivities.getProductSales>>;
+        try {
+            salesReq = await eActivities.getProductSales(
+                undefined,
+                product.eActivitiesId as number,
+            );
+        } catch (e) {
+            const eAsA = e as any as AxiosError;
+            const message = (eAsA.response?.data as any)?.Message ?? eAsA?.message ?? e?.toString();
+            return {
+                status: "error",
+                error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
+            };
+        }
 
         if (salesReq.status !== 200) {
             return {
@@ -62,10 +78,20 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
         }
 
         // Pull product data as well
-        const productData = await eActivities.getProductById(
-            undefined,
-            product.eActivitiesId as number,
-        );
+        let productData: Awaited<ReturnType<typeof eActivities.getProductById>>;
+        try {
+            productData = await eActivities.getProductById(
+                undefined,
+                product.eActivitiesId as number,
+            );
+        } catch (e) {
+            const eAsA = e as any as AxiosError;
+            const message = (eAsA.response?.data as any)?.Message ?? eAsA?.message ?? e?.toString();
+            return {
+                status: "error",
+                error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
+            };
+        }
 
         if (productData.status !== 200) {
             return {
@@ -102,7 +128,7 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
                 },
                 update: {},
                 create: {
-                    orderDate: sale.SaleDateTime,
+                    orderDate: new Date(sale.SaleDateTime),
                     orderNo: parseInt(sale.OrderNumber, 10),
                     academicYearReference: {
                         connect: {
@@ -175,6 +201,7 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
                 },
             });
         }
+        revalidatePath("/");
     }
 
     return {

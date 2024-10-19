@@ -5,12 +5,20 @@ import { Button } from "@mantine/core";
 import React, { useTransition } from "react";
 import { FaSync } from "react-icons/fa";
 
-export const SyncEActivities = () => {
+export const SyncEActivities = ({
+    setActionsError,
+}: {
+    setActionsError: (error: string | null) => void;
+}) => {
     const [isPending, startTransition] = useTransition();
 
     const syncEActivities = () => {
+        setActionsError(null);
         startTransition(async () => {
-            await loadSalesFromEActivites();
+            const res = await loadSalesFromEActivites();
+            if (res.status === "error") {
+                setActionsError(res.error);
+            }
         });
     };
 

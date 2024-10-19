@@ -22,6 +22,7 @@ export const UserSearch: React.FC<UserSearchProps> = ({
     validAcaemicYears,
 }) => {
     const [error, setError] = useState<string | null>(null);
+    const [actionsError, setActionsError] = useState<string | null>(null);
     const [purchases, setPurchases] = useState<OrderResponse[]>([]);
     const [isPending, startTransition] = useTransition();
 
@@ -117,10 +118,16 @@ export const UserSearch: React.FC<UserSearchProps> = ({
     return (
         <Container w="70%">
             <Stack gap="lg">
+                {actionsError && (
+                    <Alert title="Error" color="red" mt="md" icon={<FaTimesCircle />}>
+                        {actionsError}
+                    </Alert>
+                )}
                 <PageActions
                     currentAcademicYear={currentAcademicYear}
                     academicYears={validAcaemicYears}
                     formHook={form}
+                    setActionsError={setActionsError}
                 />
                 <Center>
                     <Stack w="90%" justify="centre" align="centre">

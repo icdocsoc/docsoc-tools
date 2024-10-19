@@ -9,10 +9,12 @@ export const PageActions = ({
     formHook,
     academicYears,
     currentAcademicYear,
+    setActionsError,
 }: {
     formHook: UseFormReturnType<{ academicYears: AcademicYear[]; shortcode: string }>;
     academicYears: string[];
     currentAcademicYear: string;
+    setActionsError: (error: string | null) => void;
 }) => {
     return (
         <Paper p="lg" withBorder>
@@ -25,7 +27,7 @@ export const PageActions = ({
                     {...formHook.getInputProps("academicYears")}
                 />
                 <Group>
-                    <SyncEActivities />
+                    <SyncEActivities setActionsError={setActionsError} />
                     <CSVImport
                         academicYears={academicYears}
                         currentAcademicYear={currentAcademicYear}
