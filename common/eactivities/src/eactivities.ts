@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 import { AcademicYear } from "./getAcademicYear";
-import { CommitteeMember, CSP, RegularMember } from "./types";
+import { CommitteeMember, CSP, Product, RegularMember, Sale } from "./types";
 
 /**
  * A class for interacting with the Imperial College Union's eActivities API, written by hand in the absence of an OpenAPI spec.
@@ -115,5 +115,61 @@ export class EActivitiesAPI {
             `reports/members?year=${academicYear}`,
             cspCode,
         );
+    }
+
+    // =================
+    // Shop admin
+    // =================
+
+    /**
+     * Get the list of all products ever made available in the shop for the specified CSP.
+     *
+     * GET /CSP/{centre}/products
+     */
+
+    async getProducts(cspCode = this.centreNumber) {
+        return this.requestWithCentre<Product[]>("products", cspCode);
+    }
+
+    /**
+     * Get the list of all products in a given academic year for the specified CSP.
+     *
+     * GET /CSP/{centre}/reports/products?year={year}
+     */
+    async getProductsByAcademicYear(cspCode = this.centreNumber, academicYear = this.academicYear) {
+        return this.requestWithCentre<Product[]>("reports/products?year=" + academicYear, cspCode);
+    }
+
+    /**
+     * Get information about a specific product by ID
+     *
+     * NOTE: ID is not the same as the number in brackets displayed after the product name on the eActivities website.
+     *
+     * GET /CSP/{centre}/products/{id}
+     */
+    async getProductById(cspCode = this.centreNumber, productId: number) {
+        return this.requestWithCentre<Product>(`products/${productId}`, cspCode);
+    }
+
+    /**
+     * List sales for a product
+     *
+     * NOTE: ID is not the same as the number in brackets displayed after the product name on the eActivities website.
+     *
+     * GET /CSP/{centre}/products/{id}/sales
+     */
+    async getProductSales(cspCode = this.centreNumber, productId: number) {
+        return this.requestWithCentre<Sale[]>(`products/${productId}/sales`, cspCode);
+    }
+
+    /**
+     * Get all sales in a given academic year.
+     *
+     * Defaults to the current academic year.
+     *
+     * GET /CSP/{centre}/reports/onlinesales?year={year}
+     */
+    async getAllSales(cspCode = this.centreNumber, academicYear = this.academicYear) {
+        return this.requestWithCentre<Sale[]>(`reports/onlinesales?year=${academicYear}`, cspCode);
     }
 }

@@ -53,13 +53,16 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
     const [formState, setFormState] = useState<StatusReturn>({
         status: "pending",
     });
+    console.log(productsByAcademicYear);
     const form = useForm<CSVFormValues>({
         mode: "controlled",
         initialValues: {
-            productId:
-                productsByAcademicYear[academicYear][0].id.toString(10),
-            csv: [],
             academicYear: academicYear,
+            productId:
+                productsByAcademicYear[academicYear]?.length > 0
+                    ? productsByAcademicYear[academicYear][0].id.toString(10)
+                    : "", // sometimes no products are defined
+            csv: [],
         },
         validate: {
             productId: (value: string) => {
@@ -141,7 +144,7 @@ const CSVImportForm: React.FC<CSVImportFormProp> = ({
                     label="Product"
                     name="productId"
                     key={form.key("productId")}
-                    description="Product to import the CSV into (variants will be detected from the data automatically)"
+                    description="Product to import the CSV into (variants will be detected from the data automatically). Product not showing? Add it in the Products page."
                     data={
                         productsByAcademicYear[form.getValues().academicYear]?.map((item) => ({
                             value: item.id.toString(10),
@@ -267,7 +270,7 @@ export const CSVImport = ({
                 </Stack>
             </Modal>
 
-            <Button leftSection={<FaTable />} onClick={open}>
+            <Button leftSection={<FaTable />} onClick={open} color="teal">
                 Import data from CSV
             </Button>
         </>

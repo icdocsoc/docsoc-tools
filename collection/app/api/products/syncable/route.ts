@@ -1,5 +1,8 @@
+/**
+ * Returns just those products we can sync from eActivities
+ */
 import { auth } from "@/auth";
-import { getProductsByAcademicYear } from "@/lib/crud/products";
+import { getSyncableProducts } from "@/lib/crud/products";
 import { NextResponse } from "next/server";
 
 export const GET = auth(async function GET(request) {
@@ -11,7 +14,7 @@ export const GET = auth(async function GET(request) {
             { status: 401 },
         );
     }
-    return NextResponse.json(await getProductsByAcademicYear());
+    return NextResponse.json(await getSyncableProducts());
 });
 
 export const dynamic = "force-dynamic";

@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { AcademicYear } from "@docsoc/eactivities";
 import { createLogger } from "@docsoc/util";
 import { OrderItemImport } from "@prisma/client";
@@ -119,7 +120,7 @@ async function importFile(
         });
 
         // Add order item
-        // kip if this orderId already exists for this user & variant
+        // skip if this orderId already exists for this user & variant
         if (
             await prisma.orderItem.findFirst({
                 where: {
@@ -155,6 +156,13 @@ export async function importCsv(
     productId: number,
     academicYear: AcademicYear,
 ): Promise<StatusReturn> {
+    // ACTION so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     const product = await prisma.rootItem.findUnique({
         where: {
             id: productId,
@@ -257,6 +265,13 @@ export interface ImportItemList extends OrderItemImport {
 }
 
 export async function rollbackImport(importId: string) {
+    // ACTION so auth needed
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("Unauthorized");
+    }
+
     if (!importId || typeof importId !== "string") {
         return {
             status: "error",

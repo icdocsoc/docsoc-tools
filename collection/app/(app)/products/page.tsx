@@ -59,7 +59,11 @@ const ProductsPage = async () => {
             {data.map((year, i) => (
                 <Stack gap="lg" key={i}>
                     <Title order={2}>{year.year}</Title>
-                    <YearProducts products={year.RootItem} />
+                    <YearProducts
+                        products={year.RootItem}
+                        academicYears={academicYears}
+                        productAcademicYear={year.year}
+                    />
                 </Stack>
             ))}
         </Stack>
