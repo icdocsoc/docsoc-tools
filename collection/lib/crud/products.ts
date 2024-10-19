@@ -221,3 +221,13 @@ export async function updateProductWithEActivitesMetadata({
         status: "success",
     };
 }
+
+export async function getSyncableProducts(): Promise<RootItem[]> {
+    return await prisma.rootItem.findMany({
+        where: {
+            eActivitiesId: {
+                not: null,
+            },
+        },
+    });
+}

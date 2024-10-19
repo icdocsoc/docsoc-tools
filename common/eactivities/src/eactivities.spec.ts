@@ -178,8 +178,39 @@ describe("EActivitiesAPI", () => {
             `/${centreNumber}/products/1234/sales`,
             "GET",
             response,
-            "123",
+            centreNumber,
             1234,
+        );
+    });
+
+    it("should get all sales", async () => {
+        /// @ts-expect-error: Mocking the response
+        const response: Sale[] = [
+            {
+                OrderNumber: "1000",
+                SaleDateTime: "2022-01-01 12:00:00",
+                ProductID: 1234,
+                ProductLineID: 4567,
+                Price: 30,
+                Quantity: 1,
+                QuantityCollected: 0,
+                Customer: {
+                    FirstName: "John",
+                    Surname: "Doe",
+                    CID: "00000000",
+                    Email: "john.doe@example.com",
+                    Login: "jdoe",
+                },
+                VAT: { Code: "S1", Name: "S1 – Sales Standard Rated", Rate: 20 },
+            },
+        ];
+        await testRequest(
+            "getAllSales",
+            `/${centreNumber}/reports/onlinesales?year=23-24`,
+            "GET",
+            response,
+            centreNumber,
+            "23-24",
         );
     });
 });

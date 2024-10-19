@@ -161,4 +161,15 @@ export class EActivitiesAPI {
     async getProductSales(cspCode = this.centreNumber, productId: number) {
         return this.requestWithCentre<Sale[]>(`products/${productId}/sales`, cspCode);
     }
+
+    /**
+     * Get all sales in a given academic year.
+     *
+     * Defaults to the current academic year.
+     *
+     * GET /CSP/{centre}/reports/onlinesales?year={year}
+     */
+    async getAllSales(cspCode = this.centreNumber, academicYear = this.academicYear) {
+        return this.requestWithCentre<Sale[]>(`reports/onlinesales?year=${academicYear}`, cspCode);
+    }
 }

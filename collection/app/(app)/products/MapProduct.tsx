@@ -1,11 +1,10 @@
 "use client";
 
+import { ProductSelectionCard } from "@/components/ProductSelectionCard";
 import {
-    addProducts,
     ProductsAndVariantsByAcademicYear,
     updateProductWithEActivitesMetadata,
 } from "@/lib/crud/products";
-import { fetcher } from "@/lib/fetcher";
 import { StatusReturn } from "@/lib/types";
 import { Product } from "@docsoc/eactivities";
 import {
@@ -13,24 +12,19 @@ import {
     Alert,
     Button,
     Group,
-    InputLabel,
     Modal,
     NativeSelect,
     Radio,
     Stack,
-    TextInput,
     Tooltip,
     Text,
-    Anchor,
     Box,
     Loader,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState, useTransition } from "react";
 import { FaEdit } from "react-icons/fa";
-import { FaPlus, FaSignsPost, FaTrash, FaUpRightFromSquare } from "react-icons/fa6";
-import useSWR from "swr";
+import { FaSignsPost, FaUpRightFromSquare } from "react-icons/fa6";
 
 interface MapProductProps {
     academicYears: string[];
@@ -111,35 +105,12 @@ const MapProductForm: React.FC<MapProductFormProps> = ({
     }, [academicYear]);
 
     const cards = products.map((product) => (
-        <Radio.Card radius="md" key={product.ID} value={product.ID.toString(10)} flex="1 0 0">
-            <Group wrap="nowrap" align="center" p="md">
-                <Radio.Indicator />
-                <Group flex="1 0 0">
-                    <Box flex="1 0 0">
-                        <Text>
-                            <b>
-                                <u>{product.Name}</u>
-                            </b>
-                        </Text>
-                        <Text>
-                            <b>ID:</b> {product.ID}
-                        </Text>
-                        <Text>
-                            <b>Variants:</b>{" "}
-                            {product.ProductLines?.map((line) => line.Name).join(" | ")}
-                        </Text>
-                    </Box>
-                    <Button
-                        component="a"
-                        href={product.URL}
-                        target="_blank"
-                        rightSection={<FaUpRightFromSquare />}
-                    >
-                        View on Union Shop
-                    </Button>
-                </Group>
-            </Group>
-        </Radio.Card>
+        <ProductSelectionCard
+            product={product}
+            key={product.ID}
+            cardParent={Radio.Card}
+            indicator={Radio.Indicator}
+        />
     ));
 
     return (

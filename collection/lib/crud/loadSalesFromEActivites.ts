@@ -2,7 +2,8 @@
 
 import { auth } from "@/auth";
 import { createLogger } from "@docsoc/util";
-import { AxiosError } from "axios";
+import { RootItem } from "@prisma/client";
+import axios, { AxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 
 import prisma from "../db";
@@ -16,7 +17,9 @@ const logger = createLogger("collection.syncEActivities");
  *
  * TODO: Reduce requests to the API.
  */
-export async function loadSalesFromEActivites(): Promise<StatusReturn> {
+export async function loadSalesFromEActivites(
+    productIdsFromDB: number[] = [],
+): Promise<StatusReturn> {
     // Action so auth needed
     const session = await auth();
 
@@ -30,13 +33,30 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
     const eActivities = await getEactivities();
 
     // 1: Find all products that have an eActivities ID
-    const products = await prisma.rootItem.findMany({
-        where: {
-            eActivitiesId: {
-                not: null,
+    let products: RootItem[];
+
+    if (productIdsFromDB.length > 0) {
+        products = await prisma.rootItem.findMany({
+            where: {
+                AND: {
+                    eActivitiesId: {
+                        not: null,
+                    },
+                    id: {
+                        in: productIdsFromDB,
+                    },
+                },
             },
-        },
-    });
+        });
+    } else {
+        products = await prisma.rootItem.findMany({
+            where: {
+                eActivitiesId: {
+                    not: null,
+                },
+            },
+        });
+    }
 
     // 0.1: Create import
     // Name: <csv file name> DD/MM/YYYY HH:MM
@@ -62,12 +82,20 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
                 product.eActivitiesId as number,
             );
         } catch (e) {
-            const eAsA = e as any as AxiosError;
-            const message = (eAsA.response?.data as any)?.Message ?? eAsA?.message ?? e?.toString();
-            return {
-                status: "error",
-                error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
-            };
+            if (axios.isAxiosError(e)) {
+                const message = e.response?.data?.Message ?? e?.message ?? e?.toString();
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
+                };
+            } else {
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for product ${
+                        product.id
+                    } - ${e?.toString()}. Any imports up to this point have been preserved.`,
+                };
+            }
         }
 
         if (salesReq.status !== 200) {
@@ -85,12 +113,20 @@ export async function loadSalesFromEActivites(): Promise<StatusReturn> {
                 product.eActivitiesId as number,
             );
         } catch (e) {
-            const eAsA = e as any as AxiosError;
-            const message = (eAsA.response?.data as any)?.Message ?? eAsA?.message ?? e?.toString();
-            return {
-                status: "error",
-                error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
-            };
+            if (axios.isAxiosError(e)) {
+                const message = e.response?.data?.Message ?? e?.message ?? e?.toString();
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
+                };
+            } else {
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for product ${
+                        product.id
+                    } - ${e?.toString()}. Any imports up to this point have been preserved.`,
+                };
+            }
         }
 
         if (productData.status !== 200) {
