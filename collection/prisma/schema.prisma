@@ -111,7 +111,7 @@ model OrderItem {
     Variant Variant         @relation(fields: [variantId], references: [id])
 }
 
-// RootItems are what we sell, and have Variants
+// RootItems are what we sell, and have Variants. Knows as Products
 model RootItem {
     id      Int       @id @default(autoincrement())
     name    String    @unique
@@ -120,6 +120,11 @@ model RootItem {
     // Items are added in some academic year
     academicYear          String
     academicYearReference AcademicYear @relation(fields: [academicYear], references: [year])
+
+    // eActivities metadata
+    eActivitiesId   Int?
+    eActivitiesName String?
+    eActivitiesURL  String?
 }
 
 model Variant {

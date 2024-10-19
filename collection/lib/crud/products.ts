@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { isValidAcademicYear } from "@docsoc/eactivities";
+import { isValidAcademicYear, Product } from "@docsoc/eactivities";
 import { RootItem } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
@@ -15,6 +15,9 @@ export const getProductsByAcademicYear = async (): Promise<Record<string, RootIt
             academicYear: true,
             id: true,
             name: true,
+            eActivitiesId: true,
+            eActivitiesName: true,
+            eActivitiesURL: true,
         },
     });
 
@@ -39,6 +42,9 @@ export async function getProductsAndVariantByAcademicYearWithCounts(): Promise<
                 select: {
                     id: true,
                     name: true,
+                    eActivitiesId: true,
+                    eActivitiesName: true,
+                    eActivitiesURL: true,
                     Variant: {
                         select: {
                             id: true,
@@ -51,10 +57,10 @@ export async function getProductsAndVariantByAcademicYearWithCounts(): Promise<
                         },
                     },
                 },
+                orderBy: {
+                    id: "asc",
+                },
             },
-        },
-        orderBy: {
-            createdAt: "desc",
         },
     });
 }
@@ -64,6 +70,9 @@ export interface ProductsAndVariantsByAcademicYear {
     RootItem: {
         id: number;
         name: string;
+        eActivitiesId: number | null;
+        eActivitiesName: string | null;
+        eActivitiesURL: string | null;
         Variant: {
             id: number;
             variantName: string;
@@ -147,6 +156,46 @@ export async function deleteProduct(productId: number): Promise<StatusReturn> {
 
     revalidatePath("/products");
     revalidatePath("/");
+
+    return {
+        status: "success",
+    };
+}
+
+export async function updateProductWithEActivitesMetadata({
+    productID,
+    eActivitiesID,
+    eActivitiesData,
+}: {
+    productID: number;
+    eActivitiesID: number;
+    eActivitiesData: Product;
+}): Promise<StatusReturn> {
+    if (!eActivitiesData) {
+        return {
+            status: "error",
+            error: "No eActivities data provided",
+        };
+    }
+    try {
+        await prisma.rootItem.update({
+            where: {
+                id: productID,
+            },
+            data: {
+                eActivitiesId: eActivitiesID,
+                eActivitiesName: eActivitiesData.Name,
+                eActivitiesURL: eActivitiesData.URL,
+            },
+        });
+    } catch (e: any) {
+        return {
+            status: "error",
+            error: e.message ?? e.toString(),
+        };
+    }
+
+    revalidatePath("/products");
 
     return {
         status: "success",
