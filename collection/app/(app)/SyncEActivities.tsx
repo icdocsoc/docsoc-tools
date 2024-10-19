@@ -4,7 +4,18 @@ import { loadSalesFromEActivites } from "@/lib/crud/loadSalesFromEActivites";
 import { fetcher } from "@/lib/fetcher";
 import { StatusReturn } from "@/lib/types";
 import { Product } from "@docsoc/eactivities";
-import { Alert, Box, Button, Checkbox, Group, Loader, Modal, Stack, Text } from "@mantine/core";
+import {
+    Alert,
+    Box,
+    Button,
+    Checkbox,
+    Group,
+    Loader,
+    Modal,
+    MultiSelect,
+    Stack,
+    Text,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { RootItem } from "@prisma/client";
 import React, { useCallback, useState, useTransition } from "react";
@@ -12,11 +23,21 @@ import { FaSync } from "react-icons/fa";
 import { FaUpRightFromSquare } from "react-icons/fa6";
 import useSWR from "swr";
 
-function CheckboxesForProducts({ close }: { close: () => void }) {
+function CheckboxesForProducts({
+    close,
+    academicYears,
+    currentlySelectedAcademicYears,
+}: {
+    close: () => void;
+    academicYears: string[];
+    currentlySelectedAcademicYears: string[];
+}) {
     const [value, setValue] = useState<string[]>([]);
     const [status, setStatus] = useState<StatusReturn>({
         status: "pending",
     });
+
+    const [academicYearsToSync, setAcademicYearsToSync] = useState(currentlySelectedAcademicYears);
 
     const { data: products, isLoading } = useSWR<RootItem[]>("/api/products/syncable", fetcher);
 
@@ -29,6 +50,7 @@ function CheckboxesForProducts({ close }: { close: () => void }) {
         startTransition(async () => {
             const res = await loadSalesFromEActivites(
                 value.map((id) => parseInt(id, 10)).filter(isFinite),
+                academicYearsToSync,
             );
             if (res.status === "error") {
                 setStatus(res);
@@ -39,7 +61,7 @@ function CheckboxesForProducts({ close }: { close: () => void }) {
                 close();
             }
         });
-    }, [close, value]);
+    }, [close, value, academicYearsToSync]);
 
     const cards = products?.map((product, i) => (
         <Checkbox.Card radius="md" value={product.id.toString(10)} key={i} flex="1 0 0">
@@ -88,6 +110,13 @@ function CheckboxesForProducts({ close }: { close: () => void }) {
                     </Alert>
                 )
             }
+            <MultiSelect
+                label="Sync purchases these academic years"
+                description=" "
+                value={academicYearsToSync}
+                onChange={(e) => setAcademicYearsToSync(e)}
+                data={academicYears}
+            />
             <Checkbox.Group
                 value={value}
                 onChange={setValue}
@@ -119,15 +148,23 @@ function CheckboxesForProducts({ close }: { close: () => void }) {
 
 export const SyncEActivities = ({
     setActionsError,
+    academicYears,
+    currentlySelectedAcademicYears,
 }: {
     setActionsError: (error: string | null) => void;
+    academicYears: string[];
+    currentlySelectedAcademicYears: string[];
 }) => {
     const [opened, { open, close }] = useDisclosure(false);
 
     return (
         <>
             <Modal opened={opened} onClose={close} title={`Select products to sync`} size="xl">
-                <CheckboxesForProducts close={close} />
+                <CheckboxesForProducts
+                    close={close}
+                    academicYears={academicYears}
+                    currentlySelectedAcademicYears={currentlySelectedAcademicYears}
+                />
             </Modal>
             <Button leftSection={<FaSync />} color="violet" onClick={open}>
                 Sync from eActivities

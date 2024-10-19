@@ -27,7 +27,11 @@ export const PageActions = ({
                     {...formHook.getInputProps("academicYears")}
                 />
                 <Group>
-                    <SyncEActivities setActionsError={setActionsError} />
+                    <SyncEActivities
+                        setActionsError={setActionsError}
+                        academicYears={academicYears}
+                        currentlySelectedAcademicYears={formHook.getValues().academicYears}
+                    />
                     <CSVImport
                         academicYears={academicYears}
                         currentAcademicYear={currentAcademicYear}

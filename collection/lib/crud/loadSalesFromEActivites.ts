@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { isValidAcademicYear, Sale } from "@docsoc/eactivities";
 import { createLogger } from "@docsoc/util";
 import { RootItem } from "@prisma/client";
 import axios, { AxiosError } from "axios";
@@ -19,6 +20,7 @@ const logger = createLogger("collection.syncEActivities");
  */
 export async function loadSalesFromEActivites(
     productIdsFromDB: number[] = [],
+    academicYearsToSync: string[],
 ): Promise<StatusReturn> {
     // Action so auth needed
     const session = await auth();
@@ -27,6 +29,14 @@ export async function loadSalesFromEActivites(
         return {
             status: "error",
             error: "Unauthorized",
+        };
+    }
+
+    // Validate academic years
+    if (!academicYearsToSync.every(isValidAcademicYear)) {
+        return {
+            status: "error",
+            error: "Invalid academic year in list to sync",
         };
     }
 
@@ -58,6 +68,30 @@ export async function loadSalesFromEActivites(
         });
     }
 
+    // 2: Fetch all sales for the academic years in question
+    // Doing simultaneously is tempting but would probably hit the API rate limit
+    const allSales: Sale[] = [];
+    for (const academicYear of academicYearsToSync) {
+        let salesReq: Awaited<ReturnType<typeof eActivities.getAllSales>>;
+        try {
+            salesReq = await eActivities.getAllSales(undefined, academicYear);
+            allSales.push(...salesReq.data);
+        } catch (e) {
+            if (axios.isAxiosError(e)) {
+                const message = e.response?.data?.Message ?? e?.message ?? e?.toString();
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for academic year ${academicYear} - ${message}.`,
+                };
+            } else {
+                return {
+                    status: "error",
+                    error: `Failed to fetch sales for academic year ${academicYear} - ${e?.toString()}.`,
+                };
+            }
+        }
+    }
+
     // 0.1: Create import
     // Name: <csv file name> DD/MM/YYYY HH:MM
     const importName = `eActivities @ ${new Date().toLocaleString("en-GB")}`;
@@ -67,7 +101,7 @@ export async function loadSalesFromEActivites(
         },
     });
 
-    revalidatePath("/");
+    revalidatePath("/"); // so it shows up
 
     // 2: For each product, fetch the sales from eActivities & insert
     for (const product of products) {
@@ -75,35 +109,9 @@ export async function loadSalesFromEActivites(
         if (typeof product.eActivitiesId !== "number") {
             logger.warn(`Product ${product.id} has an invalid eActivities ID, so skipping!`);
         }
-        let salesReq: Awaited<ReturnType<typeof eActivities.getProductSales>>;
-        try {
-            salesReq = await eActivities.getProductSales(
-                undefined,
-                product.eActivitiesId as number,
-            );
-        } catch (e) {
-            if (axios.isAxiosError(e)) {
-                const message = e.response?.data?.Message ?? e?.message ?? e?.toString();
-                return {
-                    status: "error",
-                    error: `Failed to fetch sales for product ${product.id} - ${message}. Any imports up to this point have been preserved.`,
-                };
-            } else {
-                return {
-                    status: "error",
-                    error: `Failed to fetch sales for product ${
-                        product.id
-                    } - ${e?.toString()}. Any imports up to this point have been preserved.`,
-                };
-            }
-        }
-
-        if (salesReq.status !== 200) {
-            return {
-                status: "error",
-                error: `Failed to fetch sales for product ${product.id}: ${salesReq.status} with ${salesReq.statusText}`,
-            };
-        }
+        
+        // Filter out sales
+        const sales = allSales.filter((sale) => sale.ProductID === product.eActivitiesId);
 
         // Pull product data as well
         let productData: Awaited<ReturnType<typeof eActivities.getProductById>>;
@@ -136,7 +144,7 @@ export async function loadSalesFromEActivites(
             };
         }
         // 2.2: Insert the sales into the database
-        for (const sale of salesReq.data) {
+        for (const sale of sales) {
             // 1: If user exists, get user
             const user = await prisma.imperialStudent.upsert({
                 where: {
