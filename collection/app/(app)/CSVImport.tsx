@@ -270,7 +270,7 @@ export const CSVImport = ({
                 </Stack>
             </Modal>
 
-            <Button leftSection={<FaTable />} onClick={open}>
+            <Button leftSection={<FaTable />} onClick={open} color="teal">
                 Import data from CSV
             </Button>
         </>

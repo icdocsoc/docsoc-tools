@@ -3,6 +3,7 @@ import { Paper, MultiSelect, Group } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
 
 import { CSVImport } from "./CSVImport";
+import { SyncEActivities } from "./SyncEActivities";
 
 export const PageActions = ({
     formHook,
@@ -23,10 +24,13 @@ export const PageActions = ({
                     data={academicYears}
                     {...formHook.getInputProps("academicYears")}
                 />
-                <CSVImport
-                    academicYears={academicYears}
-                    currentAcademicYear={currentAcademicYear}
-                />
+                <Group>
+                    <SyncEActivities />
+                    <CSVImport
+                        academicYears={academicYears}
+                        currentAcademicYear={currentAcademicYear}
+                    />
+                </Group>
             </Group>
         </Paper>
     );

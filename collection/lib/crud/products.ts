@@ -141,6 +141,16 @@ export async function addProducts(academicYear: string, products: string[]): Pro
 }
 
 export async function deleteProduct(productId: number): Promise<StatusReturn> {
+    // Action so auth needed
+    const session = await auth();
+
+    if (!session) {
+        return {
+            status: "error",
+            error: "Unauthorized",
+        };
+    }
+
     try {
         await prisma.rootItem.delete({
             where: {
@@ -171,6 +181,16 @@ export async function updateProductWithEActivitesMetadata({
     eActivitiesID: number;
     eActivitiesData: Product;
 }): Promise<StatusReturn> {
+    // Action so auth needed
+    const session = await auth();
+
+    if (!session) {
+        return {
+            status: "error",
+            error: "Unauthorized",
+        };
+    }
+
     if (!eActivitiesData) {
         return {
             status: "error",

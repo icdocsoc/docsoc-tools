@@ -120,7 +120,7 @@ async function importFile(
         });
 
         // Add order item
-        // kip if this orderId already exists for this user & variant
+        // skip if this orderId already exists for this user & variant
         if (
             await prisma.orderItem.findFirst({
                 where: {
