@@ -32,6 +32,8 @@ export const mapFieldsInteractive = async (
     logger.debug("Mapping CSV fields to template interactively");
 
     const NONE_OPTION = "None";
+    const PASS_AS_IS_OPTION = (field: string) =>
+        `Pass as-is (field '${field}' will be provided as field '${field}' to the templating engine)`;
 
     logger.info("When prompted, select the corresponding template field for each CSV header");
 
@@ -42,16 +44,30 @@ export const mapFieldsInteractive = async (
             type: "list",
             name: header,
             message: `Map CSV field \`${header}\` to template field:`,
-            choices: Array.from(templateFields).concat([NONE_OPTION]),
+            choices: Array.from(templateFields).concat([PASS_AS_IS_OPTION(header), NONE_OPTION]),
             // Set default to index in templateField that matches the csvHeader
-            default: templateFields.has(header) ? header : "None",
+            default: templateFields.has(header) ? header : PASS_AS_IS_OPTION(header),
         })),
     );
     for (const [csvHeader, templateFieldChosen] of Object.entries(await prompter).filter(
         ([, field]) => field !== NONE_OPTION,
     )) {
-        map.set(csvHeader, templateFieldChosen);
-        mappedFields.add(templateFieldChosen);
+        const fieldToSet =
+            templateFieldChosen === PASS_AS_IS_OPTION(csvHeader) ? csvHeader : templateFieldChosen;
+
+        if (map.has(csvHeader)) {
+            // Error, duplicate mapping, can't map the same csvHeader to two different templateFields (not yet anyway)
+            logger.error(
+                `Duplicate mapping for csvHeader \`${csvHeader}\` to template field \`${fieldToSet}\`! This is currently unsupported.`,
+            );
+
+            throw new Error(
+                `Duplicate mapping for csvHeader \`${csvHeader}\` to template field \`${fieldToSet}\`! This is currently unsupported.`,
+            );
+        }
+
+        map.set(csvHeader, fieldToSet);
+        mappedFields.add(fieldToSet);
     }
 
     // Warn if not all fields were mapped
