@@ -46,6 +46,7 @@ COPY --from=builder /build/collection/.next/standalone/common ./
 COPY --from=builder /build/collection/.next/standalone/package.json ./
 COPY --from=builder /build/collection/.next/standalone/node_modules ./node_modules
 COPY --from=builder /build/collection/.next/static ./.next/static
+COPY --from=builder /build/collection/entry.sh ./entry.sh
 COPY --from=builder --chown=node:node /build/collection/prisma ./prisma
 
 
@@ -60,4 +61,4 @@ EXPOSE 3000
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry.
 ENV NEXT_TELEMETRY_DISABLED=1
-CMD ["dumb-init", "node", "server.js"]
+CMD ["./entry.sh"]
