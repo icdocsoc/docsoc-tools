@@ -1,0 +1,19 @@
+Hi {{ name }},
+
+You are yet to collect the following items that you bought from the DoCSoc summer merch drop last year:
+{% for item in itemsToCollect %}
+- {{ item.rootitem }} {{ item.variant }} x{{ item.quantity }} {% endfor %}
+
+You can collect them at any of the following collection dates:
+- Monday 21st Oct 4:15-6pm, Huxley 315
+- Tuesday 22nd Oct 4:15-6pm, Huxley 315
+- Friday 25th Oct 2pm-3:45pm, Huxley 218
+- Monday 28th Oct 4:15pm-6pm, Huxley 315
+- Thursday 31st Oct, 3:15pm-4:45pm, Huxley 315
+- Monday 4th Nov, 4:15pm-6pm, Huxley 315
+- Friday 8th Nov, 2:30pm-5pm, Huxley 218
+
+If you have already collected your merch, didn’t buy any merch or otherwise believe this email was sent incorrectly, please let us know!
+
+Kind regards,
+DoCSoc Committee.

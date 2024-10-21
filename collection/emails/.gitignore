@@ -1,0 +1,9 @@
+attachments/*
+!attachments/.gitkeep
+
+data/*
+!data/.gitkeep
+!data/example.csv
+
+output/*
+!output/.gitkeep
