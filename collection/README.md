@@ -30,3 +30,16 @@ Other tools have their own package.jsons as that was how they were originally se
 # Docker
 
 To build the docker image, run `npx nx container collection` from the _root_ of the repo.
+
+# What `emails/` for?
+
+This is for sending reminder emails to those who haven't collected their merch yet.
+
+Usage:
+
+```bash
+cd emails
+npx tsx getUncollectedPeople.ts # outputs a JSON file to output/reminders.json
+docsoc-mailmerge generate nunjucks ./data/reminders.json ./templates/reminder.njk -s json -o output -n reminders
+# then send (check README in emails folder)!
+```
