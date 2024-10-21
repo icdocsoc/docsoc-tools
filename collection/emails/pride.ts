@@ -1,10 +1,25 @@
 // Import pride merch
 // OLD Script, will not work with current codebase
+import { AcademicYear } from "@docsoc/eactivities";
 import { PrismaClient } from "@prisma/client";
 import { parse } from "csv-parse";
 import { promises as fs } from "fs";
 
 const prisma = new PrismaClient();
+
+// from collection/lib/config.ts
+async function getConfigValueFor(key: string) {
+    const config = await prisma.config.findFirst({
+        where: {
+            key,
+        },
+    });
+    return config?.value;
+}
+const ACADEMIC_YEAR_KEY = "academicYear";
+export async function getAcademicYear(): Promise<AcademicYear> {
+    return (await getConfigValueFor(ACADEMIC_YEAR_KEY)) as string as AcademicYear;
+}
 
 async function main(fileName: string) {
     // Create pride
@@ -13,14 +28,15 @@ async function main(fileName: string) {
         update: {},
         create: {
             name: "Pride Lanyard",
-            variants: {
+            academicYear: (await getAcademicYear()) as string as AcademicYear,
+            Variant: {
                 create: {
                     variantName: "Pride Lanyard",
                 },
             },
         },
         include: {
-            variants: true,
+            Variant: true,
         },
     });
 
@@ -28,6 +44,13 @@ async function main(fileName: string) {
 
     const iter = parse(fileContents, {
         columns: true,
+    });
+
+    const importName = `Pride Lanyard via pride.ts @ ${new Date().toLocaleString("en-GB")}`;
+    const importItem = await prisma.orderItemImport.create({
+        data: {
+            name: importName,
+        },
     });
 
     for await (const record of iter) {
@@ -59,15 +82,15 @@ async function main(fileName: string) {
         const lanyardOrders = await prisma.order.findFirst({
             where: {
                 studentId: user.id,
-                orderItems: {
+                OrderItem: {
                     some: {
-                        variantId: lanyard.variants[0].id,
+                        variantId: lanyard.Variant[0].id,
                     },
                 },
             },
             relationLoadStrategy: "join",
             include: {
-                orderItems: true,
+                OrderItem: true,
             },
         });
 
@@ -80,17 +103,23 @@ async function main(fileName: string) {
         await prisma.order.create({
             data: {
                 orderDate: new Date(dateWithTime),
-                student: {
+                academicYearReference: {
+                    connect: {
+                        year: lanyard.academicYear,
+                    },
+                },
+                ImperialStudent: {
                     connect: {
                         id: user.id,
                     },
                 },
                 orderNo: Math.floor(Math.random() * 100000),
-                orderItems: {
+                OrderItem: {
                     create: {
-                        variantId: lanyard.variants[0].id,
+                        variantId: lanyard.Variant[0].id,
                         quantity: 1,
                         collected: false,
+                        importId: importItem.id,
                     },
                 },
             },

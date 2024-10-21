@@ -6,6 +6,9 @@ env:
 
 on:
     push:
+        branches:
+            - main
+    # Any PR
     pull_request:
 
 permissions:
