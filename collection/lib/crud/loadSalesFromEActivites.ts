@@ -109,9 +109,39 @@ export async function loadSalesFromEActivites(
         if (typeof product.eActivitiesId !== "number") {
             logger.warn(`Product ${product.id} has an invalid eActivities ID, so skipping!`);
         }
-        
+
         // Filter out sales
         const sales = allSales.filter((sale) => sale.ProductID === product.eActivitiesId);
+        if (sales.length === 0) {
+            logger.warn(`No sales found for product ${product.name} id ${product.id} - skipping`);
+            continue;
+        }
+
+        // If length of sales === number of sales for product, skip
+        const existingSales = await prisma.variant.findMany({
+            select: {
+                _count: {
+                    select: {
+                        OrderItem: true,
+                    },
+                },
+            },
+            where: {
+                rootItemId: product.id,
+            },
+        });
+
+        const existingSalesCount = existingSales.reduce(
+            (acc, curr) => acc + curr._count.OrderItem,
+            0,
+        );
+
+        if (existingSalesCount === sales.length) {
+            logger.warn(
+                `All sales for product ${product.name} id ${product.id} already imported, skipping. (${existingSalesCount} sales already imported)`,
+            );
+            continue;
+        }
 
         // Pull product data as well
         let productData: Awaited<ReturnType<typeof eActivities.getProductById>>;
