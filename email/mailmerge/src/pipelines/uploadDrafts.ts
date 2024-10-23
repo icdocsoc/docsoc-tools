@@ -107,7 +107,7 @@ export async function uploadDrafts(
     3. You have tested the system beforehand
     4. All indications this is a test have been removed
 
-    You are about to upload ${pendingEmails.length} emails. The esitmated time for this is ${
+    You are about to upload ${pendingEmails.length} emails. The estimated time for this is ${
             ((5 + sleepBetween) * pendingEmails.length) / 60 / 60
         } hours.
 

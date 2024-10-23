@@ -130,7 +130,7 @@ Check that:
 3. You have tested the system beforehand
 4. All indications this is a test have been removed
 
-You are about to send ${emailsNumberDisplay} emails. The esitmated time for this is ${
+You are about to send ${emailsNumberDisplay} emails. The estimated time for this is ${
             ((3 + (options.sleepBetween ?? DEFAULT_SLEEP_BETWEEN)) * emailsNumberDisplay) / 60 / 60
         } hours.
 
