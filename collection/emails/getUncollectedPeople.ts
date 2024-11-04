@@ -64,7 +64,7 @@ async function getUncollectedPeople() {
                 name: `${student.firstName} ${student.lastName}`,
                 shortcode: student.shortcode,
                 itemsToCollect: [],
-                subject: "Collect your remaining DoCSoc Summer Merch",
+                subject: `FINAL CALL: Collect your DoCSoc${student.shortcode.endsWith("24") ? " (Freshers) " : " "}Merchandise`,
             });
         }
 
@@ -78,7 +78,7 @@ async function getUncollectedPeople() {
 
     outputRecords.push(...studentMap.values());
 
-    await fs.writeFile("data/reminders.json", JSON.stringify(outputRecords, null, 2));
+    await fs.writeFile("data/reminders-03.11.24.json", JSON.stringify(outputRecords, null, 2));
 }
 
 getUncollectedPeople()

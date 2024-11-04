@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { getAcademicYear } from "@/lib/config";
 import { getAcademicYearsInDB } from "@/lib/crud/academic-year";
-import { getImportList } from "@/lib/crud/importCsv";
+// import { getImportList } from "@/lib/crud/importCsv";
 import { Stack, Title } from "@mantine/core";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -18,7 +18,7 @@ export default async function Index() {
     const currentAcademicYear = await getAcademicYear();
     const academicYears = await getAcademicYearsInDB();
 
-    const imports = await getImportList();
+    // const imports = await getImportList();
 
     return (
         <Stack gap="lg">
@@ -27,7 +27,7 @@ export default async function Index() {
                 currentAcademicYear={currentAcademicYear}
                 validAcaemicYears={academicYears}
             />
-            <ImportsList imports={imports} />
+            {/* <ImportsList imports={imports} /> */}
         </Stack>
     );
 }
