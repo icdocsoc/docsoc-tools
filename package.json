@@ -67,7 +67,8 @@
         "clickup/**/*",
         "common/*",
         "collection",
-        "template"
+        "template",
+        "firebase"
     ],
     "dependencies": {
         "@docsoc/eactivities": "^1.2.1",
