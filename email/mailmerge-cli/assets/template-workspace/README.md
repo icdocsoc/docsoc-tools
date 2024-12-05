@@ -47,6 +47,10 @@ DOCSOC_SMTP_PORT=587
 DOCSOC_OUTLOOK_USERNAME=
 # Password to docsoc email
 DOCSOC_OUTLOOK_PASSWORD=
+# Email to send as (should match DOCSOC_OUTLOOK_USERNAME or a registered alias)
+DOCSOC_SENDER_EMAIL=docsoc@ic.ac.uk
+# Name of sender to state on email
+DOCSOC_SENDER_NAME=DoCSoc
 
 # Optional: Fill these in to uplod drafts
 # You will need to create an app registration in Entra ID, restricted to the organisation,
