@@ -78,7 +78,7 @@ async function getUncollectedPeople() {
 
     outputRecords.push(...studentMap.values());
 
-    await fs.writeFile("data/reminders-03.11.24.json", JSON.stringify(outputRecords, null, 2));
+    await fs.writeFile("data/reminders-07.11.24.json", JSON.stringify(outputRecords, null, 2));
 }
 
 getUncollectedPeople()

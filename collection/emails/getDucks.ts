@@ -29,7 +29,7 @@ async function getUncollectedPeople() {
             RootItem: {
                 name: "Duck T-Shirt (White)",
             },
-            variantName: "S (36\")",
+            variantName: "M (40\")",
         },
         include: {
             OrderItem: {
@@ -79,7 +79,7 @@ async function getUncollectedPeople() {
 
     outputRecords.push(...studentMap.values());
 
-    await fs.writeFile("data/duck-refund.json", JSON.stringify(outputRecords, null, 2));
+    await fs.writeFile("data/duck-refund-medium.json", JSON.stringify(outputRecords, null, 2));
 }
 
 getUncollectedPeople()
