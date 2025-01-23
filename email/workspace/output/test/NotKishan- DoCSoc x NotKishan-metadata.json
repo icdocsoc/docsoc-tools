@@ -1,0 +1,47 @@
+{
+    "name": "NotKishan- DoCSoc x NotKishan",
+    "record": {
+        "name": "NotKishan",
+        "to": "kishansambhi@hotmail.co.uk",
+        "subject": " DoCSoc x NotKishan",
+        "a1": "./attachments/DoCSoc Sponsorship Proposal 24-25.pdf",
+        "a2": "./attachments/munch.jpg",
+        "bcc": "",
+        "cc": ""
+    },
+    "engine": "nunjucks",
+    "engineOptions": {
+        "templatePath": "templates/template.md.njk",
+        "rootHtmlTemplate": "templates/wrapper.html.njk"
+    },
+    "files": [
+        {
+            "filename": "NotKishan- DoCSoc x NotKishan__nunjucks__Preview-Markdown.md",
+            "engineData": {
+                "name": "Preview-Markdown.md",
+                "metadata": {
+                    "type": "markdown"
+                }
+            }
+        },
+        {
+            "filename": "NotKishan- DoCSoc x NotKishan__nunjucks__Preview-HTML.html",
+            "engineData": {
+                "name": "Preview-HTML.html",
+                "metadata": {
+                    "type": "html"
+                }
+            }
+        }
+    ],
+    "email": {
+        "to": [
+            "kishansambhi@hotmail.co.uk"
+        ],
+        "cc": [],
+        "bcc": [],
+        "subject": " DoCSoc x NotKishan"
+    },
+    "attachments": [],
+    "$originalFilepath": "output/test/NotKishan- DoCSoc x NotKishan-metadata.json"
+}

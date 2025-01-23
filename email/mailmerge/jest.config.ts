@@ -4,11 +4,11 @@ export default {
     preset: "../../jest.preset.js",
     testEnvironment: "node",
     transform: {
-        "^.+\\.ts$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],
+        "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],
         "^(.*).js$": ["babel-jest"],
     },
     transformIgnorePatterns: ["/node_modules/(?!(@docsoc|chalk)/)", "\\.pnp\\.[^\\/]+$"],
-    moduleFileExtensions: ["ts", "js", "html"],
+    moduleFileExtensions: ["ts", "js", "html", "tsx"],
     coverageDirectory: "../../coverage/email/mailmerge-cli",
-    testMatch: ["<rootDir>/test/**/*.ts", "<rootDir>/src/**/*.spec.ts"],
+    testMatch: ["<rootDir>/test/**/*.(ts|tsx)", "<rootDir>/src/**/*.spec.ts"],
 };
