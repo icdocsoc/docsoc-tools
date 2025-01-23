@@ -5,10 +5,10 @@
         "outDir": "./dist",
         "declaration": true,
         "declarationMap": true,
-        "types": ["node"],
+        "types": [
+            "node"
+        ],
         "baseUrl": ".",
         "allowJs": true
     },
-    "include": ["src/**/*.ts", "src/external/eml-format.js"],
-    "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "package.json"]
 }

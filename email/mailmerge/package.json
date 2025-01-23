@@ -9,6 +9,7 @@
         "@babel/preset-env": "^7.25.3",
         "@docsoc/util": "^1.2.0",
         "@microsoft/microsoft-graph-client": "^3.0.7",
+        "@react-email/render": "1.0.4",
         "@types/chalk": "^2.2.0",
         "@types/cli-progress": "^3.11.6",
         "@types/csv-parse": "^1.2.2",
@@ -46,6 +47,7 @@
     "typings": "./index.d.ts",
     "devDependencies": {
         "@jest/globals": "^29.7.0",
+        "@types/react": "^19.0.7",
         "babel-jest": "^29.7.0",
         "jest-mock-extended": "^3.0.7",
         "ts-node": "^10.9.2"
