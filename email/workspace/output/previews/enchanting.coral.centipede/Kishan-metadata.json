@@ -1,0 +1,35 @@
+{
+    "name": "Kishan",
+    "record": {
+        "name": "Kishan",
+        "to": "kishansambhi@hotmail.co.uk",
+        "subject": "DoCSoc x Kishan"
+    },
+    "engine": "react",
+    "engineOptions": {
+        "templatePath": "./emails-out/Email.js"
+    },
+    "files": [
+        {
+            "filename": "Kishan__react__Rendered-Email",
+            "engineData": {
+                "name": "Rendered-Email",
+                "metadata": {
+                    "type": "react",
+                    "templatePath": "./emails-out/Email.js"
+                }
+            }
+        }
+    ],
+    "email": {
+        "to": [
+            "kishansambhi@hotmail.co.uk"
+        ],
+        "cc": [],
+        "bcc": [],
+        "subject": "DoCSoc x Kishan"
+    },
+    "attachments": [
+        "Kishan"
+    ]
+}
