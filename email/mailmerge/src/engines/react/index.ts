@@ -1,8 +1,9 @@
 import { render } from "@react-email/render";
+import { join } from "path";
 import React from "react";
 
 import { MappedRecord } from "../../util/types.js";
-import { TemplateEngine, TemplatePreviews } from "../types.js";
+import { TemplateEngine, TemplateEngineOptions, TemplatePreviews } from "../types.js";
 
 export enum PropTypes {
     String = "string",
@@ -67,14 +68,16 @@ function assertIsReactEmailTemplateOptions(
  */
 export default class ReactEmailEngine extends TemplateEngine {
     private loadedTemplate?: ReactEmailEngineExports;
+    private templateOptions: ReactEmailEngineOptions;
 
-    constructor(private templateOptions: ReactEmailEngineOptions) {
+    constructor(templateOptions: TemplateEngineOptions) {
         super();
         assertIsReactEmailTemplateOptions(templateOptions);
+        this.templateOptions = templateOptions;
     }
 
     public override async loadTemplate(): Promise<void> {
-        this.loadedTemplate = await import(this.templateOptions.templatePath);
+        this.loadedTemplate = await import(join(process.cwd(), this.templateOptions.templatePath));
 
         if (!this.loadedTemplate) {
             throw new Error("No template imported!");
@@ -109,7 +112,7 @@ export default class ReactEmailEngine extends TemplateEngine {
         };
         return [
             {
-                name: "Rendered-Email",
+                name: "Rendered-Email.html",
                 content: await render(React.createElement(Component, record), { pretty: true }),
                 metadata,
             },
