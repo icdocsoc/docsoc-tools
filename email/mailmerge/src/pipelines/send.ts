@@ -2,6 +2,7 @@ import { createLogger } from "@docsoc/util";
 import chalk from "chalk";
 // Load dotenv
 import "dotenv/config";
+import { promises as fs } from "fs";
 import readlineSync from "readline-sync";
 
 import { ENGINES_MAP } from "../engines/index.js";
@@ -10,6 +11,18 @@ import Mailer from "../mailer/mailer.js";
 import { EmailString, FromEmail } from "../util/types.js";
 import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/types.js";
 
+/** See https://www.nodemailer.com/message/embedded-images/ */
+export interface InlineImage {
+    /** Filename to attach to email as */
+    filename: string;
+    /** Path to file relative to CWD */
+    path: string;
+    /** Content ID to use in the email */
+    cid: string;
+}
+
+export type InlineImagesSpec = InlineImage[];
+
 interface SendEmailsOptions {
     /** Time to sleep between sending emails to prevent hitting rate limits */
     sleepBetween?: number;
@@ -17,6 +30,8 @@ interface SendEmailsOptions {
     onlySend?: number;
     /** Send the top {@link onlySend} emails to this email as a test */
     testSendTo?: EmailString;
+    /** Path to JSON file conforming to {@link InlineImagesSpec} with attachments */
+    inlineImages?: string;
 }
 
 const DEFAULT_SLEEP_BETWEEN = 0;
@@ -49,6 +64,37 @@ export async function sendEmails(
     if (options?.onlySend === 0) {
         logger.warn(`onlySend is set to 0, so no emails will be sent.`);
         return;
+    }
+
+    // 0: Check inline images
+    let inlineImages: InlineImagesSpec = [];
+    if (options.inlineImages) {
+        logger.info("Loading inline images...");
+        inlineImages = JSON.parse(await fs.readFile(options.inlineImages, "utf-8"));
+        // Validate the inline images
+        if (!Array.isArray(inlineImages)) {
+            logger.error(
+                "Invalid inline images - must be an array of InlineImage objects. See https://www.nodemailer.com/message/embedded-images/ for format.",
+            );
+            throw new Error("Invalid inline images - must be an array of InlineImage objects.");
+        }
+        logger.info(`Loaded ${inlineImages.length} inline images.`);
+        // Check all the paths are valid (accessble) & have a cid & filename proprty
+        for (const image of inlineImages) {
+            if (
+                typeof image.filename !== "string" ||
+                typeof image.path !== "string" ||
+                typeof image.cid !== "string"
+            ) {
+                logger.error(
+                    "Invalid inline image - must have a filename, path, and cid property. Got ",
+                    image,
+                );
+                throw new Error(
+                    `Invalid inline image - must have a filename, path, and cid property. Got ${image}`,
+                );
+            }
+        }
     }
 
     // 1: Load data
@@ -159,9 +205,12 @@ You are about to send ${emailsNumberDisplay} emails. The estimated time for this
             to,
             subject,
             html,
-            attachments.map((file) => ({
-                path: file,
-            })),
+            [
+                ...attachments.map((file) => ({
+                    path: file,
+                })),
+                ...inlineImages,
+            ],
             {
                 cc,
                 bcc,

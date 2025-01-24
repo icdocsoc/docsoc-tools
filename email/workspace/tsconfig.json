@@ -102,6 +102,6 @@
     },
     "include": [
         "emails/*.tsx",
-        "emails/Email.tsx"
+        "emails/Wrapper.tsx"
     ]
 }
