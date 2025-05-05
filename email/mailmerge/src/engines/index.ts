@@ -13,7 +13,7 @@
  * For example, the {@link NunjucksMarkdownEngine} will return a markdown preview and an HTML preview,
  * and will allow the user to edit the markdown preview and then rerender the HTML preview.
  * 
- * ### Example simpl usage:
+ * ### Example simple usage:
  * ```typescript
  * import { NunjucksMarkdownEngine } from '@docsoc/mailmerge';
  * 
