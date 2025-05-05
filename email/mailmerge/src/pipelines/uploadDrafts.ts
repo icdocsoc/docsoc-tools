@@ -7,13 +7,16 @@ import readlineSync from "readline-sync";
 import { TemplateEngineConstructor, ENGINES_MAP } from "../engines/index.js";
 import { EmailUploader } from "../graph/index.js";
 import { EmailString } from "../util/index.js";
+import { InlineImagesSpec, loadInlineImageJSON } from "../util/inline-images.js";
 import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/index.js";
 
 interface UploadDraftsOptions {
     /** Time to sleep between sending emails to prevent hitting rate limits */
     sleepBetween?: number;
-    /** Only send this many emails (i.e. the first X emails) */
+    /** Only upload this many emails (i.e. the first X emails) */
     onlySend?: number;
+    /** Path to JSON file conforming to a {@link InlineImagesSpec} with files to attach for use as inline images. */
+    inlineImages?: string;
 }
 
 /**
@@ -54,6 +57,12 @@ export async function uploadDrafts(
     // 1: Load data
     logger.info("Loading merge results...");
     const results = storageBackend.loadMergeResults();
+
+    let inlineImages: InlineImagesSpec = [];
+    if (options.inlineImages) {
+        logger.info("Loading inline images...");
+        inlineImages = await loadInlineImageJSON(options.inlineImages, logger);
+    }
 
     // For each sidecar, send the previews
     const pendingEmails: {
@@ -143,7 +152,7 @@ export async function uploadDrafts(
             to,
             subject,
             html,
-            attachments,
+            [...attachments, ...inlineImages],
             {
                 cc,
                 bcc,

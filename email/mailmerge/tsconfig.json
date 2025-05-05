@@ -9,7 +9,8 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "esModuleInterop": true,
-        "baseUrl": "./"
+        "baseUrl": "./",
+        "jsx": "react",
     },
     "files": [],
     "include": [],

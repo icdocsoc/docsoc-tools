@@ -13,7 +13,7 @@
  * For example, the {@link NunjucksMarkdownEngine} will return a markdown preview and an HTML preview,
  * and will allow the user to edit the markdown preview and then rerender the HTML preview.
  * 
- * ### Example simpl usage:
+ * ### Example simple usage:
  * ```typescript
  * import { NunjucksMarkdownEngine } from '@docsoc/mailmerge';
  * 
@@ -37,9 +37,10 @@
  * @module
  */
 import nunjucksEngine from "./nunjucks-md/index.js";
+import reactEngine from "./react/index.js";
 import { TemplateEngineConstructor } from "./types.js";
 
-export type TEMPLATE_ENGINES = "nunjucks";
+export type TEMPLATE_ENGINES = "nunjucks" | "react";
 
 /**
  * Default map of engine names (provided on the CLI) to constructors for those engines.
@@ -48,8 +49,11 @@ export type TEMPLATE_ENGINES = "nunjucks";
  */
 export const ENGINES_MAP: Record<TEMPLATE_ENGINES, TemplateEngineConstructor> = {
     nunjucks: nunjucksEngine,
+    react: reactEngine,
 };
 
 export * from "./types.js";
 export * from "./nunjucks-md/index.js";
+export * from "./react/index.js";
 export { default as NunjucksMarkdownEngine } from "./nunjucks-md/index.js";
+export { default as ReactEmailEngine } from "./react/index.js";
