@@ -5,12 +5,14 @@ import React from "react";
 import { MappedRecord } from "../../util/types.js";
 import { TemplateEngine, TemplateEngineOptions, TemplatePreviews } from "../types.js";
 
+/** Valid types we can pass through as props to rendered templates */
 export enum PropTypes {
     String = "string",
     Number = "number",
     Boolean = "boolean",
+    /** Supported when using JSON as a data source */
     Array = "array",
-    /** An arbitrary object */
+    /** An arbitrary object (supported when using JSON as a data source) */
     Object = "object",
 }
 
@@ -31,7 +33,7 @@ export interface ReactEmailEngineExports<
      */
     parameters: () => Record<string, PropTypes>;
     /**
-     * Return the template engine itself - essentially a function that takes a T and return a React component./
+     * Return the template engine itself as the default export - essentially a function that takes a T and return a React component./
      */
     default: React.FC<T>;
 }
@@ -45,12 +47,16 @@ export interface ReactEmailEngineOptions {
     [key: string]: string;
 }
 
+/** Sidecar metadata to store in sidecar files mailmerge generates so we can reload templates later */
 export interface ReactEmailSidecarMetadata {
     type: "react";
+    /** Store the path to the original JSX file we loaded, so we can rerun the render method */
     templatePath: string;
+    // Needed or TS complains
     [key: string]: unknown;
 }
 
+// TS hack to get type inference on the arbitrary option object mailmerge gives us
 function assertIsReactEmailTemplateOptions(
     options: Record<string, unknown>,
 ): asserts options is ReactEmailEngineOptions {
@@ -64,7 +70,9 @@ function assertIsReactEmailTemplateOptions(
  *
  * The email engine here returns one preview, which contains the HTML to send.
  *
- * On rerender, it will re-render the React component and return the new HTML.
+ * On rerender, it will re-render the React component (by reloading the original template that is stores) and return the new HTML.
+ * Through this, unlike nunjucks, we can update our template and run re-render to update the outputs
+ * (in nunjucks you can only edit the generated markdown files and rerender to generate the output HTML)
  */
 export default class ReactEmailEngine extends TemplateEngine {
     private loadedTemplate?: ReactEmailEngineExports;
@@ -119,13 +127,13 @@ export default class ReactEmailEngine extends TemplateEngine {
         ];
     }
     /**
-     * Re-rendering in react really m
+     * Re-rendering by reloading the template and regenerateing HTML
      */
     public override async rerenderPreviews(
         loadedPreviews: TemplatePreviews,
         associatedRecord: MappedRecord,
     ): Promise<TemplatePreviews> {
-        // 1: do we have at least one preview?
+        // 1: do we have at least one preview? (we only generate one preview, see renderPreview)
         if (loadedPreviews.length === 0) {
             throw new Error("No previews to re-render");
         }
@@ -156,7 +164,7 @@ export default class ReactEmailEngine extends TemplateEngine {
         ];
     }
 
-    /** Return the first preview */
+    /** Return the first preview as we only generate one that being the HTML to send */
     public override async getHTMLToSend(loadedPreviews: TemplatePreviews): Promise<string> {
         return loadedPreviews[0].content;
     }
