@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { getItemsInImport } from "@/lib/crud/importCsv";
 import { NextRequest, NextResponse } from "next/server";
 
+/// @ts-expect-error: Weird types
 export const GET = auth(async (request, { params }: { params?: { importId?: string } }) => {
     if (!request.auth) {
         return NextResponse.json(
