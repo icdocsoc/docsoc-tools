@@ -5,7 +5,7 @@ import { ImportTable } from "@/components/tables/ImportTable";
 import { ImportList, rollbackImport } from "@/lib/crud/importCsv";
 import { Accordion, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import React from "react";
+import React, { useState } from "react";
 import { FaUndo } from "react-icons/fa";
 
 interface ImportsListProps {
@@ -52,12 +52,14 @@ const ImportItem: React.FC<{ importItem: ImportList[0] }> = ({ importItem }) => 
 };
 
 export const ImportsList: React.FC<ImportsListProps> = ({ imports }) => {
+    const [currentlyOpen, setCurrentlyOpen] = useState<string | null>("");
+
     return (
         <Paper p="lg" withBorder mt="xl">
             <Stack>
                 <Title order={3}>Previous Imports</Title>
 
-                <Accordion>
+                <Accordion onChange={setCurrentlyOpen}>
                     {imports.map((importItem, index) => (
                         <Accordion.Item key={index} value={importItem.id}>
                             <Accordion.Control>
@@ -67,7 +69,9 @@ export const ImportsList: React.FC<ImportsListProps> = ({ imports }) => {
                                 </Group>
                             </Accordion.Control>
                             <Accordion.Panel pl="md" pr="md">
-                                <ImportItem importItem={importItem} />
+                                {currentlyOpen === importItem.id && (
+                                    <ImportItem importItem={importItem} />
+                                )}
                             </Accordion.Panel>
                         </Accordion.Item>
                     ))}
