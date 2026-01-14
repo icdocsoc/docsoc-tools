@@ -1,7 +1,10 @@
 /**
- * This scrpt allows you to import a list of people into the database under one specific items and variant.
+ * This script allows you to import a list of people into the database under one specific items and variant.
  *
  * Auto imports into current academic year.
+ *
+ *
+ * TODO: Put somewhere more obvious and document
  */
 import { AcademicYear } from "@docsoc/eactivities";
 import { createLogger } from "@docsoc/util";
@@ -20,10 +23,10 @@ dotenv.config();
  */
 
 /** Used for the name of the {@link RootItem} */
-const ROOT_ITEM_NAME = "Freshers Merch";
+const ROOT_ITEM_NAME = "Freshers Merch 2025";
 
 /** Used for the name of the {@link Variant} */
-const VARIANT_NAME = "Freshers Merch 2024";
+const VARIANT_NAME = "Freshers Merch 2025";
 
 /** Used for the quantity of the {@link Variant} */
 const VARIANT_QUANTITY = 1;
@@ -49,12 +52,18 @@ interface DataSource {
 }
 
 /** Path to the data source */
-const DATA_SOURCE_PATH = "./data/freshers-2024.json";
+const DATA_SOURCE_PATH = "./data/freshers-2025.json";
 
 // Start the script
 
 // 0: init db
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+    datasources: {
+        db: {
+            url: process.env.COLLECTION_DATABASE_URL, // used to specify production URL
+        },
+    },
+});
 
 // 0.1: Find the current academic year
 // from collection/lib/config.ts
@@ -72,7 +81,7 @@ export async function getAcademicYear(): Promise<AcademicYear> {
 }
 
 async function main() {
-    const currentAcademicYear = await getAcademicYear();
+    const currentAcademicYear = "25-26";
 
     if (!currentAcademicYear) {
         throw new Error("No academic year found to import into");
