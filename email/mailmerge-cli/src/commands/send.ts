@@ -39,6 +39,11 @@ export default class Send extends Command {
             char: "t",
             description: "Send the top X emails to this email as a test. Requires --only to be set",
         }),
+        inlineImages: Flags.string({
+            char: "i",
+            description:
+                "Path to a JSON file containing informationa about inline images - see InlineImagesSpec type for format",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -76,6 +81,7 @@ export default class Send extends Command {
                 sleepBetween: flags.sleepBetween,
                 onlySend: flags.only,
                 testSendTo,
+                inlineImages: flags.inlineImages,
             },
         );
     }

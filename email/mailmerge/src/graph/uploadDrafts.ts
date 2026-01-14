@@ -84,8 +84,9 @@ export class EmailUploader {
      * Upload attachments to a created message
      * @param path Path to attachment to upload
      * @param messageID ID of the message to upload the attachment to
+     * @param cid Optional ContentID to upload under for use in IMG tags.
      */
-    private async uploadFile(path: string, messageID: string) {
+    private async uploadFile(path: string, messageID: string, cid?: string) {
         this.logger.info(`Uploading file ${path}...`);
         if (!this.client) {
             throw new Error("Client not authenticated");
@@ -108,6 +109,7 @@ export class EmailUploader {
                         attachmentType: "file",
                         name: filename,
                         size: fileStats.size,
+                        contentId: cid,
                     },
                 });
             const { uploadUrl } = uploadSession;
@@ -187,7 +189,7 @@ export class EmailUploader {
      * @param to List of email addresses to send to
      * @param subject Subject of the email
      * @param html HTML content of the email
-     * @param attachmentPaths List of paths to attachments to upload
+     * @param attachmentPaths List of paths to attachments to upload, with their CIDs if needed
      * @param additionalInfo Additional info for the email (cc, bcc)
      * @param options Options for the uploader (e.g. enabling hacks to get around Outlook limitations)
      */
@@ -195,7 +197,7 @@ export class EmailUploader {
         to: string[],
         subject: string,
         html: string,
-        attachmentPaths: string[] = [],
+        attachmentPaths: (string | { path: string; cid: string })[] = [],
         additionalInfo: { cc: EmailString[]; bcc: EmailString[] } = { cc: [], bcc: [] },
         options: {
             /**
@@ -246,7 +248,11 @@ export class EmailUploader {
             if (attachmentPaths.length > 0) {
                 this.logger.info("Uploading attachments...");
                 for (const path of attachmentPaths) {
-                    await this.uploadFile(path, response.id);
+                    if (typeof path === "string") {
+                        await this.uploadFile(path, response.id);
+                    } else {
+                        await this.uploadFile(path.path, response.id, path.cid);
+                    }
                 }
             }
         } catch (error) {

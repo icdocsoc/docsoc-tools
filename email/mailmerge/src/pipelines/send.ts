@@ -7,6 +7,7 @@ import readlineSync from "readline-sync";
 import { ENGINES_MAP } from "../engines/index.js";
 import { TemplateEngineConstructor } from "../engines/types.js";
 import Mailer from "../mailer/mailer.js";
+import { InlineImagesSpec, loadInlineImageJSON } from "../util/inline-images.js";
 import { EmailString, FromEmail } from "../util/types.js";
 import { StorageBackend, MergeResultWithMetadata, PostSendActionMode } from "./storage/types.js";
 
@@ -17,6 +18,8 @@ interface SendEmailsOptions {
     onlySend?: number;
     /** Send the top {@link onlySend} emails to this email as a test */
     testSendTo?: EmailString;
+    /** Path to JSON file conforming to a {@link InlineImagesSpec} with files to attach for use as inline images. */
+    inlineImages?: string;
 }
 
 const DEFAULT_SLEEP_BETWEEN = 0;
@@ -31,7 +34,7 @@ const DEFAULT_SLEEP_BETWEEN = 0;
  * @param enginesMap Map of engine names to engine constructors, as we need to ask the engine what the HTML is to send from the result
  * @param disablePrompt If true, will not prompt the user before sending emails. Defaults to false (will prompt)
  * @param logger Logger to use for logging
- * @param options
+ * @param options Other options
  */
 export async function sendEmails(
     storageBackend: StorageBackend,
@@ -49,6 +52,13 @@ export async function sendEmails(
     if (options?.onlySend === 0) {
         logger.warn(`onlySend is set to 0, so no emails will be sent.`);
         return;
+    }
+
+    // 0: Check inline images
+    let inlineImages: InlineImagesSpec = [];
+    if (options.inlineImages) {
+        logger.info("Loading inline images...");
+        inlineImages = await loadInlineImageJSON(options.inlineImages, logger);
     }
 
     // 1: Load data
@@ -159,9 +169,12 @@ You are about to send ${emailsNumberDisplay} emails. The estimated time for this
             to,
             subject,
             html,
-            attachments.map((file) => ({
-                path: file,
-            })),
+            [
+                ...attachments.map((file) => ({
+                    path: file,
+                })),
+                ...inlineImages,
+            ],
             {
                 cc,
                 bcc,

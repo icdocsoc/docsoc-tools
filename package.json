@@ -63,7 +63,8 @@
         "verdaccio": "^5.0.4"
     },
     "workspaces": [
-        "email/*",
+        "email/mailmerge",
+        "email/mailmerge-cli",
         "clickup/**/*",
         "common/*",
         "collection",

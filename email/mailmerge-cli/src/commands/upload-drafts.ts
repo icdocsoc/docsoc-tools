@@ -34,6 +34,11 @@ export default class UploadDrafts extends Command {
             char: "n",
             description: "Only send this many emails (i.e. the first X emails)",
         }),
+        inlineImages: Flags.string({
+            char: "i",
+            description:
+                "Path to a JSON file containing informationa about inline images - see InlineImagesSpec type for format",
+        }),
     };
 
     public async run(): Promise<void> {
@@ -49,6 +54,7 @@ export default class UploadDrafts extends Command {
         await uploadDrafts(storageBackend, ENGINES_MAP, flags.yes, {
             sleepBetween: flags.sleepBetween,
             onlySend: flags.only,
+            inlineImages: flags.inlineImages,
         });
     }
 }

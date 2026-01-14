@@ -15,14 +15,21 @@
     "targets": {
         "build": {
             "executor": "@nx/js:tsc",
-            "outputs": ["{options.outputPath}"],
+            "outputs": [
+                "{options.outputPath}"
+            ],
             "options": {
                 "outputPath": "dist/email/mailmerge",
                 "main": "email/mailmerge/src/index.ts",
                 "tsConfig": "email/mailmerge/tsconfig.lib.json",
-                "assets": ["email/mailmerge/*.md"],
+                "assets": [
+                    "email/mailmerge/*.md"
+                ],
                 "rootDir": "email/mailmerge/src"
-            }
+            },
+            "inputs": [
+                "{projectRoot}/src/**/*.ts"
+            ]
         },
         "nx-release-publish": {
             "options": {

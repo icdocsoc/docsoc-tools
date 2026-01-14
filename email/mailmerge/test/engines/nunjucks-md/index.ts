@@ -155,7 +155,6 @@ describe("NunjucksMarkdownEngine", () => {
         (nunjucks.compile as jest.Mock).mockImplementation(jest.requireActual("nunjucks").compile);
 
         const result = await engine.renderPreview(record);
-        console.log(result);
         expect(result[0].content).toBe("John Doe\nitem1\nitem2\n");
     });
 });
